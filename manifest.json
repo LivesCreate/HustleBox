@@ -1,0 +1,20 @@
+{
+  "name": "HustleBox",
+  "short_name": "HustleBox",
+  "description": "Urban street hustle. Work jobs, earn Stacks, grind your way up. Or gamble it all in the back room.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

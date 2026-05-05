@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "title": "HustleBox v1.0.0 — Welcome to the Block",
+  "date": "2026-05-04",
+  "message": "First version of HustleBox is live. You're Marcus, 19, fresh off the eviction bus with $12 in your pocket. Uncle Ray gave you a shot at his food truck on 5th and Main. Now grind.\n\n• Food Truck mini-game playable — tap ingredients in order to fill orders before the timer runs out\n• Stacks wallet with idle income (your wages tick up while you're working the truck)\n• Reputation system — 0 to 100, affects customer flow and tips\n• Rank progression — Broke → Hustler → Grinder → Player → Boss → Legend\n• Update Log screen (you're reading it)\n• Basic Settings screen — sound, vibration, motion toggles\n• Friend code generated for your account (Friends tab coming in a future update)\n\nMore jobs, the back room arcade, and friends features all on the way.",
+  "entries": [
+    {
+      "version": "1.0.0",
+      "date": "2026-05-04",
+      "title": "Welcome to the Block",
+      "highlights": [
+        "Initial release",
+        "Food Truck job playable",
+        "Stacks wallet + idle income ticker",
+        "Reputation 0–100 system",
+        "Rank progression (Broke → Legend)",
+        "Random events foundation",
+        "Achievement system foundation",
+        "Settings screen",
+        "Friends, Arcade, and additional jobs coming soon"
+      ]
+    }
+  ]
+}
