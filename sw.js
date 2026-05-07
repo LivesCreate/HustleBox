@@ -1,13 +1,15 @@
 // HustleBox Service Worker
 // CACHE_NAME must be bumped on every release (matches VERSION in index.html)
-const CACHE_NAME = 'hustlebox-v1.0.0';
+const CACHE_NAME = 'hustlebox-v1.0.1';
 
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './version.txt',
-  './news.json'
+  './news.json',
+  './icon-512.png',
+  './logo-full.png'
 ];
 
 // Install — pre-cache shell

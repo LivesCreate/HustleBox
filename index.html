@@ -606,7 +606,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.0.0';
+    const VERSION = '1.0.1';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -1121,7 +1121,9 @@
     // ============================================================
     function Sidebar({ tab, onChange }) {
       return e('div', { className: 'sidebar' },
-        e('div', { className: 'brand display-font' }, 'HustleBox'),
+        e('div', { style: { padding: '0 8px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' } },
+          e('img', { src: 'logo-full.png', alt: 'HustleBox', style: { width: '100%', maxWidth: 180, height: 'auto', display: 'block' } })
+        ),
         NAV_TABS.map(t =>
           e('button', {
             key: t.id,
@@ -1618,6 +1620,9 @@
 
         e('div', { style: { marginTop: 24 } },
           e('h2', { className: 'display-font', style: { fontSize: 20, color: 'var(--amber)', margin: '0 0 12px' } }, 'About'),
+          e('div', { style: { display: 'flex', justifyContent: 'center', padding: '8px 0 16px' } },
+            e('img', { src: 'logo-full.png', alt: 'HustleBox', style: { maxWidth: 240, width: '80%', height: 'auto' } })
+          ),
           e('div', { className: 'row' },
             e('div', null,
               e('div', { className: 'row-label' }, 'Version'),
