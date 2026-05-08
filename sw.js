@@ -1,6 +1,6 @@
 // HustleBox Service Worker
 // CACHE_NAME must be bumped on every release (matches VERSION in index.html)
-const CACHE_NAME = 'hustlebox-v1.0.1';
+const CACHE_NAME = 'hustlebox-v1.0.2';
 
 const ASSETS = [
   './',
@@ -9,6 +9,8 @@ const ASSETS = [
   './version.txt',
   './news.json',
   './icon-512.png',
+  './icon-foreground.png',
+  './icon-background.png',
   './logo-full.png'
 ];
 

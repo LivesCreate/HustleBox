@@ -1,9 +1,24 @@
 {
-  "version": "1.0.1",
-  "title": "HustleBox v1.0.1 — Official Branding",
-  "date": "2026-05-06",
-  "message": "The official HustleBox logo is in. Brushstroke wordmark, sun rising over the city skyline. The app icon, splash, and About screen all match now.\n\n• Official HustleBox logo wired into the app\n• Custom sun + skyline app icon (replaces placeholder)\n• Logo appears in the desktop sidebar and About section\n• Cache-clear-on-update logic verified — new logo will appear after one refresh\n\nNo gameplay changes in this version. Next update will start adding more job variety, the back room arcade, and the friends system.",
+  "version": "1.0.2",
+  "title": "HustleBox v1.0.2 — Quality of Life",
+  "date": "2026-05-08",
+  "message": "A pile of polish. The food truck shift now opens with a real \"OPEN\" sign drop and Ray actually says something. There's a chalkboard menu with prices. Ending a shift now plays a proper close-out — Marcus walks home through the empty streets and you see how the night went.\n\n• Theatrical shift opening: day counter, OPEN sign drops in, Ray reacts to your reputation\n• Chalkboard menu board with item names and prices ($2–$7)\n• End-of-shift overlay with a walking-home animation and shift summary\n• Profile redesigned — hero card with rank badges, story that evolves with progress, compact stats grid (no more spreadsheet)\n• Toggles: smoother iOS-style spring animation, white knob with shadow\n• Back buttons added to Settings, News, Achievements, and Profile sub-screens\n• Removed: Reduce Motion setting (nothing in-game uses it), Username field (no longer editable)\n• Account section now shows \"Create Account (Coming Soon)\" instead of \"Cloud Save\"\n\nNo gameplay rebalancing this version. All saves carry forward.",
   "entries": [
+    {
+      "version": "1.0.2",
+      "date": "2026-05-08",
+      "title": "Quality of Life",
+      "highlights": [
+        "Theatrical shift opening — OPEN sign drop, Ray reacts to your rep",
+        "Chalkboard menu board with prices",
+        "End-of-shift overlay with walking-home animation + summary",
+        "Profile redesigned with hero card and evolving story",
+        "Smoother iOS-style toggle animations",
+        "Back buttons in all settings sub-screens",
+        "Removed Reduce Motion and Username fields",
+        "Create Account (Coming Soon) replaces Cloud Save"
+      ]
+    },
     {
       "version": "1.0.1",
       "date": "2026-05-06",
