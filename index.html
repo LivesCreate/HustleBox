@@ -270,126 +270,403 @@
       margin: 0;
     }
 
-    /* Food Truck */
+    /* ================================================
+       FOOD TRUCK — themed work environment
+       Diamond plate, stainless steel, receipts, neon
+    ================================================ */
+
+    /* The whole stage gets a brushed-metal look */
     .ft-stage {
-      background: linear-gradient(180deg, rgba(255, 167, 38, 0.04), transparent 70%), var(--bg-1);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 20px 16px;
-      min-height: 320px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      position: relative;
-      overflow: hidden;
-    }
-    .customer {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .customer-sprite {
-      width: 56px;
-      height: 56px;
-      background: var(--bg-3);
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      flex-shrink: 0;
-    }
-    .speech-bubble {
-      background: var(--bg-2);
+      background:
+        /* subtle warm tint over the whole panel */
+        linear-gradient(180deg, rgba(255, 167, 38, 0.06) 0%, transparent 50%),
+        /* diamond plate texture using SVG data URI */
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='%23ffffff' opacity='0.018'><path d='M0 0 L12 12 L24 0 L12 -12 Z'/><path d='M0 24 L12 36 L24 24 L12 12 Z'/></g></svg>"),
+        linear-gradient(180deg, #1c1c1c 0%, #0f0f0f 100%);
+      background-size: auto, 24px 24px, 100% 100%;
       border: 1px solid var(--line-strong);
       border-radius: 14px;
-      padding: 10px 14px;
-      flex: 1;
+      padding: 16px 14px 14px;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
       position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
     }
-    .speech-bubble::before {
+    /* Rivets in the corners of the metal panel */
+    .ft-stage::before, .ft-stage::after {
       content: '';
       position: absolute;
-      left: -8px;
-      top: 18px;
-      width: 0; height: 0;
-      border-style: solid;
-      border-width: 6px 8px 6px 0;
-      border-color: transparent var(--bg-2) transparent transparent;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #6a6a6a, #2a2a2a);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.15);
     }
-    .speech-bubble .order {
+    .ft-stage::before { top: 8px; left: 8px; }
+    .ft-stage::after { top: 8px; right: 8px; }
+
+    /* Customer + receipt order ticket row */
+    .customer-row {
       display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      font-size: 24px;
+      align-items: flex-start;
+      gap: 10px;
     }
-    .speech-bubble .order .ord-item {
-      transition: opacity 200ms ease, transform 200ms ease;
+    .customer-card {
+      width: 64px;
+      height: 76px;
+      background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 8px 6px 6px;
+      flex-shrink: 0;
+      position: relative;
     }
-    .speech-bubble .order .ord-item.done {
-      opacity: 0.25;
-      transform: scale(0.8);
-    }
-    .timer-bar {
-      height: 6px;
-      background: var(--bg-3);
-      border-radius: 3px;
+    .customer-card .face { font-size: 36px; line-height: 1; }
+    .customer-card .patience-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 2px;
+      margin-top: 6px;
       overflow: hidden;
+    }
+    .customer-card .patience-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--good), var(--gold), var(--bad));
+      transition: width 100ms linear;
+    }
+    .customer-card.impatient { animation: bobImpatient 600ms ease infinite; }
+    @keyframes bobImpatient {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+    }
+
+    /* The order receipt — paper texture, dot-matrix-ish font feel */
+    .order-receipt {
+      flex: 1;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 18px, rgba(0,0,0,0.05) 18px, rgba(0,0,0,0.05) 19px),
+        linear-gradient(180deg, #f5e6c8 0%, #ddc7a0 100%);
+      color: #2a1f15;
+      border-radius: 4px;
+      padding: 10px 12px 14px;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05) inset;
+      font-family: 'Courier New', monospace;
+      transform: rotate(-1.5deg);
+      transform-origin: top left;
+      animation: ticketPrint 500ms cubic-bezier(0.34, 1.2, 0.6, 1);
+    }
+    /* Torn/perforated bottom edge */
+    .order-receipt::after {
+      content: '';
+      position: absolute;
+      bottom: -6px; left: 0; right: 0;
+      height: 8px;
+      background: radial-gradient(circle at 4px 0, transparent 3px, #ddc7a0 3px) 0 0 / 8px 8px;
+    }
+    /* Paper clip */
+    .order-receipt::before {
+      content: '';
+      position: absolute;
+      top: -4px; left: 14px;
+      width: 24px; height: 14px;
+      border: 2px solid #999;
+      border-radius: 4px 4px 0 0;
+      border-bottom: none;
+      box-shadow: 0 2px 2px rgba(0,0,0,0.3);
+      background: linear-gradient(180deg, transparent 50%, rgba(255,255,255,0.2));
+    }
+    @keyframes ticketPrint {
+      0%   { transform: translateY(-30px) rotate(-3deg); opacity: 0; }
+      60%  { transform: translateY(2px) rotate(-1deg); opacity: 1; }
+      100% { transform: translateY(0) rotate(-1.5deg); }
+    }
+    .order-receipt .receipt-header {
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-align: center;
+      padding-bottom: 4px;
+      border-bottom: 1px dashed rgba(42,31,21,0.3);
+      margin-bottom: 6px;
+    }
+    .order-receipt .receipt-items {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .order-receipt .receipt-items .item-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .order-receipt .receipt-items .item-line .item-emoji { font-family: -apple-system, sans-serif; }
+    .order-receipt .receipt-total {
+      margin-top: 6px;
+      padding-top: 4px;
+      border-top: 1px dashed rgba(42,31,21,0.3);
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* Timer bar — now styled like a digital LED bar */
+    .timer-bar {
+      height: 8px;
+      background: #0a0a0a;
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.04);
     }
     .timer-bar-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--good), var(--gold), var(--bad));
       transition: width 100ms linear;
+      box-shadow: 0 0 8px currentColor;
     }
-    .ingredient-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+
+    /* === The build plate (3D perspective) === */
+    .prep-counter {
+      perspective: 800px;
+      perspective-origin: 50% 30%;
+      padding: 6px 0;
     }
-    .ingredient-btn {
-      aspect-ratio: 1 / 1;
-      background: var(--bg-2);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      font-size: 32px;
+    .build-plate {
+      position: relative;
+      transform: rotateX(20deg);
+      transform-style: preserve-3d;
+      background:
+        radial-gradient(ellipse at 50% 30%, #ffffff 0%, #d8d8d8 60%, #888 100%);
+      width: 80%;
+      max-width: 360px;
+      aspect-ratio: 2.4 / 1;
+      margin: 0 auto;
+      border-radius: 50%;
+      box-shadow:
+        0 12px 24px rgba(0,0,0,0.6),
+        0 4px 8px rgba(0,0,0,0.4),
+        inset 0 -4px 8px rgba(0,0,0,0.15),
+        inset 0 4px 8px rgba(255,255,255,0.4);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .build-plate.drag-over {
+      transform: rotateX(20deg) scale(1.04);
+      box-shadow:
+        0 12px 32px rgba(255,167,38,0.4),
+        0 4px 10px rgba(0,0,0,0.4),
+        inset 0 0 0 3px var(--amber);
+    }
+    .build-plate-empty {
+      position: absolute;
+      inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 80ms ease, background 120ms ease;
+      color: #666;
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: 700;
+      text-transform: uppercase;
+      pointer-events: none;
+      transform: rotateX(-20deg);
     }
-    .ingredient-btn:active { transform: scale(0.92); background: var(--bg-3); }
-    .ingredient-btn.shake { animation: shake 280ms ease; }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-6px); }
-      75% { transform: translateX(6px); }
+    .build-plate-items {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 12px;
+      flex-wrap: wrap;
+      transform: rotateX(-20deg);
     }
+    .plate-item {
+      font-size: 30px;
+      line-height: 1;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+      cursor: pointer;
+      animation: plateItemDrop 380ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: transform 120ms ease;
+    }
+    .plate-item:active { transform: scale(0.85); }
+    @keyframes plateItemDrop {
+      0%   { transform: scale(0.4) translateY(-30px); opacity: 0; }
+      60%  { transform: scale(1.15) translateY(2px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); }
+    }
+
+    /* Stainless steel counter line under plate */
+    .counter-line {
+      height: 12px;
+      margin: 4px 0 8px;
+      background:
+        linear-gradient(90deg, transparent, rgba(255,255,255,0.06) 20%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.06) 80%, transparent),
+        linear-gradient(180deg, #555 0%, #2a2a2a 100%);
+      border-top: 1px solid rgba(255,255,255,0.18);
+      border-bottom: 1px solid rgba(0,0,0,0.6);
+      border-radius: 2px;
+      position: relative;
+    }
+    .counter-line::before, .counter-line::after {
+      content: '';
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #777, #1a1a1a);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.15);
+    }
+    .counter-line::before { left: 14px; }
+    .counter-line::after { right: 14px; }
+
+    /* === Ingredient tray (drag source) === */
+    .ingredient-tray {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding: 10px;
+      background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .ingredient-card {
+      aspect-ratio: 1 / 1;
+      background: linear-gradient(180deg, #3a3a3a, #1f1f1f);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      position: relative;
+      transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .ingredient-card:active { cursor: grabbing; transform: scale(0.95); }
+    .ingredient-card.dragging { opacity: 0.35; }
+    .ingredient-card .ic-emoji { font-size: 28px; line-height: 1; }
+    .ingredient-card .ic-price {
+      font-family: 'Permanent Marker', cursive;
+      font-size: 10px;
+      color: var(--gold);
+      letter-spacing: 0.5px;
+    }
+
+    /* The "ghost" element following the pointer when dragging */
+    .drag-ghost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 200;
+      font-size: 36px;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.6));
+      transition: transform 60ms ease;
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    /* Serve button (bell-shaped flair) */
+    .serve-btn {
+      width: 100%;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+      color: #fff5e1;
+      font-family: 'Permanent Marker', cursive;
+      font-size: 18px;
+      letter-spacing: 3px;
+      border: 3px solid #ffeb3b;
+      border-radius: 10px;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.4), 0 0 14px rgba(255,235,59,0.25);
+      transition: transform 100ms ease, box-shadow 100ms ease;
+      text-transform: uppercase;
+    }
+    .serve-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+    }
+    .serve-btn:disabled {
+      opacity: 0.5;
+      background: linear-gradient(135deg, #555 0%, #333 100%);
+      border-color: #444;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+      cursor: not-allowed;
+    }
+    .serve-btn .bell { font-size: 22px; vertical-align: middle; }
+
+    /* Result overlay (better celebration on perfect) */
     .result-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      animation: fadein 200ms ease;
+      animation: fadein 240ms ease;
+      z-index: 5;
     }
     @keyframes fadein {
       from { opacity: 0; }
       to { opacity: 1; }
     }
     .result-label {
-      font-size: 36px;
+      font-size: 38px;
+      animation: resultPop 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .result-label.perfect {
+      filter: drop-shadow(0 0 16px currentColor);
+    }
+    @keyframes resultPop {
+      0%   { transform: scale(0.4); opacity: 0; }
+      60%  { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(1); }
     }
     .result-stacks {
-      font-size: 22px;
+      font-size: 24px;
       color: var(--gold);
       font-weight: 800;
+      animation: stacksRise 700ms ease both;
     }
+    @keyframes stacksRise {
+      0%   { transform: translateY(20px); opacity: 0; }
+      40%  { opacity: 1; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    /* === Bottom nav richer iconography === */
+    .navtab .icon {
+      font-size: 22px;
+      line-height: 1;
+      position: relative;
+      transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .navtab.active .icon { transform: translateY(-2px) scale(1.15); }
+    .navtab .icon-bg {
+      position: absolute;
+      inset: -6px -10px;
+      border-radius: 10px;
+      background: rgba(255,167,38,0.10);
+      opacity: 0;
+      transition: opacity 200ms ease;
+      z-index: -1;
+    }
+    .navtab.active .icon-bg { opacity: 1; }
 
     /* Event card */
     .event-card {
@@ -907,9 +1184,10 @@
 
     /* Desktop refinements */
     @media (min-width: 768px) {
-      .ingredient-grid { grid-template-columns: repeat(8, 1fr); max-width: 720px; }
+      .ingredient-tray { grid-template-columns: repeat(8, 1fr); max-width: 720px; margin: 0 auto; }
       .stats-grid { grid-template-columns: repeat(4, 1fr); }
-      .ft-stage { max-width: 720px; }
+      .ft-stage { max-width: 720px; margin: 0 auto; }
+      .build-plate { max-width: 480px; }
     }
   </style>
 </head>
@@ -932,7 +1210,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.0.2';
+    const VERSION = '1.1.0';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -1436,7 +1714,10 @@
             onClick: () => onChange(t.id),
             'aria-label': t.label
           },
-            e('span', { className: 'icon' }, t.icon),
+            e('span', { className: 'icon' },
+              e('span', { className: 'icon-bg' }),
+              t.icon
+            ),
             e('span', null, t.label),
             t.soon ? e('span', { className: 'badge-soon' }, 'SOON') : null
           )
@@ -1569,31 +1850,35 @@
     function FoodTruckScreen({ state, addStacks, addReputation, recordOrder, toast }) {
       const tier = getRepTier(state.reputation);
 
-      const [order, setOrder] = useState(null);          // current order array
-      const [progress, setProgress] = useState(0);        // index into order
-      const [mistakes, setMistakes] = useState(0);
+      const [order, setOrder] = useState(null);          // current order: array of emojis (with possible repeats)
+      const [plate, setPlate] = useState([]);            // current plate contents
       const [timeLeft, setTimeLeft] = useState(0);
       const [maxTime, setMaxTime] = useState(0);
       const [result, setResult] = useState(null);
-      const [shaking, setShaking] = useState(null);
       const [event, setEvent] = useState(null);
-      const [activeBuffs, setActiveBuffs] = useState({}); // event-driven modifiers
+      const [activeBuffs, setActiveBuffs] = useState({});
       const [customerFace, setCustomerFace] = useState('😀');
       const [shiftActive, setShiftActive] = useState(false);
-      const [shiftEndSummary, setShiftEndSummary] = useState(null); // { served, earned, repDelta }
+      const [shiftEndSummary, setShiftEndSummary] = useState(null);
       const [shiftStartSnapshot, setShiftStartSnapshot] = useState(null);
+      const [draggingItem, setDraggingItem] = useState(null);
+      const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
+      const [overPlate, setOverPlate] = useState(false);
 
       const orderTimerRef = useRef(null);
+      const plateRef = useRef(null);
+
+      // Item lookup helper
+      const itemByEmoji = (emoji) => MENU_ITEMS.find(m => m.emoji === emoji);
 
       const generateOrder = () => {
-        const len = 3 + Math.floor(Math.random() * 3); // 3-5 items
+        const len = 2 + Math.floor(Math.random() * 3); // 2-4 items
         const o = [];
         for (let i = 0; i < len; i++) o.push(INGREDIENTS[Math.floor(Math.random() * INGREDIENTS.length)]);
         return o;
       };
 
       const startNewCustomer = useCallback(() => {
-        // Maybe fire a random event (15% chance, weighted by event type)
         if (!event && Math.random() < 0.15) {
           const eligible = EVENTS.filter(ev =>
             (ev.jobs.includes('food_truck') || ev.jobs.includes('*')) &&
@@ -1602,23 +1887,22 @@
           if (eligible.length) {
             const picked = eligible[Math.floor(Math.random() * eligible.length)];
             setEvent(picked);
-            return; // event blocks customer until resolved
+            return;
           }
         }
 
         const newOrder = generateOrder();
-        const baseTime = 8 + (newOrder.length - 3) * 2;
+        // More time per item since now you have to assemble (not just tap)
+        const baseTime = 12 + (newOrder.length - 2) * 3;
         const time = baseTime + (activeBuffs.timerPenalty || 0);
         setOrder(newOrder);
-        setProgress(0);
-        setMistakes(0);
+        setPlate([]);
         setTimeLeft(time);
         setMaxTime(time);
         setCustomerFace(CUSTOMER_FACES[Math.floor(Math.random() * CUSTOMER_FACES.length)]);
         setResult(null);
       }, [event, activeBuffs, state.eventLog]);
 
-      // Start shift
       const startShift = () => {
         setShiftStartSnapshot({
           customers: state.customersServed,
@@ -1632,10 +1916,10 @@
       const endShift = () => {
         setShiftActive(false);
         setOrder(null);
+        setPlate([]);
         setResult(null);
         setEvent(null);
         if (orderTimerRef.current) clearInterval(orderTimerRef.current);
-        // Build summary from snapshot vs current
         if (shiftStartSnapshot) {
           const served = state.customersServed - shiftStartSnapshot.customers;
           const earned = Math.floor(state.totalEarned - shiftStartSnapshot.earned);
@@ -1648,13 +1932,11 @@
 
       const dismissShiftEnd = () => setShiftEndSummary(null);
 
-      // Scroll-lock during active gameplay only (per delivery rules)
       useEffect(() => {
         document.body.classList.toggle('scroll-locked', shiftActive && !!order);
         return () => document.body.classList.remove('scroll-locked');
       }, [shiftActive, order]);
 
-      // Timer
       useEffect(() => {
         if (!order || result) return;
         orderTimerRef.current = setInterval(() => {
@@ -1669,7 +1951,6 @@
         return () => clearInterval(orderTimerRef.current);
       }, [order, result]);
 
-      // Auto-fail on timeout
       useEffect(() => {
         if (order && timeLeft <= 0 && !result) {
           finishOrder('failed');
@@ -1687,33 +1968,94 @@
         vibrate(state, resultKey === 'perfect' ? [40, 40, 80] : resultKey === 'failed' ? [200] : [60]);
         setTimeout(() => {
           if (shiftActive) startNewCustomer();
-        }, 1600);
+        }, 1800);
       };
 
-      const handleIngredientTap = (ing) => {
-        if (!order || result) return;
-        const expected = order[progress];
-        if (ing === expected) {
-          const newProgress = progress + 1;
-          setProgress(newProgress);
-          if (newProgress >= order.length) {
-            // Order complete
-            const fractionLeft = timeLeft / maxTime;
-            let resultKey;
-            if (mistakes === 0 && fractionLeft >= 0.5) resultKey = 'perfect';
-            else if (mistakes === 0 && fractionLeft >= 0.25) resultKey = 'good';
-            else if (mistakes <= 1) resultKey = 'okay';
-            else resultKey = 'bad';
-            finishOrder(resultKey);
-          }
-        } else {
-          // Wrong tap
-          setMistakes(m => m + 1);
-          setShaking(ing);
-          vibrate(state, [50]);
-          setTimeout(() => setShaking(null), 280);
+      // ============= ORDER MATCHING =============
+      // Compare plate contents (multiset) to order requirements (multiset)
+      const matchOrder = (plateArr, orderArr) => {
+        const orderCount = {};
+        const plateCount = {};
+        for (const o of orderArr) orderCount[o] = (orderCount[o] || 0) + 1;
+        for (const p of plateArr) plateCount[p] = (plateCount[p] || 0) + 1;
+        let missing = 0, extra = 0;
+        const allKeys = new Set([...Object.keys(orderCount), ...Object.keys(plateCount)]);
+        for (const k of allKeys) {
+          const need = orderCount[k] || 0;
+          const have = plateCount[k] || 0;
+          if (have < need) missing += (need - have);
+          else if (have > need) extra += (have - need);
         }
+        return { exact: missing === 0 && extra === 0, missing, extra };
       };
+
+      const handleServe = () => {
+        if (!order || result || plate.length === 0) return;
+        const match = matchOrder(plate, order);
+        const fractionLeft = timeLeft / maxTime;
+        let resultKey;
+        if (match.exact && fractionLeft >= 0.5) resultKey = 'perfect';
+        else if (match.exact && fractionLeft >= 0.25) resultKey = 'good';
+        else if (match.exact) resultKey = 'okay';
+        else if ((match.missing + match.extra) <= 1) resultKey = 'bad';
+        else resultKey = 'failed';
+        finishOrder(resultKey);
+      };
+
+      // Plate item removal — tap to remove (in case of mistake)
+      const removeFromPlate = (idx) => {
+        if (result) return;
+        setPlate(p => p.filter((_, i) => i !== idx));
+      };
+
+      // ============= DRAG-AND-DROP =============
+      const handleStartDrag = (item, e) => {
+        if (result || !order) return;
+        e.preventDefault();
+        const point = e.touches && e.touches[0] ? e.touches[0] : e;
+        setDraggingItem(item);
+        setDragPos({ x: point.clientX, y: point.clientY });
+      };
+
+      // Global pointer tracking while dragging
+      useEffect(() => {
+        if (!draggingItem) return;
+
+        const move = (ev) => {
+          const point = ev.touches && ev.touches[0] ? ev.touches[0] : ev;
+          const x = point.clientX, y = point.clientY;
+          if (x !== undefined && y !== undefined) {
+            setDragPos({ x, y });
+            const rect = plateRef.current && plateRef.current.getBoundingClientRect();
+            if (rect) {
+              setOverPlate(x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom);
+            }
+          }
+        };
+
+        const up = (ev) => {
+          const point = ev.changedTouches && ev.changedTouches[0]
+            ? ev.changedTouches[0]
+            : ev;
+          const x = point.clientX, y = point.clientY;
+          const rect = plateRef.current && plateRef.current.getBoundingClientRect();
+          if (rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+            setPlate(p => [...p, draggingItem]);
+            vibrate(state, [30]);
+          }
+          setDraggingItem(null);
+          setOverPlate(false);
+        };
+
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', up);
+        window.addEventListener('pointercancel', up);
+        return () => {
+          window.removeEventListener('pointermove', move);
+          window.removeEventListener('pointerup', up);
+          window.removeEventListener('pointercancel', up);
+        };
+      }, [draggingItem]);
 
       const resolveEvent = (option) => {
         if (!event) return;
@@ -1847,10 +2189,22 @@
         );
       }
 
+      // Compute order summary for the receipt
+      const orderSummary = order ? (() => {
+        const counts = {};
+        for (const o of order) counts[o] = (counts[o] || 0) + 1;
+        const lines = Object.entries(counts).map(([emoji, count]) => {
+          const item = itemByEmoji(emoji);
+          return { emoji, count, name: item ? item.name : '???', subtotal: count * (item ? item.price : 0) };
+        });
+        const total = lines.reduce((sum, l) => sum + l.subtotal, 0);
+        return { lines, total };
+      })() : null;
+
       // Active shift
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
-          e('h1', { className: 'screen-title display-font', style: { fontSize: 24 } }, 'Working...'),
+          e('h1', { className: 'screen-title display-font', style: { fontSize: 24 } }, 'On Shift'),
           e('button', { className: 'btn btn-ghost', style: { padding: '8px 14px', fontSize: 13 }, onClick: endShift }, 'End Shift')
         ),
 
@@ -1876,41 +2230,106 @@
               }, 'OK')
         ) : null,
 
-        // Customer + order
-        order ? e('div', { className: 'ft-stage' },
-          e('div', { className: 'customer' },
-            e('div', { className: 'customer-sprite' }, customerFace),
-            e('div', { className: 'speech-bubble' },
-              e('div', { style: { fontSize: 12, color: 'var(--text-faint)', marginBottom: 6 } }, 'Order:'),
-              e('div', { className: 'order' },
-                order.map((it, i) =>
-                  e('span', { key: i, className: 'ord-item' + (i < progress ? ' done' : '') }, it)
+        // The food truck stage
+        order && orderSummary ? e('div', { className: 'ft-stage' },
+          // Customer + receipt ticket row
+          e('div', { className: 'customer-row' },
+            e('div', { className: 'customer-card' + (timeLeft / maxTime < 0.3 ? ' impatient' : '') },
+              e('div', { className: 'face' }, customerFace),
+              e('div', { className: 'patience-bar' },
+                e('div', { className: 'patience-bar-fill', style: { width: (timeLeft / maxTime * 100) + '%' } })
+              )
+            ),
+            e('div', { className: 'order-receipt' },
+              e('div', { className: 'receipt-header' }, "★ RAY'S ★ ORDER ★"),
+              e('div', { className: 'receipt-items' },
+                orderSummary.lines.map((l, i) =>
+                  e('div', { className: 'item-line', key: i },
+                    e('span', null,
+                      e('span', { className: 'item-emoji' }, l.emoji), ' × ', l.count, ' ', l.name
+                    ),
+                    e('span', null, '$' + l.subtotal)
+                  )
                 )
+              ),
+              e('div', { className: 'receipt-total' },
+                e('span', null, 'TOTAL'),
+                e('span', null, '$' + orderSummary.total)
               )
             )
           ),
+
+          // Timer bar
           e('div', { className: 'timer-bar' },
             e('div', { className: 'timer-bar-fill', style: { width: (timeLeft / maxTime * 100) + '%' } })
           ),
-          e('div', { className: 'ingredient-grid' },
-            INGREDIENTS.map(ing =>
-              e('button', {
-                key: ing,
-                className: 'ingredient-btn' + (shaking === ing ? ' shake' : ''),
-                onClick: () => handleIngredientTap(ing)
-              }, ing)
+
+          // Stainless counter line above plate (visual separator)
+          e('div', { className: 'counter-line' }),
+
+          // Build plate (the 3D perspective area)
+          e('div', { className: 'prep-counter' },
+            e('div', {
+              ref: plateRef,
+              className: 'build-plate' + (overPlate ? ' drag-over' : '')
+            },
+              plate.length === 0
+                ? e('div', { className: 'build-plate-empty' }, 'DRAG TO PLATE')
+                : e('div', { className: 'build-plate-items' },
+                    plate.map((item, idx) =>
+                      e('span', {
+                        key: idx + '_' + item,
+                        className: 'plate-item',
+                        onClick: () => removeFromPlate(idx),
+                        title: 'Tap to remove'
+                      }, item)
+                    )
+                  )
             )
           ),
 
+          // Ingredient tray (drag source)
+          e('div', { className: 'ingredient-tray' },
+            MENU_ITEMS.map(item =>
+              e('div', {
+                key: item.emoji,
+                className: 'ingredient-card' + (draggingItem === item.emoji ? ' dragging' : ''),
+                onPointerDown: (ev) => handleStartDrag(item.emoji, ev),
+                onTouchStart: (ev) => handleStartDrag(item.emoji, ev)
+              },
+                e('div', { className: 'ic-emoji' }, item.emoji),
+                e('div', { className: 'ic-price' }, '$' + item.price)
+              )
+            )
+          ),
+
+          // Serve button (lit up when plate has items)
+          e('button', {
+            className: 'serve-btn',
+            disabled: plate.length === 0 || !!result,
+            onClick: handleServe
+          },
+            e('span', { className: 'bell' }, '🔔 '), 'SERVE'
+          ),
+
+          // Result overlay
           result ? e('div', { className: 'result-overlay' },
-            e('div', { className: 'result-label display-font', style: { color: RESULT_TYPES[result.key].color } },
-              RESULT_TYPES[result.key].label),
-            e('div', { style: { fontSize: 32 } }, RESULT_TYPES[result.key].emoji),
+            e('div', {
+              className: 'result-label display-font' + (result.key === 'perfect' ? ' perfect' : ''),
+              style: { color: RESULT_TYPES[result.key].color }
+            }, RESULT_TYPES[result.key].label),
+            e('div', { style: { fontSize: 36 } }, RESULT_TYPES[result.key].emoji),
             result.stacks > 0
               ? e('div', { className: 'result-stacks' }, '+' + result.stacks + ' Stacks')
               : e('div', { style: { color: 'var(--bad)', fontWeight: 700 } }, 'No tip.')
           ) : null
         ) : null,
+
+        // Drag ghost (the floating element that follows the pointer)
+        draggingItem ? e('div', {
+          className: 'drag-ghost',
+          style: { left: dragPos.x + 'px', top: dragPos.y + 'px' }
+        }, draggingItem) : null,
 
         // Active buffs indicator
         Object.keys(activeBuffs).length > 0
