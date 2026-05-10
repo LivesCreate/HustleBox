@@ -1,9 +1,38 @@
 {
-  "version": "1.1.0",
-  "title": "HustleBox v1.1.0 — Cook Like You Mean It",
-  "date": "2026-05-08",
-  "message": "The food truck just got a real kitchen. No more tap-the-emojis-in-order — now you DRAG ingredients onto a plate, build the order the customer asked for, and slap the bell when it's ready.\n\nNEW GAMEPLAY:\n• Drag-and-drop ingredient assembly. Pull each item from the tray and drop it on the plate.\n• Tap any item on the plate to remove it if you grabbed wrong.\n• The order is now an actual receipt with line items, prices, and a total.\n• Hit the SERVE bell when the plate matches the order.\n• Plate matching is forgiving — wrong items lower your tip, missing items fail the order.\n\nNEW LOOK:\n• The whole shift screen got redressed as a real food truck kitchen — diamond plate aluminum, stainless counter strip with rivets, customer card with patience bar, paper-textured order receipt that prints in with a paper-clip animation, build plate sitting on the counter at a 3D angle.\n• Ingredient tray with proper draggable ingredient cards, each showing the price.\n• Big red-and-yellow SERVE bell button.\n• Bottom nav icons now have a soft amber halo when the tab is active.\n\nGAMEPLAY TWEAKS:\n• Orders are now 2–4 items (was 3–5) — cleaner, more focused.\n• Timer is more generous since assembly takes longer than tapping.\n• Customer card visibly bobs when patience drops below 30%.\n\nNo save data wiped. All your Stacks, rep, and rank carry over.",
+  "version": "1.1.2",
+  "title": "HustleBox v1.1.2 — Marcus Has a Face Now",
+  "date": "2026-05-09",
+  "message": "Big update. Real Marcus, real story, real cinematics, real bugs squashed.\n\nMARCUS HAS A FACE\n• The 🧢 emoji is gone. Marcus is now a hand-drawn SVG character — head, hair, eyes, mouth, baseball cap with a tiny amber HustleBox brand dot, orange hoodie. He shows up in the top bar avatar and on the Profile hero card.\n\nDYNAMIC PROFILE STORY\n• 'The Story So Far' on Profile now branches on FOUR dimensions instead of one: money tier × reputation × skill rate × experience.\n• High rep gets a 'word on the block is good' line. Low rep gets 'block doesn't trust you.'\n• High perfect-order rate gets 'Ray noticed: you got a touch.' Bad streak gets 'Ray says you need to focus.'\n• 50+ customers unlocks 'You know the rhythm.' 200+ unlocks 'feels like home.'\n\nEXTENDED END-OF-SHIFT CINEMATIC\n• Ending a shift now plays a multi-stage sequence:\n  1. Truck idling at the curb (engine rumble audio)\n  2. Truck drives off down the block\n  3. Goodbye dialogue between Ray and Marcus\n  4. Marcus walks home (footsteps audio)\n  5. House at night with floating Z's (snore audio)\n  6. Final summary card with stats and 'Get Some Sleep' button\n• All audio is synthesized with Web Audio API — no asset files. Respects the Sound setting.\n• Hit 'Skip ›' if you don't want the cinematic.\n\nVISUAL THEME — SIDE MENUS GET MESSY FOOD-TRUCK LOOK\n• Update Log: every version is now a paper receipt with dotted leader lines, perforated edges, and Courier text. The whole thing wraps in a chalkboard-framed panel.\n• Friends, Arcade, and Achievements: same chalkboard panel treatment. Brushed wood frame, brass rivet corners, chalk-style title text.\n• Main game (Home, Work, Profile) keeps the brushstroke/AMOLED aesthetic — split is intentional.\n\nBUG FIXES\n• Fixed: random events could repeat back-to-back (eventLog was being read but never written).\n• Fixed: 'DAY N' counter was stuck at DAY 1 forever (jobsCompleted never incremented).\n• Fixed: ending a shift while a result was showing could trigger a phantom new customer (dangling setTimeout closure).\n\nNo save data wiped. Settings, Stacks, rep, all carry over.",
   "entries": [
+    {
+      "version": "1.1.2",
+      "date": "2026-05-09",
+      "title": "Marcus Has a Face Now",
+      "highlights": [
+        "Marcus is a hand-drawn SVG character — replaces the 🧢 emoji",
+        "Profile story branches on rep × skill × experience × money (was money only)",
+        "Extended end-of-shift cinematic: truck → drive-off → goodbye → walk home → sleep",
+        "Engine rumble, footsteps, door close, snore — all synthesized with Web Audio API",
+        "'Skip ›' button to bypass the cinematic",
+        "Update Log redressed as paper receipts inside a chalkboard frame",
+        "Friends/Arcade/Achievements get chalkboard frame treatment",
+        "Fixed: random events repeating back-to-back",
+        "Fixed: DAY counter stuck at DAY 1",
+        "Fixed: phantom customer firing after end shift"
+      ]
+    },
+    {
+      "version": "1.1.1",
+      "date": "2026-05-08",
+      "title": "Hotfix",
+      "highlights": [
+        "Fixed mouse-wheel scroll being eaten by the sidebar on desktop",
+        "OPEN sign now starts the shift when clicked",
+        "Sidebar logo made smaller and more subtle",
+        "Removed wasted bottom padding on desktop",
+        "Defensive z-index on all buttons"
+      ]
+    },
     {
       "version": "1.1.0",
       "date": "2026-05-08",

@@ -119,6 +119,8 @@
       font-weight: 600;
       transition: transform 80ms ease, background 120ms ease, border-color 120ms ease;
       min-height: 44px;
+      position: relative;
+      z-index: 1;
     }
     .btn:active { transform: scale(0.97); }
     .btn-primary {
@@ -214,18 +216,36 @@
       width: 220px;
       background: var(--bg-1);
       border-right: 1px solid var(--line);
-      padding: 24px 16px;
-      padding-top: calc(24px + var(--sat));
-      padding-left: max(16px, var(--sal));
+      padding: 20px 14px;
+      padding-top: calc(20px + var(--sat));
+      padding-left: max(14px, var(--sal));
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
       z-index: 30;
+      /* Allow mouse wheel to scroll the document when hovering the sidebar */
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .sidebar::-webkit-scrollbar { width: 0; }
+    .sidebar-logo-wrap {
+      padding: 0 6px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .sidebar-logo-wrap img {
+      width: 100%;
+      max-width: 130px;
+      height: auto;
+      opacity: 0.92;
+      display: block;
     }
     .sidebar .brand {
-      font-size: 28px;
+      font-size: 22px;
       color: var(--amber);
-      margin-bottom: 24px;
+      margin-bottom: 18px;
       padding: 0 8px;
     }
     .sidebar-tab {
@@ -996,6 +1016,231 @@
       color: var(--amber);
       margin-top: 2px;
     }
+    /* ===== Multi-stage end-of-shift sequence ===== */
+    .end-stage {
+      min-height: 130px;
+      position: relative;
+      overflow: hidden;
+      margin: 12px 0;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #0d0d12 0%, #050505 100%);
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Stars in the night sky */
+    .end-stage::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 20% 25%, #ffd54f 100%, transparent),
+        radial-gradient(1px 1px at 40% 15%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 70% 30%, #ffeb99 100%, transparent),
+        radial-gradient(1px 1px at 85% 18%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 55% 22%, #ffd54f 100%, transparent),
+        radial-gradient(1px 1px at 12% 12%, #fff 100%, transparent);
+      opacity: 0.6;
+    }
+
+    /* Truck graphic — simple boxy shape */
+    .truck {
+      position: absolute;
+      bottom: 14px;
+      width: 80px;
+      height: 50px;
+      transform-origin: center;
+    }
+    .truck-body {
+      position: absolute;
+      left: 0;
+      bottom: 8px;
+      width: 56px;
+      height: 32px;
+      background: linear-gradient(180deg, #ff8a3c 0%, #d96a2c 100%);
+      border: 2px solid #2a1208;
+      border-radius: 4px 4px 2px 2px;
+    }
+    .truck-cab {
+      position: absolute;
+      left: 50px;
+      bottom: 8px;
+      width: 22px;
+      height: 22px;
+      background: linear-gradient(180deg, #444 0%, #222 100%);
+      border: 2px solid #2a1208;
+      border-radius: 4px 6px 2px 2px;
+    }
+    .truck-window {
+      position: absolute;
+      left: 54px;
+      bottom: 17px;
+      width: 12px;
+      height: 8px;
+      background: #ffe082;
+      border-radius: 1px;
+      opacity: 0.85;
+    }
+    .truck-wheel {
+      position: absolute;
+      bottom: 0;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #444 35%, #1a1a1a 70%);
+      border: 2px solid #000;
+    }
+    .truck-wheel.left { left: 8px; }
+    .truck-wheel.right { left: 50px; }
+    /* Engine smoke puff */
+    .truck-smoke {
+      position: absolute;
+      left: -8px;
+      bottom: 28px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(180,180,180,0.4);
+      animation: smokePuff 1.4s ease-out infinite;
+    }
+    @keyframes smokePuff {
+      0%   { transform: translate(0, 0) scale(0.6); opacity: 0.7; }
+      100% { transform: translate(-20px, -20px) scale(1.6); opacity: 0; }
+    }
+
+    /* Stage 1: truck idling at the curb (centered) */
+    .truck.stage-idle { left: 50%; transform: translateX(-50%); }
+    /* Stage 2: truck drives off to the right */
+    .truck.stage-drive {
+      left: 50%;
+      animation: truckDrive 2.4s cubic-bezier(0.5, 0, 0.85, 0.4) forwards;
+    }
+    @keyframes truckDrive {
+      0%   { transform: translateX(-50%); }
+      100% { transform: translateX(140%); }
+    }
+
+    /* Walking Marcus */
+    .walking-figure {
+      position: absolute;
+      bottom: 10px;
+      width: 28px;
+      height: 60px;
+      animation: walkBob 0.55s ease-in-out infinite;
+    }
+    .walking-figure.stage-walk-right {
+      left: 0;
+      animation: walkBob 0.55s ease-in-out infinite, walkAcrossRight 5s linear forwards;
+    }
+    .walking-figure.stage-walk-left {
+      right: 0;
+      animation: walkBob 0.55s ease-in-out infinite, walkAcrossLeft 5s linear forwards;
+    }
+    @keyframes walkBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    @keyframes walkAcrossRight {
+      0%   { left: -8%; }
+      100% { left: 100%; }
+    }
+    @keyframes walkAcrossLeft {
+      0%   { right: -8%; }
+      100% { right: 100%; }
+    }
+
+    /* House (sleep stage) */
+    .house {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 80px;
+    }
+    .house-body {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 90px;
+      height: 50px;
+      background: linear-gradient(180deg, #4a3a28 0%, #2a2018 100%);
+      border: 2px solid #1a1208;
+      border-radius: 2px;
+    }
+    .house-roof {
+      position: absolute;
+      top: 0;
+      left: -6px;
+      width: 0; height: 0;
+      border-left: 51px solid transparent;
+      border-right: 51px solid transparent;
+      border-bottom: 35px solid #5a2010;
+    }
+    .house-window {
+      position: absolute;
+      bottom: 16px;
+      left: 30px;
+      width: 30px;
+      height: 22px;
+      background: #ffd54f;
+      border: 2px solid #1a1208;
+      box-shadow: inset 0 0 8px rgba(255,167,38,0.5);
+      animation: windowFlicker 4s ease-in-out infinite;
+    }
+    @keyframes windowFlicker {
+      0%, 100% { background: #ffd54f; }
+      50% { background: #ffb74d; }
+    }
+    .zzz {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      font-family: 'Permanent Marker', cursive;
+      color: var(--text-dim);
+      font-size: 18px;
+      animation: zzzFloat 2.4s ease-in-out infinite;
+    }
+    @keyframes zzzFloat {
+      0%   { transform: translate(0, 0); opacity: 0; }
+      30%  { opacity: 1; }
+      100% { transform: translate(8px, -16px); opacity: 0; }
+    }
+
+    /* Stage caption */
+    .end-caption {
+      position: absolute;
+      bottom: 8px;
+      left: 0; right: 0;
+      text-align: center;
+      font-family: 'Permanent Marker', cursive;
+      color: var(--amber);
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(0,0,0,0.8);
+      pointer-events: none;
+      animation: captionFade 600ms ease;
+    }
+    @keyframes captionFade {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .end-dialogue {
+      background: rgba(255,167,38,0.05);
+      border: 1px dashed rgba(255,167,38,0.25);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: 8px 0;
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1.5;
+      font-style: italic;
+      animation: captionFade 500ms ease;
+    }
+    .end-dialogue strong { color: var(--amber); font-style: normal; }
+
+    /* Old walk-home animation (kept as fallback) */
     .walk-home-wrap {
       position: relative;
       height: 56px;
@@ -1013,6 +1258,101 @@
       48%  { left: 48%;  transform: scaleX(-1) translateY(-2px); }
       50%  { left: 50%;  transform: scaleX(-1) translateY(0); }
       100% { left: 110%; transform: scaleX(-1) translateY(-2px); }
+    }
+
+    /* Receipt-style update log entries (used in Update Log) */
+    .receipt-card {
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 22px, rgba(0,0,0,0.05) 22px, rgba(0,0,0,0.05) 23px),
+        linear-gradient(180deg, #f5e6c8 0%, #e8d5ad 100%);
+      color: #2a1f15;
+      border-radius: 4px;
+      padding: 14px 16px 18px;
+      margin-bottom: 14px;
+      font-family: 'Courier New', monospace;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      position: relative;
+      transform: rotate(-0.5deg);
+    }
+    .receipt-card:nth-child(odd) { transform: rotate(0.5deg); }
+    .receipt-card::after {
+      content: '';
+      position: absolute;
+      bottom: -6px; left: 0; right: 0;
+      height: 8px;
+      background: radial-gradient(circle at 4px 0, transparent 3px, #e8d5ad 3px) 0 0 / 8px 8px;
+    }
+    .receipt-header-line {
+      text-align: center;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 3px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed rgba(42,31,21,0.3);
+      margin-bottom: 8px;
+    }
+    .receipt-version {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .receipt-title {
+      font-size: 14px;
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+    .receipt-list {
+      font-size: 12px;
+      line-height: 1.6;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .receipt-list li::before {
+      content: '* ';
+      font-weight: 700;
+    }
+    .receipt-date {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(42,31,21,0.3);
+      text-align: right;
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+
+    /* Chalkboard frame for "side menus" — Settings, Friends, Arcade, Achievements, Update Log */
+    .side-menu-frame {
+      background:
+        radial-gradient(ellipse at center, rgba(50,40,30,0.18) 0%, transparent 70%),
+        linear-gradient(180deg, #1a1410 0%, #0d0805 100%);
+      border: 4px solid #4a3a28;
+      border-radius: 10px;
+      padding: 14px 14px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .side-menu-frame::before, .side-menu-frame::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      width: 16px; height: 16px;
+      background: radial-gradient(circle, #5a4a3a 0%, #2a2018 70%);
+      border-radius: 50%;
+      box-shadow: 0 -1px 2px rgba(0,0,0,0.6);
+    }
+    .side-menu-frame::before { left: 26px; }
+    .side-menu-frame::after { right: 26px; }
+    .side-menu-frame .smf-title {
+      font-family: 'Permanent Marker', cursive;
+      color: #ffe082;
+      font-size: 24px;
+      text-align: center;
+      letter-spacing: 3px;
+      margin: 0 0 12px;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
     }
 
     /* Theatrical shift-opening intro */
@@ -1064,6 +1404,12 @@
       transform-origin: top center;
       animation: openSign 900ms cubic-bezier(0.34, 1.56, 0.64, 1);
       box-shadow: 0 4px 0 rgba(0,0,0,0.4), 0 0 14px rgba(255,235,59,0.3);
+      cursor: pointer;
+      transition: transform 100ms ease, box-shadow 100ms ease;
+    }
+    .open-sign:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 rgba(0,0,0,0.4), 0 0 14px rgba(255,235,59,0.3);
     }
     @keyframes openSign {
       0%   { transform: translateY(-100px) rotate(8deg); opacity: 0; }
@@ -1188,6 +1534,8 @@
       .stats-grid { grid-template-columns: repeat(4, 1fr); }
       .ft-stage { max-width: 720px; margin: 0 auto; }
       .build-plate { max-width: 480px; }
+      /* On desktop there's no bottom nav — kill the wasted padding */
+      .main.has-bottomnav { padding-bottom: 32px; }
     }
   </style>
 </head>
@@ -1210,7 +1558,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.1.0';
+    const VERSION = '1.1.2';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -1562,6 +1910,405 @@
     }
 
     // ============================================================
+    // Marcus avatar — hand-drawn SVG character
+    // Replaces the 🧢 emoji with an actual face: skin, eyes, mouth,
+    // cap with brand-amber dot, orange shirt, illustrated outline style.
+    // ============================================================
+    const MARCUS_SVG = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%">' +
+      // Shirt/shoulders (orange hoodie)
+      '<path d="M 8 100 Q 10 78 28 73 L 72 73 Q 90 78 92 100 Z" fill="#d96a2c" stroke="#2a1208" stroke-width="2.5" stroke-linejoin="round"/>' +
+      // Shirt collar V
+      '<path d="M 36 73 Q 50 84 64 73" stroke="#2a1208" stroke-width="2" fill="none" stroke-linejoin="round"/>' +
+      // Neck
+      '<path d="M 42 67 L 42 78 L 58 78 L 58 67" fill="#d4a37c" stroke="#2a1208" stroke-width="2" stroke-linejoin="round"/>' +
+      // Head
+      '<path d="M 30 48 Q 30 28 50 26 Q 70 28 70 48 Q 70 66 60 72 Q 50 76 40 72 Q 30 66 30 48 Z" fill="#e8b894" stroke="#2a1208" stroke-width="2.5" stroke-linejoin="round"/>' +
+      // Hair tufts under cap (left + right)
+      '<path d="M 30 44 Q 30 36 33 35 L 33 48 Z" fill="#2a1808"/>' +
+      '<path d="M 70 44 Q 70 36 67 35 L 67 48 Z" fill="#2a1808"/>' +
+      // Cap crown
+      '<path d="M 28 42 Q 28 20 50 18 Q 72 20 72 42 Z" fill="#1a1208" stroke="#000" stroke-width="2" stroke-linejoin="round"/>' +
+      // Cap brim (curves forward)
+      '<path d="M 30 42 Q 50 44 86 36 Q 84 43 80 45 Q 50 50 28 45 Z" fill="#0a0805" stroke="#000" stroke-width="2" stroke-linejoin="round"/>' +
+      // Cap amber dot (HustleBox brand mark)
+      '<circle cx="50" cy="30" r="2.5" fill="#ffa726"/>' +
+      // Eyes
+      '<ellipse cx="42" cy="53" rx="2" ry="2.5" fill="#1a1208"/>' +
+      '<ellipse cx="58" cy="53" rx="2" ry="2.5" fill="#1a1208"/>' +
+      // Eye highlights (tiny life dots)
+      '<circle cx="42.4" cy="52.3" r="0.5" fill="#ffffff"/>' +
+      '<circle cx="58.4" cy="52.3" r="0.5" fill="#ffffff"/>' +
+      // Subtle nose
+      '<path d="M 49 57 Q 49 61 50 62 Q 51 61 51 57" stroke="#b88565" stroke-width="0.8" fill="none" stroke-linecap="round"/>' +
+      // Mouth (slight upturn — neutral-determined)
+      '<path d="M 44 65 Q 50 68 56 65" stroke="#1a1208" stroke-width="1.6" fill="none" stroke-linecap="round"/>' +
+      // Cheek blush hint
+      '<ellipse cx="37" cy="60" rx="3" ry="2" fill="#d99580" opacity="0.4"/>' +
+      '<ellipse cx="63" cy="60" rx="3" ry="2" fill="#d99580" opacity="0.4"/>' +
+    '</svg>';
+
+    function MarcusAvatar({ size }) {
+      const px = (size || 60) + 'px';
+      return e('div', {
+        style: { width: px, height: px, display: 'inline-block', flexShrink: 0 },
+        dangerouslySetInnerHTML: { __html: MARCUS_SVG }
+      });
+    }
+
+    // ============================================================
+    // AudioFX — synthesized sound effects via Web Audio API
+    // No asset files; all generated programmatically.
+    // Respects state.settings.sound.
+    // ============================================================
+    const AudioFX = (function () {
+      let ctx = null;
+      function getCtx() {
+        if (!ctx) {
+          try {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (Ctx) ctx = new Ctx();
+          } catch (e) { ctx = null; }
+        }
+        if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+        return ctx;
+      }
+
+      // Truck engine rumble — low oscillator + filtered noise, 5s with envelope
+      function engineRumble(soundOn) {
+        if (!soundOn) return;
+        const c = getCtx();
+        if (!c) return;
+        const t0 = c.currentTime;
+
+        // Low sawtooth oscillator for the diesel rumble
+        const osc = c.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(40, t0);
+        osc.frequency.exponentialRampToValueAtTime(85, t0 + 0.8);
+        osc.frequency.linearRampToValueAtTime(70, t0 + 4);
+
+        // White noise for engine grit
+        const bufSize = c.sampleRate * 5;
+        const noiseBuf = c.createBuffer(1, bufSize, c.sampleRate);
+        const data = noiseBuf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+        const noise = c.createBufferSource();
+        noise.buffer = noiseBuf;
+
+        // Low-pass filter
+        const filter = c.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(220, t0);
+        filter.Q.value = 0.8;
+
+        // Envelope
+        const gain = c.createGain();
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(0.22, t0 + 0.6);
+        gain.gain.linearRampToValueAtTime(0.16, t0 + 3.5);
+        gain.gain.linearRampToValueAtTime(0, t0 + 5);
+
+        osc.connect(filter);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(c.destination);
+
+        osc.start(t0);
+        noise.start(t0);
+        osc.stop(t0 + 5);
+        noise.stop(t0 + 5);
+      }
+
+      // Door close — short percussive thud
+      function doorClose(soundOn) {
+        if (!soundOn) return;
+        const c = getCtx();
+        if (!c) return;
+        const t0 = c.currentTime;
+
+        const bufSize = c.sampleRate * 0.15;
+        const buf = c.createBuffer(1, bufSize, c.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.3));
+        const src = c.createBufferSource();
+        src.buffer = buf;
+
+        const filter = c.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 180;
+
+        const gain = c.createGain();
+        gain.gain.setValueAtTime(0.55, t0);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.15);
+
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(c.destination);
+        src.start(t0);
+      }
+
+      // Footsteps — 4 quick filtered noise bursts
+      function footsteps(soundOn) {
+        if (!soundOn) return;
+        const c = getCtx();
+        if (!c) return;
+        for (let step = 0; step < 4; step++) {
+          const t0 = c.currentTime + step * 0.45;
+          const bufSize = c.sampleRate * 0.08;
+          const buf = c.createBuffer(1, bufSize, c.sampleRate);
+          const data = buf.getChannelData(0);
+          for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.2));
+          const src = c.createBufferSource();
+          src.buffer = buf;
+          const filter = c.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.value = 350;
+          const gain = c.createGain();
+          gain.gain.setValueAtTime(0.18, t0);
+          gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.08);
+          src.connect(filter);
+          filter.connect(gain);
+          gain.connect(c.destination);
+          src.start(t0);
+        }
+      }
+
+      // Snore — slow filtered noise with rhythmic gain modulation
+      function snore(soundOn) {
+        if (!soundOn) return;
+        const c = getCtx();
+        if (!c) return;
+        const t0 = c.currentTime;
+
+        const bufSize = c.sampleRate * 3;
+        const buf = c.createBuffer(1, bufSize, c.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+        const src = c.createBufferSource();
+        src.buffer = buf;
+
+        const filter = c.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 380;
+
+        const gain = c.createGain();
+        // Two slow inhale-exhale cycles
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(0.10, t0 + 0.6);
+        gain.gain.linearRampToValueAtTime(0.02, t0 + 1.3);
+        gain.gain.linearRampToValueAtTime(0.10, t0 + 2.0);
+        gain.gain.linearRampToValueAtTime(0, t0 + 3);
+
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(c.destination);
+        src.start(t0);
+        src.stop(t0 + 3);
+      }
+
+      return { engineRumble, doorClose, footsteps, snore };
+    })();
+
+    // ============================================================
+    // EndOfShiftSequence — multi-stage cinematic
+    // Stage 0: Truck idling at curb (engine sound)
+    // Stage 1: Truck drives off
+    // Stage 2: Goodbye dialogue (Ray + Marcus)
+    // Stage 3: Marcus walks home (footsteps)
+    // Stage 4: House with sleeping Z's (snore)
+    // Stage 5: Summary with stats + "Get Some Sleep" button
+    // User can skip to Stage 5 at any time
+    // ============================================================
+    function EndOfShiftSequence({ summary, soundOn, onDismiss }) {
+      const { useState, useEffect, useRef } = React;
+      const [stage, setStage] = useState(0);
+      const timerRef = useRef(null);
+      const STAGE_DURATIONS = [2600, 2400, 3400, 5000, 3000]; // ms per auto-advancing stage
+
+      useEffect(() => {
+        // Audio cue on stage entry
+        if (stage === 0) AudioFX.engineRumble(soundOn);
+        else if (stage === 2) AudioFX.doorClose(soundOn);
+        else if (stage === 3) AudioFX.footsteps(soundOn);
+        else if (stage === 4) AudioFX.snore(soundOn);
+
+        // Auto-advance
+        if (stage < 5) {
+          timerRef.current = setTimeout(() => setStage(s => s + 1), STAGE_DURATIONS[stage]);
+        }
+        return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+      }, [stage, soundOn]);
+
+      const skip = () => {
+        if (timerRef.current) clearTimeout(timerRef.current);
+        setStage(5);
+      };
+
+      const truck = (driveOff) => e('div', {
+        className: 'truck ' + (driveOff ? 'stage-drive' : 'stage-idle'),
+        key: driveOff ? 'driving' : 'idle'
+      },
+        driveOff ? null : e('div', { className: 'truck-smoke' }),
+        e('div', { className: 'truck-body' }),
+        e('div', { className: 'truck-cab' }),
+        e('div', { className: 'truck-window' }),
+        e('div', { className: 'truck-wheel left' }),
+        e('div', { className: 'truck-wheel right' })
+      );
+
+      let scene = null;
+      let caption = null;
+      let dialogue = null;
+
+      if (stage === 0) {
+        scene = truck(false);
+        caption = 'Engine starts up...';
+      } else if (stage === 1) {
+        scene = truck(true);
+        caption = "Ray pulls it down the block.";
+      } else if (stage === 2) {
+        caption = '5th and Main';
+        dialogue = e('div', { className: 'end-dialogue' },
+          e('strong', null, 'Ray: '), '"Get home safe, kid. Lock that back door."',
+          e('br'),
+          e('strong', null, 'Marcus: '), '"Yeah, Unc. See you tomorrow."'
+        );
+      } else if (stage === 3) {
+        scene = e('div', { className: 'walking-figure stage-walk-right' },
+          e(MarcusAvatar, { size: 60 })
+        );
+        caption = 'Walking home.';
+      } else if (stage === 4) {
+        scene = e('div', { className: 'house' },
+          e('div', { className: 'house-roof' }),
+          e('div', { className: 'house-body' }),
+          e('div', { className: 'house-window' }),
+          e('div', { className: 'zzz' }, 'zZ'),
+          e('div', { className: 'zzz', style: { animationDelay: '0.9s' } }, 'zZ'),
+          e('div', { className: 'zzz', style: { animationDelay: '1.7s' } }, 'zZ')
+        );
+        caption = 'Home. Sleep. Tomorrow.';
+      }
+
+      return e('div', { className: 'shift-end-overlay' },
+        e('div', { className: 'shift-end-card' },
+          stage < 5
+            ? e('div', null,
+                e('h2', { className: 'shift-end-title display-font', style: { marginTop: 0 } }, "Shift Over"),
+                scene ? e('div', { className: 'end-stage' },
+                  scene,
+                  caption ? e('div', { className: 'end-caption' }, caption) : null
+                ) : null,
+                dialogue,
+                !scene && !dialogue ? e('div', { className: 'end-stage' },
+                  caption ? e('div', { className: 'end-caption' }, caption) : null
+                ) : null,
+                e('button', {
+                  className: 'btn btn-ghost',
+                  style: { width: '100%', marginTop: 12, fontSize: 12, opacity: 0.7 },
+                  onClick: skip
+                }, 'Skip ›')
+              )
+            : e('div', null,
+                e('div', { className: 'shift-end-night' }, '🌙'),
+                e('h2', { className: 'shift-end-title display-font' }, "Day's Done"),
+                e('div', { className: 'shift-end-quote' },
+                  "Tomorrow's another grind."
+                ),
+                e('div', { className: 'shift-summary-grid' },
+                  e('div', { className: 'shift-summary-cell' },
+                    e('div', { className: 'ssc-label' }, 'Served'),
+                    e('div', { className: 'ssc-value' }, summary.served)
+                  ),
+                  e('div', { className: 'shift-summary-cell' },
+                    e('div', { className: 'ssc-label' }, 'Earned'),
+                    e('div', { className: 'ssc-value' }, '+' + fmtStacks(summary.earned))
+                  ),
+                  e('div', { className: 'shift-summary-cell' },
+                    e('div', { className: 'ssc-label' }, 'Rep'),
+                    e('div', { className: 'ssc-value', style: { color: summary.repDelta >= 0 ? 'var(--good)' : 'var(--bad)' } },
+                      (summary.repDelta >= 0 ? '+' : '') + summary.repDelta)
+                  )
+                ),
+                e('button', {
+                  className: 'btn btn-primary',
+                  style: { width: '100%', fontSize: 15 },
+                  onClick: onDismiss
+                }, 'Get Some Sleep')
+              )
+        )
+      );
+    }
+
+    // ============================================================
+    // Dynamic profile story — branches on multiple dimensions
+    // (money tier × reputation × skill rate × experience)
+    // Returns array of {text, em} segments that ProfileScreen renders
+    // ============================================================
+    function buildMarcusStory(state) {
+      const earned = state.totalEarned || 0;
+      const rep = state.reputation || 0;
+      const customers = state.customersServed || 0;
+      const failRate = customers > 0 ? state.failedOrders / customers : 0;
+      const perfectRate = customers > 0 ? state.perfectOrders / customers : 0;
+      const out = [];
+
+      // Main story by money tier
+      if (earned < 100) {
+        out.push({ text: "Nineteen, broke, evicted last week. " });
+        out.push({ text: "Uncle Ray", em: true });
+        out.push({ text: " gave you a shot at his food truck — 5th and Main, the only spot he hasn't burned yet. You started with $12 in your pocket. The block doesn't know your name yet." });
+      } else if (earned < 1000) {
+        out.push({ text: "You're not broke anymore. People walk past the truck and they recognize you now. Ray nods more than he scolds. You're not anyone yet — but you're " });
+        out.push({ text: "someone", em: true });
+        out.push({ text: " on this block." });
+      } else if (earned < 10000) {
+        out.push({ text: "Word's spreading. Regulars come by name. You've got " });
+        out.push({ text: "real money", em: true });
+        out.push({ text: " on you for the first time in your life. Ray talks about expanding. The back room calls every now and then." });
+      } else {
+        out.push({ text: "You came up. Started with $12 — now look at you. The block " });
+        out.push({ text: "knows", em: true });
+        out.push({ text: " your name. The question isn't whether you'll make it. It's how high you climb." });
+      }
+
+      // Reputation flavor (kicks in after a few customers — needs sample size)
+      if (customers > 5) {
+        if (rep > 80) {
+          out.push({ text: " " });
+          out.push({ text: "Word on the block is good", em: true });
+          out.push({ text: " — you treat people right." });
+        } else if (rep < 30) {
+          out.push({ text: " But the block " });
+          out.push({ text: "doesn't trust you", em: true });
+          out.push({ text: " — too many bad calls." });
+        }
+      }
+
+      // Skill flavor (kicks in after 10 customers — needs more sample)
+      if (customers > 10) {
+        if (perfectRate > 0.5) {
+          out.push({ text: " Ray's noticed: you " });
+          out.push({ text: "got a touch", em: true });
+          out.push({ text: "." });
+        } else if (failRate > 0.3) {
+          out.push({ text: " Ray says you " });
+          out.push({ text: "need to focus", em: true });
+          out.push({ text: " more." });
+        }
+      }
+
+      // Experience flavor (50+ customers = veteran)
+      if (customers >= 50 && customers < 200) {
+        out.push({ text: " You know the rhythm now — the morning rush, the afternoon lull, the after-work crowd." });
+      } else if (customers >= 200) {
+        out.push({ text: " You've worked enough shifts to lose count. The truck feels like home." });
+      }
+
+      return out;
+    }
+
+    // ============================================================
     // Toast hook
     // ============================================================
     function useToasts() {
@@ -1661,10 +2408,22 @@
         setState(s => ({ ...s, account: { ...s.account, ...patch } }));
       }, []);
 
+      const logEvent = useCallback((eventId) => {
+        setState(s => ({
+          ...s,
+          eventLog: [...(s.eventLog || []).slice(-9), eventId] // keep last 10
+        }));
+      }, []);
+
+      const completeJob = useCallback(() => {
+        setState(s => ({ ...s, jobsCompleted: (s.jobsCompleted || 0) + 1 }));
+      }, []);
+
       return {
         state, setState,
         addStacks, addReputation, recordOrder,
-        updateSettings, markNewsRead, updateAccount
+        updateSettings, markNewsRead, updateAccount,
+        logEvent, completeJob
       };
     }
 
@@ -1676,8 +2435,8 @@
       return e('div', { className: 'topbar' },
         e('div', { className: 'topbar-inner' },
           e('div', { style: { display: 'flex', alignItems: 'center', gap: 10 } },
-            e('div', { className: 'avatar-circle', onClick: onProfileClick, style: { cursor: 'pointer' } },
-              state.account.avatar
+            e('div', { className: 'avatar-circle', onClick: onProfileClick, style: { cursor: 'pointer', overflow: 'hidden', padding: 0 } },
+              e(MarcusAvatar, { size: 36 })
             ),
             e('div', null,
               e('div', { className: 'pill amber', style: { fontSize: 11, padding: '3px 10px' } }, rank.name),
@@ -1730,8 +2489,8 @@
     // ============================================================
     function Sidebar({ tab, onChange }) {
       return e('div', { className: 'sidebar' },
-        e('div', { style: { padding: '0 8px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' } },
-          e('img', { src: 'logo-full.png', alt: 'HustleBox', style: { width: '100%', maxWidth: 180, height: 'auto', display: 'block' } })
+        e('div', { className: 'sidebar-logo-wrap' },
+          e('img', { src: 'logo-full.png', alt: 'HustleBox' })
         ),
         NAV_TABS.map(t =>
           e('button', {
@@ -1847,7 +2606,7 @@
     // ============================================================
     // Food Truck Mini-Game
     // ============================================================
-    function FoodTruckScreen({ state, addStacks, addReputation, recordOrder, toast }) {
+    function FoodTruckScreen({ state, addStacks, addReputation, recordOrder, logEvent, completeJob, toast }) {
       const tier = getRepTier(state.reputation);
 
       const [order, setOrder] = useState(null);          // current order: array of emojis (with possible repeats)
@@ -1867,6 +2626,7 @@
 
       const orderTimerRef = useRef(null);
       const plateRef = useRef(null);
+      const nextCustomerTimeoutRef = useRef(null);
 
       // Item lookup helper
       const itemByEmoji = (emoji) => MENU_ITEMS.find(m => m.emoji === emoji);
@@ -1887,6 +2647,8 @@
           if (eligible.length) {
             const picked = eligible[Math.floor(Math.random() * eligible.length)];
             setEvent(picked);
+            // BUG FIX: track event firing in eventLog so it doesn't repeat back-to-back
+            logEvent(picked.id);
             return;
           }
         }
@@ -1920,6 +2682,13 @@
         setResult(null);
         setEvent(null);
         if (orderTimerRef.current) clearInterval(orderTimerRef.current);
+        // BUG FIX: clear dangling next-customer timeout so endShift is final
+        if (nextCustomerTimeoutRef.current) {
+          clearTimeout(nextCustomerTimeoutRef.current);
+          nextCustomerTimeoutRef.current = null;
+        }
+        // BUG FIX: increment jobsCompleted so the DAY N counter advances
+        completeJob();
         if (shiftStartSnapshot) {
           const served = state.customersServed - shiftStartSnapshot.customers;
           const earned = Math.floor(state.totalEarned - shiftStartSnapshot.earned);
@@ -1966,7 +2735,10 @@
         recordOrder(resultKey);
         setResult({ key: resultKey, stacks: stacksEarned });
         vibrate(state, resultKey === 'perfect' ? [40, 40, 80] : resultKey === 'failed' ? [200] : [60]);
-        setTimeout(() => {
+        // BUG FIX: clear any prior queued next-customer call before scheduling a new one
+        if (nextCustomerTimeoutRef.current) clearTimeout(nextCustomerTimeoutRef.current);
+        nextCustomerTimeoutRef.current = setTimeout(() => {
+          nextCustomerTimeoutRef.current = null;
           if (shiftActive) startNewCustomer();
         }, 1800);
       };
@@ -2090,38 +2862,11 @@
 
       // End-of-shift overlay (shown after endShift while summary is set)
       const endOverlay = shiftEndSummary
-        ? e('div', { className: 'shift-end-overlay' },
-            e('div', { className: 'shift-end-card' },
-              e('div', { className: 'shift-end-night' }, '🌙'),
-              e('h2', { className: 'shift-end-title display-font' }, "Shift Over"),
-              e('div', { className: 'walk-home-wrap' },
-                e('div', { className: 'walk-home-figure' }, '🚶')
-              ),
-              e('div', { className: 'shift-end-quote' },
-                "It's late. The street's quiet now. You walk home through the empty blocks — neon signs flicker, your feet hurt. Tomorrow's another grind."
-              ),
-              e('div', { className: 'shift-summary-grid' },
-                e('div', { className: 'shift-summary-cell' },
-                  e('div', { className: 'ssc-label' }, 'Served'),
-                  e('div', { className: 'ssc-value' }, shiftEndSummary.served)
-                ),
-                e('div', { className: 'shift-summary-cell' },
-                  e('div', { className: 'ssc-label' }, 'Earned'),
-                  e('div', { className: 'ssc-value' }, '+' + fmtStacks(shiftEndSummary.earned))
-                ),
-                e('div', { className: 'shift-summary-cell' },
-                  e('div', { className: 'ssc-label' }, 'Rep'),
-                  e('div', { className: 'ssc-value', style: { color: shiftEndSummary.repDelta >= 0 ? 'var(--good)' : 'var(--bad)' } },
-                    (shiftEndSummary.repDelta >= 0 ? '+' : '') + shiftEndSummary.repDelta)
-                )
-              ),
-              e('button', {
-                className: 'btn btn-primary',
-                style: { width: '100%', fontSize: 15 },
-                onClick: dismissShiftEnd
-              }, 'Get Some Sleep')
-            )
-          )
+        ? e(EndOfShiftSequence, {
+            summary: shiftEndSummary,
+            soundOn: !!state.settings.sound,
+            onDismiss: dismissShiftEnd
+          })
         : null;
 
       // Pre-shift screen — theatrical opening + chalkboard menu
@@ -2137,7 +2882,11 @@
           e('div', { className: 'shift-intro' },
             e('div', { className: 'shift-intro-day' }, 'DAY ' + dayNum + ' · 5TH AND MAIN'),
             e('h2', { className: 'shift-intro-title' }, "Ray's"),
-            e('div', { className: 'open-sign' }, 'OPEN'),
+            e('button', {
+              className: 'open-sign',
+              onClick: startShift,
+              title: 'Click to open shift'
+            }, 'OPEN'),
             e('div', { className: 'ray-quote' },
               e('strong', null, 'Ray: '),
               state.reputation >= 60
@@ -2353,6 +3102,17 @@
           .catch(() => { setLoading(false); });
       }, [markRead]);
 
+      const renderEntry = (entry, isCurrent) =>
+        e('div', { className: 'receipt-card', key: entry.version },
+          e('div', { className: 'receipt-header-line' }, isCurrent ? "★ LATEST RELEASE ★" : "★ RAY'S RECEIPT ★"),
+          e('div', { className: 'receipt-version' }, 'v' + entry.version),
+          e('div', { className: 'receipt-title' }, entry.title || ''),
+          e('ul', { className: 'receipt-list' },
+            (entry.highlights || []).map((h, j) => e('li', { key: j }, h))
+          ),
+          entry.date ? e('div', { className: 'receipt-date' }, entry.date) : null
+        );
+
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header' },
           onBack ? e('button', { className: 'back-btn', onClick: onBack },
@@ -2364,21 +3124,18 @@
         loading
           ? e('div', { style: { color: 'var(--text-faint)', padding: 16 } }, 'Loading...')
           : news
-            ? e('div', null,
-                e('div', { className: 'card', style: { marginBottom: 16, borderColor: 'var(--line-strong)' } },
-                  e('div', { style: { color: 'var(--amber)', fontWeight: 800, fontSize: 13, letterSpacing: 1 } }, 'CURRENT — v' + news.version),
-                  e('div', { style: { fontWeight: 700, fontSize: 16, margin: '4px 0 8px' } }, news.title),
-                  e('div', { style: { fontSize: 14, color: 'var(--text-dim)', whiteSpace: 'pre-line', lineHeight: 1.6 } }, news.message)
+            ? e('div', { className: 'side-menu-frame' },
+                e('div', { className: 'smf-title' }, 'UPDATE LOG'),
+                // Latest version with full message
+                e('div', { className: 'receipt-card' },
+                  e('div', { className: 'receipt-header-line' }, '★ LATEST RELEASE ★'),
+                  e('div', { className: 'receipt-version' }, 'v' + news.version),
+                  e('div', { className: 'receipt-title' }, news.title || ''),
+                  e('div', { style: { fontSize: 12, lineHeight: 1.6, whiteSpace: 'pre-line', marginTop: 6 } }, news.message),
+                  news.date ? e('div', { className: 'receipt-date' }, news.date) : null
                 ),
-                (news.entries || []).map((entry, i) =>
-                  e('div', { key: i, className: 'news-entry' },
-                    e('div', { className: 'news-version' }, 'v' + entry.version + ' • ' + entry.date),
-                    e('div', { className: 'news-title' }, entry.title),
-                    e('ul', { className: 'news-list' },
-                      (entry.highlights || []).map((h, j) => e('li', { key: j }, h))
-                    )
-                  )
-                )
+                // Earlier entries as receipts
+                (news.entries || []).filter(en => en.version !== news.version).map(en => renderEntry(en, false))
               )
             : e('div', { style: { color: 'var(--text-faint)' } }, 'Could not load update log.')
       );
@@ -2402,7 +3159,7 @@
         e('div', { className: 'row', onClick: () => updateSettings({ sound: !s.sound }) },
           e('div', null,
             e('div', { className: 'row-label' }, '🔊 Sound'),
-            e('div', { className: 'row-sub' }, 'Audio effects (placeholder — sound system not yet wired)')
+            e('div', { className: 'row-sub' }, 'Engine, footsteps, and shift-end audio')
           ),
           e('div', { className: 'toggle' + (s.sound ? ' on' : '') })
         ),
@@ -2487,15 +3244,18 @@
           e('h1', { className: 'screen-title display-font' }, 'Friends'),
           e('p', { className: 'screen-subtitle' }, 'Build your crew.')
         ),
-        e('div', { className: 'coming-soon' },
-          e('div', { className: 'cs-emoji' }, '👥'),
-          e('h2', { className: 'cs-title display-font' }, 'Coming Soon'),
-          e('p', { style: { maxWidth: 320, lineHeight: 1.5 } },
-            'Add friends by code, gift Stacks, challenge each other to who-can-serve-the-most-customers showdowns, and climb the friends leaderboard.'
-          ),
-          e('div', { style: { marginTop: 16, fontSize: 12, color: 'var(--text-faint)' } },
-            'Your friend code is: ',
-            e('span', { style: { color: 'var(--amber)', fontFamily: 'monospace', letterSpacing: 2 } }, state.account.friendCode)
+        e('div', { className: 'side-menu-frame' },
+          e('div', { className: 'smf-title' }, "RAY'S CREW"),
+          e('div', { className: 'coming-soon', style: { padding: '32px 16px' } },
+            e('div', { className: 'cs-emoji' }, '👥'),
+            e('h2', { className: 'cs-title display-font' }, 'Coming Soon'),
+            e('p', { style: { maxWidth: 320, lineHeight: 1.5, color: '#d4c5a0' } },
+              'Add friends by code, gift Stacks, challenge each other to who-can-serve-the-most-customers showdowns, and climb the friends leaderboard.'
+            ),
+            e('div', { style: { marginTop: 16, fontSize: 12, color: '#a89878' } },
+              'Your friend code is: ',
+              e('span', { style: { color: '#ffe082', fontFamily: 'monospace', letterSpacing: 2 } }, state.account.friendCode)
+            )
           )
         )
       );
@@ -2510,14 +3270,17 @@
           e('h1', { className: 'screen-title display-font' }, 'The Back Room'),
           e('p', { className: 'screen-subtitle' }, "Ray told you to stay out. You didn't listen.")
         ),
-        e('div', { className: 'coming-soon' },
-          e('div', { className: 'cs-emoji' }, '🎰'),
-          e('h2', { className: 'cs-title display-font' }, 'Coming Soon'),
-          e('p', { style: { maxWidth: 340, lineHeight: 1.5 } },
-            'Slots. Scratch cards. Dice. Coin flip. Numbers. Underground hustle games for when grinding burgers gets old.'
-          ),
-          e('div', { style: { marginTop: 16, fontSize: 12, color: 'var(--text-faint)', maxWidth: 320, textAlign: 'center', lineHeight: 1.5 } },
-            'The back room opens once the core job loop is solid and polished.'
+        e('div', { className: 'side-menu-frame' },
+          e('div', { className: 'smf-title' }, 'BACK ROOM'),
+          e('div', { className: 'coming-soon', style: { padding: '32px 16px' } },
+            e('div', { className: 'cs-emoji' }, '🎰'),
+            e('h2', { className: 'cs-title display-font' }, 'Coming Soon'),
+            e('p', { style: { maxWidth: 340, lineHeight: 1.5, color: '#d4c5a0' } },
+              'Slots. Scratch cards. Dice. Coin flip. Numbers. Underground hustle games for when grinding burgers gets old.'
+            ),
+            e('div', { style: { marginTop: 16, fontSize: 12, color: '#a89878', maxWidth: 320, textAlign: 'center', lineHeight: 1.5 } },
+              'The back room opens once the core job loop is solid and polished.'
+            )
           )
         )
       );
@@ -2569,11 +3332,14 @@
           e('h1', { className: 'screen-title display-font' }, 'Achievements'),
           e('p', { className: 'screen-subtitle' }, 'Milestones and discoveries.')
         ),
-        e('div', { className: 'coming-soon' },
-          e('div', { className: 'cs-emoji' }, '🏆'),
-          e('h2', { className: 'cs-title display-font' }, 'Coming Soon'),
-          e('p', { style: { maxWidth: 340, lineHeight: 1.5 } },
-            'Work, Stacks, Reputation, Arcade, Progression, and Secret achievements. Foundation is in place — full list and rewards rolling out in the next update.'
+        e('div', { className: 'side-menu-frame' },
+          e('div', { className: 'smf-title' }, 'TROPHY CASE'),
+          e('div', { className: 'coming-soon', style: { padding: '32px 16px' } },
+            e('div', { className: 'cs-emoji' }, '🏆'),
+            e('h2', { className: 'cs-title display-font' }, 'Coming Soon'),
+            e('p', { style: { maxWidth: 340, lineHeight: 1.5, color: '#d4c5a0' } },
+              'Work, Stacks, Reputation, Arcade, Progression, and Secret achievements. Foundation is in place — full list and rewards rolling out in the next update.'
+            )
           )
         )
       );
@@ -2590,33 +3356,8 @@
         ? Math.min(100, ((state.totalEarned - rank.threshold) / (nextRank.threshold - rank.threshold)) * 100)
         : 100;
 
-      // Marcus's story shifts with progress
-      let storyText;
-      if (state.totalEarned < 100) {
-        storyText = e('span', null,
-          "Nineteen, broke, evicted last week. ",
-          e('em', null, 'Uncle Ray'),
-          " gave you a shot at his food truck — 5th and Main, the only spot he hasn't burned yet. You started with $12 in your pocket. The block doesn't know your name yet."
-        );
-      } else if (state.totalEarned < 1000) {
-        storyText = e('span', null,
-          "You're not broke anymore. People walk past the truck and they recognize you now. Ray nods more than he scolds. You're not anyone yet — but you're ",
-          e('em', null, 'someone'),
-          " on this block."
-        );
-      } else if (state.totalEarned < 10000) {
-        storyText = e('span', null,
-          "Word's spreading. Regulars come by name. You've got ",
-          e('em', null, 'real money'),
-          " on you for the first time in your life. Ray talks about expanding. The back room calls every now and then."
-        );
-      } else {
-        storyText = e('span', null,
-          "You came up. Started with $12 — now look at you. The block ",
-          e('em', null, 'knows'),
-          " your name. The question isn't whether you'll make it. It's how high you climb."
-        );
-      }
+      // Dynamic story — branches on money tier × reputation × skill rate × experience
+      const storySegments = buildMarcusStory(state);
 
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header' },
@@ -2628,7 +3369,9 @@
 
         // Hero card
         e('div', { className: 'profile-hero' },
-          e('div', { className: 'profile-avatar-frame' }, state.account.avatar),
+          e('div', { className: 'profile-avatar-frame', style: { padding: 0, overflow: 'hidden' } },
+            e(MarcusAvatar, { size: 92 })
+          ),
           e('div', { className: 'profile-name' }, 'MARCUS'),
           e('div', null,
             e('span', { className: 'profile-rank-badge' }, '★ ' + rank.name),
@@ -2658,9 +3401,15 @@
           )
         ),
 
-        // Story
+        // Story (dynamic based on multiple progression dimensions)
         e('div', { className: 'profile-section-title' }, 'THE STORY SO FAR'),
-        e('div', { className: 'profile-story' }, storyText),
+        e('div', { className: 'profile-story' },
+          storySegments.map((seg, i) =>
+            seg.em
+              ? e('em', { key: i }, seg.text)
+              : e('span', { key: i }, seg.text)
+          )
+        ),
 
         // Numbers (smaller, secondary)
         e('div', { className: 'profile-section-title' }, 'BY THE NUMBERS'),
@@ -2737,7 +3486,7 @@
           if (subscreen === 'profile')      return e(ProfileScreen,      { state: game.state, onBack: backToMore });
         }
         if (tab === 'home')    return e(HomeScreen,     { state: game.state, onGoTo: goTo });
-        if (tab === 'work')    return e(FoodTruckScreen,{ state: game.state, addStacks: game.addStacks, addReputation: game.addReputation, recordOrder: game.recordOrder, toast: pushToast });
+        if (tab === 'work')    return e(FoodTruckScreen,{ state: game.state, addStacks: game.addStacks, addReputation: game.addReputation, recordOrder: game.recordOrder, logEvent: game.logEvent, completeJob: game.completeJob, toast: pushToast });
         if (tab === 'arcade')  return e(ArcadeScreen,   null);
         if (tab === 'friends') return e(FriendsScreen,  { state: game.state });
         if (tab === 'more')    return e(MoreScreen,     { onGoTo: goTo, state: game.state });
