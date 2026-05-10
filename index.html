@@ -1546,6 +1546,12 @@
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Firebase SDK (compat build for global access) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- QR code generator for friend codes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 
   <script>
   (function () {
@@ -1558,7 +1564,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.1.2';
+    const VERSION = '1.2.0';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -2107,6 +2113,258 @@
       }
 
       return { engineRumble, doorClose, footsteps, snore };
+    })();
+
+    // ============================================================
+    // HustleFire — Firebase wrapper for auth, cloud save, and friends
+    // Encapsulates all Firebase calls so the rest of the code can
+    // stay agnostic. Gracefully degrades if Firebase fails to load
+    // (offline / blocked / SDK CDN down).
+    // ============================================================
+    const HustleFire = (function () {
+      const firebaseConfig = {
+        apiKey: "AIzaSyCZKiLS1FQEGPKGVUK3T32w8dEMcLnZemg",
+        authDomain: "hustlebox-95b6c.firebaseapp.com",
+        projectId: "hustlebox-95b6c",
+        storageBucket: "hustlebox-95b6c.firebasestorage.app",
+        messagingSenderId: "321269174586",
+        appId: "1:321269174586:web:f3f387a5cd094480dd8003",
+        measurementId: "G-LVGPCW0JE7"
+      };
+
+      let app = null, auth = null, db = null, ready = false, initError = null;
+
+      try {
+        if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+          app = firebase.initializeApp(firebaseConfig);
+          auth = firebase.auth();
+          db = firebase.firestore();
+          // Enable offline persistence (best effort — fails silently in private browsing)
+          db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+          ready = true;
+        } else {
+          initError = 'Firebase SDK not loaded';
+        }
+      } catch (e) {
+        initError = (e && e.message) || 'Firebase init failed';
+        console.warn('[HustleFire]', initError);
+      }
+
+      function isCapacitor() {
+        return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+      }
+
+      // ---- Auth ----
+      function onAuthChange(cb) {
+        if (!ready) { cb(null); return () => {}; }
+        return auth.onAuthStateChanged(cb);
+      }
+
+      function getCurrentUser() {
+        return ready ? auth.currentUser : null;
+      }
+
+      async function signInAnon() {
+        if (!ready) throw new Error(initError || 'Firebase not ready');
+        const result = await auth.signInAnonymously();
+        return result.user;
+      }
+
+      async function signUpEmail(email, password, displayName) {
+        if (!ready) throw new Error(initError || 'Firebase not ready');
+        const result = await auth.createUserWithEmailAndPassword(email, password);
+        if (displayName && result.user) {
+          await result.user.updateProfile({ displayName });
+        }
+        return result.user;
+      }
+
+      async function signInEmail(email, password) {
+        if (!ready) throw new Error(initError || 'Firebase not ready');
+        const result = await auth.signInWithEmailAndPassword(email, password);
+        return result.user;
+      }
+
+      async function signInGoogle() {
+        if (!ready) throw new Error(initError || 'Firebase not ready');
+        const provider = new firebase.auth.GoogleAuthProvider();
+        // signInWithPopup doesn't work in Android WebView (Capacitor) — use redirect
+        if (isCapacitor()) {
+          await auth.signInWithRedirect(provider);
+          return null; // redirect leaves the page; result handled on return
+        } else {
+          const result = await auth.signInWithPopup(provider);
+          return result.user;
+        }
+      }
+
+      async function checkRedirectResult() {
+        if (!ready) return null;
+        try {
+          const result = await auth.getRedirectResult();
+          return result && result.user ? result.user : null;
+        } catch (e) {
+          console.warn('[HustleFire] redirect result error', e);
+          return null;
+        }
+      }
+
+      async function signOut() {
+        if (!ready) return;
+        await auth.signOut();
+      }
+
+      // ---- Cloud save ----
+      async function pullSave(uid) {
+        if (!ready || !uid) return null;
+        const doc = await db.collection('users').doc(uid).collection('save').doc('main').get();
+        if (!doc.exists) return null;
+        const data = doc.data();
+        return data && data.state ? data.state : null;
+      }
+
+      async function pushSave(uid, state, gameVersion) {
+        if (!ready || !uid) return false;
+        try {
+          await db.collection('users').doc(uid).collection('save').doc('main').set({
+            state: state,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            version: gameVersion || ''
+          });
+          return true;
+        } catch (e) {
+          console.warn('[HustleFire] pushSave failed', e);
+          return false;
+        }
+      }
+
+      async function getSaveMeta(uid) {
+        if (!ready || !uid) return null;
+        const doc = await db.collection('users').doc(uid).collection('save').doc('main').get();
+        if (!doc.exists) return null;
+        const data = doc.data();
+        return {
+          updatedAt: data.updatedAt && data.updatedAt.toMillis ? data.updatedAt.toMillis() : null,
+          totalEarned: (data.state && data.state.totalEarned) || 0,
+          stacks: (data.state && data.state.stacks) || 0,
+          version: data.version || ''
+        };
+      }
+
+      // ---- User profile (public-facing summary) ----
+      async function upsertUserProfile(uid, profile) {
+        if (!ready || !uid) return false;
+        try {
+          await db.collection('users').doc(uid).set({
+            uid: uid,
+            friendCode: profile.friendCode,
+            displayName: profile.displayName || 'Marcus',
+            rank: profile.rank || 'Broke',
+            stacks: Math.floor(profile.stacks || 0),
+            totalEarned: Math.floor(profile.totalEarned || 0),
+            reputation: Math.round(profile.reputation || 0),
+            customersServed: profile.customersServed || 0,
+            lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          return true;
+        } catch (e) {
+          console.warn('[HustleFire] upsertUserProfile failed', e);
+          return false;
+        }
+      }
+
+      async function getUserSummary(uid) {
+        if (!ready || !uid) return null;
+        const doc = await db.collection('users').doc(uid).get();
+        return doc.exists ? doc.data() : null;
+      }
+
+      // ---- Friend code mapping ----
+      async function registerFriendCode(uid, code, displayName) {
+        if (!ready || !uid || !code) return false;
+        try {
+          await db.collection('friendCodes').doc(code).set({
+            uid: uid,
+            displayName: displayName || 'Marcus'
+          });
+          return true;
+        } catch (e) {
+          console.warn('[HustleFire] registerFriendCode failed', e);
+          return false;
+        }
+      }
+
+      async function findUserByCode(code) {
+        if (!ready || !code) return null;
+        const doc = await db.collection('friendCodes').doc(code).get();
+        return doc.exists ? doc.data() : null; // { uid, displayName }
+      }
+
+      // ---- Friends list ----
+      async function addFriend(myUid, friendUid, friendCode, friendName) {
+        if (!ready || !myUid || !friendUid) return false;
+        if (myUid === friendUid) throw new Error("Can't add yourself.");
+        try {
+          await db.collection('users').doc(myUid).collection('friends').doc(friendUid).set({
+            friendUid: friendUid,
+            friendCode: friendCode,
+            displayName: friendName || 'Marcus',
+            addedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          return true;
+        } catch (e) {
+          console.warn('[HustleFire] addFriend failed', e);
+          throw e;
+        }
+      }
+
+      async function removeFriend(myUid, friendUid) {
+        if (!ready || !myUid || !friendUid) return false;
+        try {
+          await db.collection('users').doc(myUid).collection('friends').doc(friendUid).delete();
+          return true;
+        } catch (e) {
+          console.warn('[HustleFire] removeFriend failed', e);
+          return false;
+        }
+      }
+
+      async function listFriends(myUid) {
+        if (!ready || !myUid) return [];
+        try {
+          const snap = await db.collection('users').doc(myUid).collection('friends').orderBy('addedAt', 'desc').get();
+          return snap.docs.map(d => d.data());
+        } catch (e) {
+          console.warn('[HustleFire] listFriends failed', e);
+          return [];
+        }
+      }
+
+      // ---- QR generation (using qrcode-generator global) ----
+      function generateQRSvg(text, opts) {
+        if (typeof qrcode === 'undefined') return '';
+        try {
+          const qr = qrcode(0, 'L');
+          qr.addData(text || '');
+          qr.make();
+          return qr.createSvgTag({ scalable: true, margin: 1 });
+        } catch (e) {
+          return '';
+        }
+      }
+
+      return {
+        ready: () => ready,
+        initError: () => initError,
+        isCapacitor,
+        onAuthChange, getCurrentUser, checkRedirectResult,
+        signInAnon, signUpEmail, signInEmail, signInGoogle, signOut,
+        pullSave, pushSave, getSaveMeta,
+        upsertUserProfile, getUserSummary,
+        registerFriendCode, findUserByCode,
+        addFriend, removeFriend, listFriends,
+        generateQRSvg
+      };
     })();
 
     // ============================================================
@@ -3144,8 +3402,187 @@
     // ============================================================
     // Settings Screen
     // ============================================================
-    function SettingsScreen({ state, updateSettings, onGoTo, onBack }) {
+    function SettingsScreen({ state, updateSettings, onGoTo, onBack, currentUser, authReady, syncStatus, toast }) {
       const s = state.settings;
+      const [authMode, setAuthMode] = useState('signin'); // signin | signup
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [authBusy, setAuthBusy] = useState(false);
+      const fbReady = HustleFire.ready();
+      const isCapacitor = HustleFire.isCapacitor();
+
+      const doSignIn = async () => {
+        if (!email || !password) { toast && toast('Email and password required.', 'bad'); return; }
+        setAuthBusy(true);
+        try {
+          await HustleFire.signInEmail(email, password);
+          toast && toast('Signed in.', 'good');
+          setEmail(''); setPassword('');
+        } catch (e) {
+          toast && toast(e.message || 'Sign-in failed.', 'bad');
+        }
+        setAuthBusy(false);
+      };
+      const doSignUp = async () => {
+        if (!email || !password) { toast && toast('Email and password required.', 'bad'); return; }
+        if (password.length < 6) { toast && toast('Password must be at least 6 characters.', 'bad'); return; }
+        setAuthBusy(true);
+        try {
+          await HustleFire.signUpEmail(email, password, 'Marcus');
+          toast && toast('Account created.', 'good');
+          setEmail(''); setPassword('');
+        } catch (e) {
+          toast && toast(e.message || 'Sign-up failed.', 'bad');
+        }
+        setAuthBusy(false);
+      };
+      const doGoogle = async () => {
+        setAuthBusy(true);
+        try {
+          await HustleFire.signInGoogle();
+          toast && toast('Signed in with Google.', 'good');
+        } catch (e) {
+          toast && toast(e.message || 'Google sign-in failed.', 'bad');
+        }
+        setAuthBusy(false);
+      };
+      const doAnon = async () => {
+        setAuthBusy(true);
+        try {
+          await HustleFire.signInAnon();
+          toast && toast('Continuing as guest.', 'good');
+        } catch (e) {
+          toast && toast(e.message || 'Could not start guest session.', 'bad');
+        }
+        setAuthBusy(false);
+      };
+      const doSignOut = async () => {
+        if (!confirm('Sign out? Your local save stays on this device, but cloud sync will stop.')) return;
+        try {
+          await HustleFire.signOut();
+          toast && toast('Signed out.', 'amber');
+        } catch (e) { /* ignore */ }
+      };
+
+      const inputStyle = {
+        width: '100%',
+        padding: '10px 12px',
+        background: 'rgba(0,0,0,0.4)',
+        border: '1px solid var(--line-strong)',
+        borderRadius: 8,
+        color: 'var(--text)',
+        fontSize: 14,
+        marginBottom: 8
+      };
+
+      const accountSection = !fbReady
+        ? e('div', { className: 'row disabled' },
+            e('div', null,
+              e('div', { className: 'row-label' }, '☁️ Cloud Save'),
+              e('div', { className: 'row-sub' }, 'Firebase did not load. Check your internet connection.')
+            )
+          )
+        : !authReady
+          ? e('div', { style: { padding: 12, color: 'var(--text-faint)', fontSize: 13 } }, 'Checking sign-in status...')
+          : currentUser
+            ? // Signed in — show profile + sync + sign out
+              e('div', null,
+                e('div', { className: 'row' },
+                  e('div', null,
+                    e('div', { className: 'row-label' },
+                      currentUser.isAnonymous ? '👤 Guest Account' : '✓ Signed In'
+                    ),
+                    e('div', { className: 'row-sub' },
+                      currentUser.isAnonymous
+                        ? 'Anonymous session — sign in with email or Google to keep this save permanent.'
+                        : (currentUser.email || currentUser.displayName || 'Signed in')
+                    )
+                  ),
+                  e('button', {
+                    className: 'btn btn-ghost',
+                    style: { padding: '6px 12px', fontSize: 12 },
+                    onClick: doSignOut
+                  }, 'Sign Out')
+                ),
+                e('div', { className: 'row' },
+                  e('div', null,
+                    e('div', { className: 'row-label' }, '☁️ Cloud Sync'),
+                    e('div', { className: 'row-sub' },
+                      syncStatus === 'syncing' ? 'Syncing...'
+                        : syncStatus === 'synced' ? 'Up to date'
+                        : syncStatus === 'error' ? 'Last sync failed — will retry'
+                        : 'Saves auto-sync every few seconds'
+                    )
+                  ),
+                  e('div', { style: { fontSize: 18 } },
+                    syncStatus === 'syncing' ? '⏳' : syncStatus === 'error' ? '⚠️' : '✓'
+                  )
+                ),
+                currentUser.isAnonymous
+                  ? e('div', { style: { display: 'flex', gap: 8, marginTop: 8 } },
+                      e('button', {
+                        className: 'btn btn-ghost',
+                        style: { flex: 1, fontSize: 12 },
+                        onClick: doGoogle,
+                        disabled: authBusy || isCapacitor // Google sign-in only on web for now
+                      }, isCapacitor ? 'Google (web only)' : '🔗 Link Google')
+                    )
+                  : null
+              )
+            : // Signed out — show sign in / sign up form
+              e('div', null,
+                // Toggle between sign-in and sign-up
+                e('div', { style: { display: 'flex', gap: 6, marginBottom: 12 } },
+                  e('button', {
+                    className: 'btn ' + (authMode === 'signin' ? 'btn-primary' : 'btn-ghost'),
+                    style: { flex: 1, fontSize: 13 },
+                    onClick: () => setAuthMode('signin')
+                  }, 'Sign In'),
+                  e('button', {
+                    className: 'btn ' + (authMode === 'signup' ? 'btn-primary' : 'btn-ghost'),
+                    style: { flex: 1, fontSize: 13 },
+                    onClick: () => setAuthMode('signup')
+                  }, 'Create Account')
+                ),
+                e('input', {
+                  type: 'email',
+                  placeholder: 'Email',
+                  value: email,
+                  onChange: (ev) => setEmail(ev.target.value),
+                  style: inputStyle
+                }),
+                e('input', {
+                  type: 'password',
+                  placeholder: 'Password' + (authMode === 'signup' ? ' (6+ characters)' : ''),
+                  value: password,
+                  onChange: (ev) => setPassword(ev.target.value),
+                  style: inputStyle
+                }),
+                e('button', {
+                  className: 'btn btn-primary',
+                  style: { width: '100%', marginBottom: 10 },
+                  disabled: authBusy,
+                  onClick: authMode === 'signin' ? doSignIn : doSignUp
+                }, authBusy ? 'Working...' : (authMode === 'signin' ? 'Sign In with Email' : 'Create Account')),
+                // Google sign-in (web only)
+                !isCapacitor ? e('button', {
+                  className: 'btn btn-ghost',
+                  style: { width: '100%', marginBottom: 6, fontSize: 13 },
+                  disabled: authBusy,
+                  onClick: doGoogle
+                }, '🔗 Sign In with Google') : null,
+                // Anonymous fallback
+                e('button', {
+                  className: 'btn btn-ghost',
+                  style: { width: '100%', fontSize: 12, opacity: 0.7 },
+                  disabled: authBusy,
+                  onClick: doAnon
+                }, 'Continue as Guest'),
+                e('div', { style: { fontSize: 11, color: 'var(--text-faint)', marginTop: 10, lineHeight: 1.5, textAlign: 'center' } },
+                  'Sign in to enable cloud save and friends.'
+                )
+              );
+
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header' },
           onBack ? e('button', { className: 'back-btn', onClick: onBack },
@@ -3192,17 +3629,11 @@
               style: { padding: '6px 12px', fontSize: 12 },
               onClick: () => {
                 if (navigator.clipboard) navigator.clipboard.writeText(state.account.friendCode);
+                toast && toast('Code copied.', 'good');
               }
             }, 'Copy')
           ),
-          // Create Account (optional, Coming Soon) — replaces Cloud Save
-          e('div', { className: 'row disabled' },
-            e('div', null,
-              e('div', { className: 'row-label' }, '👤 Create Account ', e('span', { className: 'pill', style: { fontSize: 9, marginLeft: 6 } }, 'COMING SOON')),
-              e('div', { className: 'row-sub' }, 'Optional — sync your hustle across devices when this lands')
-            ),
-            e('button', { className: 'btn btn-ghost', disabled: true, style: { padding: '6px 12px', fontSize: 12, opacity: 0.5 } }, 'Sign Up')
-          )
+          accountSection
         ),
 
         e('div', { style: { marginTop: 24 } },
@@ -3238,25 +3669,208 @@
     // ============================================================
     // Friends — Coming Soon (foundation laid in data layer)
     // ============================================================
-    function FriendsScreen({ state }) {
+    function FriendsScreen({ state, currentUser, onGoTo, pendingFriendCode, clearPendingFriendCode, toast }) {
+      const [friends, setFriends] = useState([]);
+      const [loading, setLoading] = useState(false);
+      const [codeInput, setCodeInput] = useState('');
+      const [adding, setAdding] = useState(false);
+      const [showQR, setShowQR] = useState(false);
+
+      const myCode = state.account.friendCode;
+      const qrSvg = (myCode && HustleFire.ready()) ? HustleFire.generateQRSvg(myCode) : '';
+      const inviteLink = (typeof window !== 'undefined') ?
+        (window.location.origin + window.location.pathname + '?friend=' + encodeURIComponent(myCode)) : '';
+
+      const refreshFriends = async () => {
+        if (!currentUser) return;
+        setLoading(true);
+        try {
+          const list = await HustleFire.listFriends(currentUser.uid);
+          setFriends(list);
+        } catch (e) { /* ignore */ }
+        setLoading(false);
+      };
+
+      useEffect(() => {
+        if (currentUser) refreshFriends();
+        else setFriends([]);
+      }, [currentUser ? currentUser.uid : null]);
+
+      const handleAddFriend = async (rawCode) => {
+        const code = (rawCode || '').trim().toUpperCase();
+        if (!code) { toast && toast('Enter a friend code.', 'bad'); return; }
+        if (code === myCode) { toast && toast("That's your own code.", 'bad'); return; }
+        if (!currentUser) { toast && toast('Sign in to add friends.', 'bad'); return; }
+
+        setAdding(true);
+        try {
+          const found = await HustleFire.findUserByCode(code);
+          if (!found) {
+            toast && toast('Code not found.', 'bad');
+            setAdding(false);
+            return;
+          }
+          await HustleFire.addFriend(currentUser.uid, found.uid, code, found.displayName || 'Marcus');
+          toast && toast('Friend added!', 'good');
+          setCodeInput('');
+          refreshFriends();
+        } catch (e) {
+          toast && toast(e.message || 'Could not add friend.', 'bad');
+        }
+        setAdding(false);
+      };
+
+      // If we landed via invite link, surface the prompt once signed in
+      useEffect(() => {
+        if (pendingFriendCode && currentUser) {
+          handleAddFriend(pendingFriendCode);
+          clearPendingFriendCode && clearPendingFriendCode();
+        }
+      }, [pendingFriendCode, currentUser ? currentUser.uid : null]);
+
+      const handleRemove = async (friendUid) => {
+        if (!currentUser) return;
+        if (!confirm('Remove this friend?')) return;
+        try {
+          await HustleFire.removeFriend(currentUser.uid, friendUid);
+          toast && toast('Friend removed.', 'amber');
+          refreshFriends();
+        } catch (e) {
+          toast && toast('Could not remove.', 'bad');
+        }
+      };
+
+      const copyCode = () => {
+        if (navigator.clipboard) navigator.clipboard.writeText(myCode);
+        toast && toast('Code copied.', 'good');
+      };
+      const copyLink = () => {
+        if (navigator.clipboard) navigator.clipboard.writeText(inviteLink);
+        toast && toast('Invite link copied.', 'good');
+      };
+
+      // ---- Render: signed-out gate ----
+      if (!currentUser) {
+        return e('div', { className: 'main has-bottomnav' },
+          e('div', { className: 'screen-header' },
+            e('h1', { className: 'screen-title display-font' }, 'Friends'),
+            e('p', { className: 'screen-subtitle' }, 'Build your crew.')
+          ),
+          e('div', { className: 'side-menu-frame' },
+            e('div', { className: 'smf-title' }, "RAY'S CREW"),
+            e('div', { className: 'coming-soon', style: { padding: '32px 16px' } },
+              e('div', { className: 'cs-emoji' }, '🔒'),
+              e('h2', { className: 'cs-title display-font' }, 'Sign In to Continue'),
+              e('p', { style: { maxWidth: 320, lineHeight: 1.5, color: '#d4c5a0' } },
+                "Friends sync across devices via your account. Sign in or create one in Settings to add your crew."
+              ),
+              e('button', {
+                className: 'btn btn-primary',
+                style: { marginTop: 14 },
+                onClick: () => onGoTo && onGoTo('settings')
+              }, 'Open Settings')
+            )
+          )
+        );
+      }
+
+      // ---- Render: signed in ----
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header' },
           e('h1', { className: 'screen-title display-font' }, 'Friends'),
-          e('p', { className: 'screen-subtitle' }, 'Build your crew.')
+          e('p', { className: 'screen-subtitle' }, 'Your crew, your code.')
         ),
+
+        // Your code panel
         e('div', { className: 'side-menu-frame' },
-          e('div', { className: 'smf-title' }, "RAY'S CREW"),
-          e('div', { className: 'coming-soon', style: { padding: '32px 16px' } },
-            e('div', { className: 'cs-emoji' }, '👥'),
-            e('h2', { className: 'cs-title display-font' }, 'Coming Soon'),
-            e('p', { style: { maxWidth: 320, lineHeight: 1.5, color: '#d4c5a0' } },
-              'Add friends by code, gift Stacks, challenge each other to who-can-serve-the-most-customers showdowns, and climb the friends leaderboard.'
+          e('div', { className: 'smf-title' }, "YOUR CODE"),
+          e('div', { style: { textAlign: 'center', color: '#d4c5a0', padding: '4px 0 12px' } },
+            e('div', { style: { fontFamily: 'monospace', fontSize: 28, letterSpacing: 6, color: '#ffe082', fontWeight: 800, marginBottom: 10 } },
+              myCode || '------'
             ),
-            e('div', { style: { marginTop: 16, fontSize: 12, color: '#a89878' } },
-              'Your friend code is: ',
-              e('span', { style: { color: '#ffe082', fontFamily: 'monospace', letterSpacing: 2 } }, state.account.friendCode)
-            )
+            e('div', { style: { display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' } },
+              e('button', { className: 'btn btn-ghost', style: { fontSize: 12, padding: '6px 14px' }, onClick: copyCode }, '📋 Copy Code'),
+              e('button', { className: 'btn btn-ghost', style: { fontSize: 12, padding: '6px 14px' }, onClick: copyLink }, '🔗 Copy Invite Link'),
+              qrSvg ? e('button', { className: 'btn btn-ghost', style: { fontSize: 12, padding: '6px 14px' }, onClick: () => setShowQR(!showQR) }, showQR ? 'Hide QR' : '📱 Show QR') : null
+            ),
+            showQR && qrSvg
+              ? e('div', { style: { background: '#fff', display: 'inline-block', padding: 10, marginTop: 14, borderRadius: 6, maxWidth: 200 } },
+                  e('div', { dangerouslySetInnerHTML: { __html: qrSvg }, style: { width: 180, height: 180 } })
+                )
+              : null,
+            showQR && !qrSvg
+              ? e('div', { style: { fontSize: 12, marginTop: 12, color: '#a89878' } }, 'QR generator did not load. Use the code instead.')
+              : null
           )
+        ),
+
+        // Add friend
+        e('div', { className: 'side-menu-frame' },
+          e('div', { className: 'smf-title' }, "ADD A FRIEND"),
+          e('div', { style: { display: 'flex', gap: 8 } },
+            e('input', {
+              type: 'text',
+              value: codeInput,
+              onChange: (ev) => setCodeInput(ev.target.value.toUpperCase()),
+              placeholder: 'ABCD1234',
+              maxLength: 12,
+              style: {
+                flex: 1, padding: '10px 12px',
+                background: 'rgba(0,0,0,0.4)',
+                border: '1px solid #4a3a28',
+                borderRadius: 6,
+                color: '#ffe082',
+                fontFamily: 'monospace',
+                fontSize: 16,
+                letterSpacing: 3,
+                textAlign: 'center'
+              }
+            }),
+            e('button', {
+              className: 'btn btn-primary',
+              disabled: adding,
+              onClick: () => handleAddFriend(codeInput)
+            }, adding ? 'Adding...' : 'Add')
+          ),
+          e('div', { style: { fontSize: 11, color: '#a89878', marginTop: 8, textAlign: 'center' } },
+            'Enter a friend code, or open their invite link.'
+          )
+        ),
+
+        // My friends list
+        e('div', { className: 'side-menu-frame' },
+          e('div', { className: 'smf-title' }, "MY CREW (" + friends.length + ")"),
+          loading
+            ? e('div', { style: { textAlign: 'center', color: '#a89878', padding: 20 } }, 'Loading...')
+            : friends.length === 0
+              ? e('div', { style: { textAlign: 'center', color: '#a89878', padding: 20, lineHeight: 1.5 } },
+                  'No friends yet. Share your code or invite link to start building your crew.')
+              : e('div', null,
+                  friends.map(f =>
+                    e('div', {
+                      key: f.friendUid,
+                      style: {
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '10px 12px',
+                        background: 'rgba(0,0,0,0.3)',
+                        border: '1px solid rgba(255,224,130,0.15)',
+                        borderRadius: 6,
+                        marginBottom: 6,
+                        gap: 10
+                      }
+                    },
+                      e('div', null,
+                        e('div', { style: { color: '#ffe082', fontWeight: 700, fontSize: 14 } }, f.displayName || 'Marcus'),
+                        e('div', { style: { fontFamily: 'monospace', fontSize: 11, color: '#a89878', letterSpacing: 2 } }, f.friendCode || '------')
+                      ),
+                      e('button', {
+                        className: 'btn btn-ghost',
+                        style: { fontSize: 11, padding: '4px 10px', color: '#ef5350', borderColor: 'rgba(239,83,80,0.3)' },
+                        onClick: () => handleRemove(f.friendUid)
+                      }, 'Remove')
+                    )
+                  )
+                )
         )
       );
     }
@@ -3461,6 +4075,145 @@
       const [tab, setTab] = useState('home');
       const [subscreen, setSubscreen] = useState(null); // for screens reached via "More"
 
+      // ---- Firebase auth + cloud sync state ----
+      const [currentUser, setCurrentUser] = useState(null);
+      const [authReady, setAuthReady] = useState(false);
+      const [syncStatus, setSyncStatus] = useState('idle'); // idle | syncing | synced | error
+      const [conflict, setConflict] = useState(null); // { localState, cloudState, cloudMeta }
+      const [pendingFriendCode, setPendingFriendCode] = useState(null); // from ?friend=CODE
+      const cloudSyncTimerRef = useRef(null);
+      const lastPushedAtRef = useRef(0);
+
+      // Subscribe to auth changes
+      useEffect(() => {
+        // First, handle redirect result (Google sign-in on Capacitor returns via redirect)
+        HustleFire.checkRedirectResult().then(() => {
+          // ignore — auth listener picks up the user
+        });
+        const unsub = HustleFire.onAuthChange((user) => {
+          setCurrentUser(user);
+          setAuthReady(true);
+        });
+        return unsub;
+      }, []);
+
+      // Parse invite link on initial load
+      useEffect(() => {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const code = params.get('friend');
+          if (code) {
+            setPendingFriendCode(code.toUpperCase());
+            // Clean URL so refresh doesn't re-trigger
+            const url = new URL(window.location);
+            url.searchParams.delete('friend');
+            window.history.replaceState({}, '', url.toString());
+          }
+        } catch (e) { /* ignore */ }
+      }, []);
+
+      // On sign-in: pull cloud save, register profile + friend code, possibly conflict-resolve
+      useEffect(() => {
+        if (!currentUser || !HustleFire.ready()) return;
+
+        let cancelled = false;
+
+        (async () => {
+          try {
+            // Read cloud save metadata to compare with local
+            const meta = await HustleFire.getSaveMeta(currentUser.uid);
+            const localHasProgress = (game.state.totalEarned || 0) > 0 || (game.state.customersServed || 0) > 0;
+
+            if (cancelled) return;
+
+            if (meta && (meta.totalEarned > 0 || meta.stacks > 0)) {
+              // Cloud save exists with content
+              if (localHasProgress &&
+                  Math.abs((meta.totalEarned || 0) - (game.state.totalEarned || 0)) > 1) {
+                // Both have progress AND they differ → ask the user
+                const cloudState = await HustleFire.pullSave(currentUser.uid);
+                if (!cancelled) {
+                  setConflict({
+                    cloudState: cloudState,
+                    cloudMeta: meta,
+                    localStacks: Math.floor(game.state.stacks || 0),
+                    localEarned: Math.floor(game.state.totalEarned || 0)
+                  });
+                }
+                return;
+              } else if (!localHasProgress) {
+                // Local is fresh, cloud has data → pull cloud
+                const cloudState = await HustleFire.pullSave(currentUser.uid);
+                if (cloudState && !cancelled) {
+                  game.setState(cloudState);
+                  pushToast('Cloud save restored.', 'good');
+                }
+                return;
+              }
+            }
+
+            // No cloud save (or matches local) → push local up
+            await HustleFire.pushSave(currentUser.uid, game.state, VERSION);
+            await HustleFire.upsertUserProfile(currentUser.uid, {
+              friendCode: game.state.account.friendCode,
+              displayName: currentUser.displayName || 'Marcus',
+              rank: getRank(game.state.totalEarned).name,
+              stacks: game.state.stacks,
+              totalEarned: game.state.totalEarned,
+              reputation: game.state.reputation,
+              customersServed: game.state.customersServed
+            });
+            await HustleFire.registerFriendCode(
+              currentUser.uid,
+              game.state.account.friendCode,
+              currentUser.displayName || 'Marcus'
+            );
+          } catch (e) {
+            console.warn('[sync] sign-in flow failed', e);
+          }
+        })();
+
+        return () => { cancelled = true; };
+      }, [currentUser ? currentUser.uid : null]);
+
+      // Debounced cloud-push on any state change while signed in
+      useEffect(() => {
+        if (!currentUser || !HustleFire.ready() || conflict) return;
+        if (cloudSyncTimerRef.current) clearTimeout(cloudSyncTimerRef.current);
+        cloudSyncTimerRef.current = setTimeout(async () => {
+          try {
+            setSyncStatus('syncing');
+            await HustleFire.pushSave(currentUser.uid, game.state, VERSION);
+            await HustleFire.upsertUserProfile(currentUser.uid, {
+              friendCode: game.state.account.friendCode,
+              displayName: currentUser.displayName || 'Marcus',
+              rank: getRank(game.state.totalEarned).name,
+              stacks: game.state.stacks,
+              totalEarned: game.state.totalEarned,
+              reputation: game.state.reputation,
+              customersServed: game.state.customersServed
+            });
+            lastPushedAtRef.current = Date.now();
+            setSyncStatus('synced');
+          } catch (e) {
+            setSyncStatus('error');
+          }
+        }, 6000); // 6s debounce
+        return () => { if (cloudSyncTimerRef.current) clearTimeout(cloudSyncTimerRef.current); };
+      }, [game.state, currentUser, conflict]);
+
+      const resolveConflict = async (choice) => {
+        if (!conflict || !currentUser) { setConflict(null); return; }
+        if (choice === 'cloud') {
+          game.setState(conflict.cloudState);
+          pushToast('Cloud save loaded.', 'good');
+        } else if (choice === 'local') {
+          await HustleFire.pushSave(currentUser.uid, game.state, VERSION);
+          pushToast('Local save kept and pushed to cloud.', 'good');
+        }
+        setConflict(null);
+      };
+
       const goTo = (target) => {
         // Map convenience targets to tabs/subscreens
         if (target === 'work')   { setTab('work');   setSubscreen(null); return; }
@@ -3480,7 +4233,7 @@
       const renderActive = () => {
         if (tab === 'more' && subscreen) {
           const backToMore = () => setSubscreen(null);
-          if (subscreen === 'settings')     return e(SettingsScreen,     { state: game.state, updateSettings: game.updateSettings, onGoTo: goTo, onBack: backToMore });
+          if (subscreen === 'settings')     return e(SettingsScreen,     { state: game.state, updateSettings: game.updateSettings, onGoTo: goTo, onBack: backToMore, currentUser, authReady, syncStatus, toast: pushToast });
           if (subscreen === 'news')         return e(NewsScreen,         { markRead: game.markNewsRead, onBack: backToMore });
           if (subscreen === 'achievements') return e(AchievementsScreen, { onBack: backToMore });
           if (subscreen === 'profile')      return e(ProfileScreen,      { state: game.state, onBack: backToMore });
@@ -3488,7 +4241,7 @@
         if (tab === 'home')    return e(HomeScreen,     { state: game.state, onGoTo: goTo });
         if (tab === 'work')    return e(FoodTruckScreen,{ state: game.state, addStacks: game.addStacks, addReputation: game.addReputation, recordOrder: game.recordOrder, logEvent: game.logEvent, completeJob: game.completeJob, toast: pushToast });
         if (tab === 'arcade')  return e(ArcadeScreen,   null);
-        if (tab === 'friends') return e(FriendsScreen,  { state: game.state });
+        if (tab === 'friends') return e(FriendsScreen,  { state: game.state, currentUser, onGoTo: goTo, pendingFriendCode, clearPendingFriendCode: () => setPendingFriendCode(null), toast: pushToast });
         if (tab === 'more')    return e(MoreScreen,     { onGoTo: goTo, state: game.state });
         return null;
       };
@@ -3507,7 +4260,37 @@
         // Bottom nav (mobile)
         layout.isMobile ? e(BottomNav, { tab, onChange: (t) => { setTab(t); setSubscreen(null); } }) : null,
         // Toasts
-        e(ToastStack, { toasts })
+        e(ToastStack, { toasts }),
+        // Conflict resolution dialog (cloud vs local)
+        conflict ? e('div', { className: 'shift-end-overlay' },
+          e('div', { className: 'shift-end-card', style: { maxWidth: 440 } },
+            e('div', { className: 'shift-end-night' }, '☁️'),
+            e('h2', { className: 'shift-end-title display-font' }, 'Save Conflict'),
+            e('div', { className: 'shift-end-quote' },
+              "We found a cloud save AND a local save on this device. Pick which one to keep — the other will be overwritten."
+            ),
+            e('div', { style: { display: 'flex', gap: 10, marginBottom: 14 } },
+              e('div', { className: 'shift-summary-cell', style: { flex: 1 } },
+                e('div', { className: 'ssc-label' }, 'Cloud'),
+                e('div', { className: 'ssc-value' }, fmtStacks(conflict.cloudMeta.stacks || 0))
+              ),
+              e('div', { className: 'shift-summary-cell', style: { flex: 1 } },
+                e('div', { className: 'ssc-label' }, 'Local'),
+                e('div', { className: 'ssc-value' }, fmtStacks(conflict.localStacks))
+              )
+            ),
+            e('button', {
+              className: 'btn btn-primary',
+              style: { width: '100%', marginBottom: 8 },
+              onClick: () => resolveConflict('cloud')
+            }, 'Use Cloud Save'),
+            e('button', {
+              className: 'btn btn-ghost',
+              style: { width: '100%' },
+              onClick: () => resolveConflict('local')
+            }, 'Keep Local & Overwrite Cloud')
+          )
+        ) : null
       );
     }
 

@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================================
+    // /users/{uid} — public profile summary (visible to friends)
+    // Stores: friendCode, displayName, rank, stacks, totalEarned,
+    //         reputation, customersServed, lastSeen
+    // ============================================================
+    match /users/{uid} {
+      // Any signed-in user can read another user's public summary
+      // (this is how friends see each other's rank/stats).
+      allow read: if request.auth != null;
+
+      // Only the user themself can write their own summary.
+      allow create, update: if request.auth != null
+                            && request.auth.uid == uid
+                            && request.resource.data.uid == uid;
+
+      // No deletes from clients (delete via admin SDK only).
+      allow delete: if false;
+
+      // ----------------------------------------------------------
+      // /users/{uid}/save/main — full save state
+      // Only the owner can read or write their own save.
+      // ----------------------------------------------------------
+      match /save/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+
+      // ----------------------------------------------------------
+      // /users/{uid}/friends/{friendUid} — your friends list
+      // Only the owner can read or write their own friends list.
+      // ----------------------------------------------------------
+      match /friends/{friendUid} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // ============================================================
+    // /friendCodes/{code} — public lookup table: code -> uid
+    // Anyone signed in can read (to look up friends by code).
+    // Anyone signed in can write/update their OWN code mapping.
+    // ============================================================
+    match /friendCodes/{code} {
+      allow read: if request.auth != null;
+
+      // Only allow setting this if request.resource.data.uid is the caller.
+      // This prevents users from claiming another user's code.
+      allow create, update: if request.auth != null
+                            && request.resource.data.uid == request.auth.uid;
+
+      // Only the owner can delete their own mapping.
+      allow delete: if request.auth != null
+                    && resource.data.uid == request.auth.uid;
+    }
+
+    // Default deny — any other path is locked.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

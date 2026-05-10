@@ -1,19 +1,33 @@
 {
-  "version": "1.1.2",
-  "title": "HustleBox v1.1.2 — Marcus Has a Face Now",
-  "date": "2026-05-09",
-  "message": "Big update. Real Marcus, real story, real cinematics, real bugs squashed.\n\nMARCUS HAS A FACE\n• The 🧢 emoji is gone. Marcus is now a hand-drawn SVG character — head, hair, eyes, mouth, baseball cap with a tiny amber HustleBox brand dot, orange hoodie. He shows up in the top bar avatar and on the Profile hero card.\n\nDYNAMIC PROFILE STORY\n• 'The Story So Far' on Profile now branches on FOUR dimensions instead of one: money tier × reputation × skill rate × experience.\n• High rep gets a 'word on the block is good' line. Low rep gets 'block doesn't trust you.'\n• High perfect-order rate gets 'Ray noticed: you got a touch.' Bad streak gets 'Ray says you need to focus.'\n• 50+ customers unlocks 'You know the rhythm.' 200+ unlocks 'feels like home.'\n\nEXTENDED END-OF-SHIFT CINEMATIC\n• Ending a shift now plays a multi-stage sequence:\n  1. Truck idling at the curb (engine rumble audio)\n  2. Truck drives off down the block\n  3. Goodbye dialogue between Ray and Marcus\n  4. Marcus walks home (footsteps audio)\n  5. House at night with floating Z's (snore audio)\n  6. Final summary card with stats and 'Get Some Sleep' button\n• All audio is synthesized with Web Audio API — no asset files. Respects the Sound setting.\n• Hit 'Skip ›' if you don't want the cinematic.\n\nVISUAL THEME — SIDE MENUS GET MESSY FOOD-TRUCK LOOK\n• Update Log: every version is now a paper receipt with dotted leader lines, perforated edges, and Courier text. The whole thing wraps in a chalkboard-framed panel.\n• Friends, Arcade, and Achievements: same chalkboard panel treatment. Brushed wood frame, brass rivet corners, chalk-style title text.\n• Main game (Home, Work, Profile) keeps the brushstroke/AMOLED aesthetic — split is intentional.\n\nBUG FIXES\n• Fixed: random events could repeat back-to-back (eventLog was being read but never written).\n• Fixed: 'DAY N' counter was stuck at DAY 1 forever (jobsCompleted never incremented).\n• Fixed: ending a shift while a result was showing could trigger a phantom new customer (dangling setTimeout closure).\n\nNo save data wiped. Settings, Stacks, rep, all carry over.",
+  "version": "1.2.0",
+  "title": "HustleBox v1.2.0 — Friends and the Cloud",
+  "date": "2026-05-10",
+  "message": "Big one. Sign in, save to the cloud, build a crew.\n\nACCOUNTS\n• Sign in with Email/Password, Google (web), or as Anonymous Guest.\n• Settings → Account now has the full sign-in flow.\n• Anonymous accounts can be linked to a real account later.\n• Capacitor users on Android: Email and Anonymous work in the APK; Google sign-in is web-only for now.\n\nCLOUD SAVE\n• Once signed in, your save auto-syncs to the cloud every few seconds.\n• If you sign in on a new device that already has local progress, you get a one-time conflict prompt: 'Use Cloud' or 'Keep Local & Overwrite Cloud'.\n• Sync status shows in Settings (Up to date / Syncing / Last sync failed).\n• Works offline — changes queue and push when you're back online.\n\nFRIENDS\n• Friends tab is no longer Coming Soon.\n• Your friend code is shown big with a QR code, copy button, and shareable invite link.\n• Add friends three ways: paste a friend code, scan their QR, or open their invite link (?friend=CODE).\n• See your crew with their names, codes, and a remove option.\n\nUNDER THE HOOD\n• Firestore database structure: /users/{uid} (public summary) and /users/{uid}/save/main (full save). Friend codes mapped at /friendCodes/{code}.\n• Security rules included with this version — paste them into Firebase Console > Firestore > Rules before public launch.\n\nNo save data wiped. Local-only saves keep working as before — sign-in is optional.",
   "entries": [
+    {
+      "version": "1.2.0",
+      "date": "2026-05-10",
+      "title": "Friends and the Cloud",
+      "highlights": [
+        "Email + Google + Anonymous sign-in (Settings → Account)",
+        "Cloud save with auto-sync every few seconds",
+        "Conflict resolution prompt when local and cloud both have progress",
+        "Friend system fully wired: your code, QR, invite link, manual entry",
+        "Add friends by code or via ?friend=CODE invite link",
+        "Friends list with remove option",
+        "Firestore-backed — works offline, syncs when reconnected",
+        "Capacitor caveat: Google sign-in is web-only for now"
+      ]
+    },
     {
       "version": "1.1.2",
       "date": "2026-05-09",
       "title": "Marcus Has a Face Now",
       "highlights": [
         "Marcus is a hand-drawn SVG character — replaces the 🧢 emoji",
-        "Profile story branches on rep × skill × experience × money (was money only)",
-        "Extended end-of-shift cinematic: truck → drive-off → goodbye → walk home → sleep",
-        "Engine rumble, footsteps, door close, snore — all synthesized with Web Audio API",
-        "'Skip ›' button to bypass the cinematic",
+        "Profile story branches on rep × skill × experience × money",
+        "Extended end-of-shift cinematic with engine + walking + sleep audio",
+        "Skip cinematic button",
         "Update Log redressed as paper receipts inside a chalkboard frame",
         "Friends/Arcade/Achievements get chalkboard frame treatment",
         "Fixed: random events repeating back-to-back",
@@ -29,8 +43,7 @@
         "Fixed mouse-wheel scroll being eaten by the sidebar on desktop",
         "OPEN sign now starts the shift when clicked",
         "Sidebar logo made smaller and more subtle",
-        "Removed wasted bottom padding on desktop",
-        "Defensive z-index on all buttons"
+        "Removed wasted bottom padding on desktop"
       ]
     },
     {
@@ -44,9 +57,7 @@
         "Food truck screen redressed: diamond plate, stainless counter, rivets",
         "Build plate sits on the counter with 3D perspective",
         "Customer card with bobbing animation when patience is low",
-        "Big SERVE bell button instead of auto-completion",
-        "Bottom nav icons get a glow halo when active",
-        "Order length 2–4 (was 3–5), timer more generous"
+        "Big SERVE bell button instead of auto-completion"
       ]
     },
     {
@@ -59,9 +70,7 @@
         "End-of-shift overlay with walking-home animation + summary",
         "Profile redesigned with hero card and evolving story",
         "Smoother iOS-style toggle animations",
-        "Back buttons in all settings sub-screens",
-        "Removed Reduce Motion and Username fields",
-        "Create Account (Coming Soon) replaces Cloud Save"
+        "Back buttons in all settings sub-screens"
       ]
     },
     {
@@ -71,8 +80,7 @@
       "highlights": [
         "Official HustleBox brushstroke logo wired into the app",
         "Custom sun + skyline app icon",
-        "Logo shown in sidebar and About",
-        "Cache assets updated for the new visuals"
+        "Logo shown in sidebar and About"
       ]
     },
     {
@@ -86,9 +94,7 @@
         "Reputation 0–100 system",
         "Rank progression (Broke → Legend)",
         "Random events foundation",
-        "Achievement system foundation",
-        "Settings screen",
-        "Friends, Arcade, and additional jobs coming soon"
+        "Settings screen"
       ]
     }
   ]
