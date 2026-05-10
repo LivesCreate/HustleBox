@@ -1,9 +1,20 @@
 {
-  "version": "1.2.0",
-  "title": "HustleBox v1.2.0 — Friends and the Cloud",
+  "version": "1.2.1",
+  "title": "HustleBox v1.2.1 — Plate Fix",
   "date": "2026-05-10",
-  "message": "Big one. Sign in, save to the cloud, build a crew.\n\nACCOUNTS\n• Sign in with Email/Password, Google (web), or as Anonymous Guest.\n• Settings → Account now has the full sign-in flow.\n• Anonymous accounts can be linked to a real account later.\n• Capacitor users on Android: Email and Anonymous work in the APK; Google sign-in is web-only for now.\n\nCLOUD SAVE\n• Once signed in, your save auto-syncs to the cloud every few seconds.\n• If you sign in on a new device that already has local progress, you get a one-time conflict prompt: 'Use Cloud' or 'Keep Local & Overwrite Cloud'.\n• Sync status shows in Settings (Up to date / Syncing / Last sync failed).\n• Works offline — changes queue and push when you're back online.\n\nFRIENDS\n• Friends tab is no longer Coming Soon.\n• Your friend code is shown big with a QR code, copy button, and shareable invite link.\n• Add friends three ways: paste a friend code, scan their QR, or open their invite link (?friend=CODE).\n• See your crew with their names, codes, and a remove option.\n\nUNDER THE HOOD\n• Firestore database structure: /users/{uid} (public summary) and /users/{uid}/save/main (full save). Friend codes mapped at /friendCodes/{code}.\n• Security rules included with this version — paste them into Firebase Console > Firestore > Rules before public launch.\n\nNo save data wiped. Local-only saves keep working as before — sign-in is optional.",
+  "message": "Quick visual hotfix.\n\n• Build plate is taller now — 'DRAG TO PLATE' text is no longer clipped on smaller screens or in the Capacitor WebView.\n• Removed the 3D perspective rotation on the plate. It looked cool on desktop Chrome but caused rendering glitches on Android WebView (counter-rotated text rendering at half-height). The plate is now flat with the same shadow + gradient look — still reads as 3D, just doesn't break.\n• Ingredient cards (the burger/fries/pizza tiles you drag) now have explicit padding and a min-height so the emoji + price text never get clipped on small screens.\n\nNo gameplay changes. No save data wiped.",
   "entries": [
+    {
+      "version": "1.2.1",
+      "date": "2026-05-10",
+      "title": "Plate Fix",
+      "highlights": [
+        "Build plate taller — DRAG TO PLATE text no longer clipped",
+        "Removed 3D perspective rotation that broke in Android WebView",
+        "Ingredient cards have proper padding + min-height — emoji and price never clip",
+        "Drop-shadow lighting kept so plate still reads as dimensional"
+      ]
+    },
     {
       "version": "1.2.0",
       "date": "2026-05-10",
@@ -15,7 +26,6 @@
         "Friend system fully wired: your code, QR, invite link, manual entry",
         "Add friends by code or via ?friend=CODE invite link",
         "Friends list with remove option",
-        "Firestore-backed — works offline, syncs when reconnected",
         "Capacitor caveat: Google sign-in is web-only for now"
       ]
     },
@@ -27,12 +37,10 @@
         "Marcus is a hand-drawn SVG character — replaces the 🧢 emoji",
         "Profile story branches on rep × skill × experience × money",
         "Extended end-of-shift cinematic with engine + walking + sleep audio",
-        "Skip cinematic button",
         "Update Log redressed as paper receipts inside a chalkboard frame",
         "Friends/Arcade/Achievements get chalkboard frame treatment",
         "Fixed: random events repeating back-to-back",
-        "Fixed: DAY counter stuck at DAY 1",
-        "Fixed: phantom customer firing after end shift"
+        "Fixed: DAY counter stuck at DAY 1"
       ]
     },
     {
@@ -42,8 +50,7 @@
       "highlights": [
         "Fixed mouse-wheel scroll being eaten by the sidebar on desktop",
         "OPEN sign now starts the shift when clicked",
-        "Sidebar logo made smaller and more subtle",
-        "Removed wasted bottom padding on desktop"
+        "Sidebar logo made smaller and more subtle"
       ]
     },
     {
@@ -52,12 +59,9 @@
       "title": "Cook Like You Mean It",
       "highlights": [
         "Drag-and-drop ingredient assembly (replaces tap-in-order)",
-        "Tap plate items to remove if you misclicked",
-        "Order ticket is now a paper receipt with prices and a total",
+        "Order ticket is now a paper receipt with prices",
         "Food truck screen redressed: diamond plate, stainless counter, rivets",
-        "Build plate sits on the counter with 3D perspective",
-        "Customer card with bobbing animation when patience is low",
-        "Big SERVE bell button instead of auto-completion"
+        "Big SERVE bell button"
       ]
     },
     {
@@ -66,36 +70,21 @@
       "title": "Quality of Life",
       "highlights": [
         "Theatrical shift opening — OPEN sign drop, Ray reacts to your rep",
-        "Chalkboard menu board with prices",
-        "End-of-shift overlay with walking-home animation + summary",
         "Profile redesigned with hero card and evolving story",
-        "Smoother iOS-style toggle animations",
-        "Back buttons in all settings sub-screens"
+        "Smoother iOS-style toggle animations"
       ]
     },
     {
       "version": "1.0.1",
       "date": "2026-05-06",
       "title": "Official Branding",
-      "highlights": [
-        "Official HustleBox brushstroke logo wired into the app",
-        "Custom sun + skyline app icon",
-        "Logo shown in sidebar and About"
-      ]
+      "highlights": ["Brushstroke logo", "Custom sun + skyline icon"]
     },
     {
       "version": "1.0.0",
       "date": "2026-05-04",
       "title": "Welcome to the Block",
-      "highlights": [
-        "Initial release",
-        "Food Truck job playable",
-        "Stacks wallet + idle income ticker",
-        "Reputation 0–100 system",
-        "Rank progression (Broke → Legend)",
-        "Random events foundation",
-        "Settings screen"
-      ]
+      "highlights": ["Initial release"]
     }
   ]
 }

@@ -454,21 +454,18 @@
       box-shadow: 0 0 8px currentColor;
     }
 
-    /* === The build plate (3D perspective) === */
+    /* === The build plate === */
     .prep-counter {
-      perspective: 800px;
-      perspective-origin: 50% 30%;
       padding: 6px 0;
     }
     .build-plate {
       position: relative;
-      transform: rotateX(20deg);
-      transform-style: preserve-3d;
       background:
         radial-gradient(ellipse at 50% 30%, #ffffff 0%, #d8d8d8 60%, #888 100%);
       width: 80%;
       max-width: 360px;
-      aspect-ratio: 2.4 / 1;
+      aspect-ratio: 2 / 1;
+      min-height: 110px;
       margin: 0 auto;
       border-radius: 50%;
       box-shadow:
@@ -479,7 +476,7 @@
       transition: transform 200ms ease, box-shadow 200ms ease;
     }
     .build-plate.drag-over {
-      transform: rotateX(20deg) scale(1.04);
+      transform: scale(1.04);
       box-shadow:
         0 12px 32px rgba(255,167,38,0.4),
         0 4px 10px rgba(0,0,0,0.4),
@@ -491,13 +488,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #666;
-      font-size: 11px;
-      letter-spacing: 2px;
-      font-weight: 700;
+      color: #555;
+      font-size: 13px;
+      letter-spacing: 2.5px;
+      font-weight: 800;
       text-transform: uppercase;
       pointer-events: none;
-      transform: rotateX(-20deg);
+      line-height: 1;
+      padding: 0 24px;
+      text-align: center;
     }
     .build-plate-items {
       position: absolute;
@@ -506,9 +505,8 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 0 12px;
+      padding: 8px 16px;
       flex-wrap: wrap;
-      transform: rotateX(-20deg);
     }
     .plate-item {
       font-size: 30px;
@@ -562,6 +560,8 @@
     }
     .ingredient-card {
       aspect-ratio: 1 / 1;
+      min-height: 64px;
+      padding: 6px 4px;
       background: linear-gradient(180deg, #3a3a3a, #1f1f1f);
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: 10px;
@@ -569,20 +569,22 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2px;
+      gap: 3px;
       cursor: grab;
       user-select: none;
       touch-action: none;
       position: relative;
       transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
       box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      overflow: hidden;
     }
     .ingredient-card:active { cursor: grabbing; transform: scale(0.95); }
     .ingredient-card.dragging { opacity: 0.35; }
-    .ingredient-card .ic-emoji { font-size: 28px; line-height: 1; }
+    .ingredient-card .ic-emoji { font-size: 26px; line-height: 1.1; }
     .ingredient-card .ic-price {
       font-family: 'Permanent Marker', cursive;
-      font-size: 10px;
+      font-size: 11px;
+      line-height: 1.2;
       color: var(--gold);
       letter-spacing: 0.5px;
     }
@@ -1564,7 +1566,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.2.0';
+    const VERSION = '1.2.1';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
