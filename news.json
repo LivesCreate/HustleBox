@@ -1,9 +1,25 @@
 {
-  "version": "1.2.1",
-  "title": "HustleBox v1.2.1 — Plate Fix",
-  "date": "2026-05-10",
-  "message": "Quick visual hotfix.\n\n• Build plate is taller now — 'DRAG TO PLATE' text is no longer clipped on smaller screens or in the Capacitor WebView.\n• Removed the 3D perspective rotation on the plate. It looked cool on desktop Chrome but caused rendering glitches on Android WebView (counter-rotated text rendering at half-height). The plate is now flat with the same shadow + gradient look — still reads as 3D, just doesn't break.\n• Ingredient cards (the burger/fries/pizza tiles you drag) now have explicit padding and a min-height so the emoji + price text never get clipped on small screens.\n\nNo gameplay changes. No save data wiped.",
+  "version": "1.2.2",
+  "title": "HustleBox v1.2.2 — The Climb (and the Exit)",
+  "date": "2026-05-11",
+  "message": "The career arc is real now.\n\nNEW RANK SYSTEM\nThe generic Broke → Legend ladder is gone. You're climbing a real career inside Ray's truck:\n• Dishwasher (start)\n• Prep Cook\n• Line Cook\n• Head Cook\n• Manager\n• Owner (you bought the truck from Ray)\n\nGRADUATION ENDING\nReach Owner and a letter shows up. Someone's been watching the truck — your hours, your reputation, your climb. They want you on their team. They don't say where. You start in about a week.\n• Game stays fully playable after the ending fires.\n• The ending shows ONCE — your save tracks that you've graduated, and the Profile shows your next-job date going forward.\n• Profile reads 🎓 GRADUATED instead of 🏆 OWNER once it's done.\n\nDYNAMIC STORY UPDATED\nThe profile story now mirrors the career ladder: bottom-of-the-rung dishwasher narrative at $0, prep-cook chopping narrative at $100, line cook at $1K, head cook at $10K, manager at $100K, owner at $1M. After graduation, a special epilogue paragraph.\n\nHOME SCREEN — RAY'S TRUCK GRAPHIC\nThe top of the Home screen now shows Ray's truck parked on the curb at night — diamond plate body, glowing window, a tiny 'RAY'S' sign swinging on a string, stars overhead, smoke puffing from the side. Tap anywhere on the card to start a shift. If you've graduated, a 'last days here' caption shows your next-job date.\n\nNEW WORK TAB ICON\nThe burger emoji in the bottom nav has been replaced with a crossed spatula + knife SVG icon for the Work tab. More food-truck, less ambient food. Also: removed the SOON badge from Friends in the bottom nav since friends is fully wired now.\n\nNo save data wiped. Existing players with progress past the Owner threshold will see the graduation ending on next launch — the trigger fires once and stores the date going forward.",
   "entries": [
+    {
+      "version": "1.2.2",
+      "date": "2026-05-11",
+      "title": "The Climb (and the Exit)",
+      "highlights": [
+        "Ranks rewritten as food-truck career titles: Dishwasher → Owner",
+        "Graduation ending: letter arrives when you reach Owner, hints at a next job ~1 week out",
+        "Game stays playable after ending — sandbox continues",
+        "Profile shows 🎓 GRADUATED + next-job date once ending fires",
+        "Story paragraphs rewritten to mirror career ladder",
+        "Home screen now shows Ray's truck parked at the curb (clickable to go to Work)",
+        "Tiny 'RAY'S' sign swings above the parked truck on Home",
+        "Spatula + knife SVG icon for the Work tab in the bottom nav",
+        "Friends tab no longer shows SOON badge (it's live)"
+      ]
+    },
     {
       "version": "1.2.1",
       "date": "2026-05-10",
@@ -11,8 +27,7 @@
       "highlights": [
         "Build plate taller — DRAG TO PLATE text no longer clipped",
         "Removed 3D perspective rotation that broke in Android WebView",
-        "Ingredient cards have proper padding + min-height — emoji and price never clip",
-        "Drop-shadow lighting kept so plate still reads as dimensional"
+        "Ingredient cards have proper padding + min-height"
       ]
     },
     {
@@ -20,13 +35,10 @@
       "date": "2026-05-10",
       "title": "Friends and the Cloud",
       "highlights": [
-        "Email + Google + Anonymous sign-in (Settings → Account)",
-        "Cloud save with auto-sync every few seconds",
-        "Conflict resolution prompt when local and cloud both have progress",
-        "Friend system fully wired: your code, QR, invite link, manual entry",
-        "Add friends by code or via ?friend=CODE invite link",
-        "Friends list with remove option",
-        "Capacitor caveat: Google sign-in is web-only for now"
+        "Email + Google + Anonymous sign-in",
+        "Cloud save with auto-sync and conflict resolution",
+        "Friend system: code, QR, invite link, manual entry",
+        "Friends list with remove option"
       ]
     },
     {
@@ -34,13 +46,10 @@
       "date": "2026-05-09",
       "title": "Marcus Has a Face Now",
       "highlights": [
-        "Marcus is a hand-drawn SVG character — replaces the 🧢 emoji",
+        "Marcus is a hand-drawn SVG character",
         "Profile story branches on rep × skill × experience × money",
-        "Extended end-of-shift cinematic with engine + walking + sleep audio",
-        "Update Log redressed as paper receipts inside a chalkboard frame",
-        "Friends/Arcade/Achievements get chalkboard frame treatment",
-        "Fixed: random events repeating back-to-back",
-        "Fixed: DAY counter stuck at DAY 1"
+        "Extended end-of-shift cinematic with engine + footsteps + snore audio",
+        "Update Log redressed as paper receipts in chalkboard frames"
       ]
     },
     {
@@ -48,9 +57,9 @@
       "date": "2026-05-08",
       "title": "Hotfix",
       "highlights": [
-        "Fixed mouse-wheel scroll being eaten by the sidebar on desktop",
+        "Fixed mouse-wheel scroll on desktop",
         "OPEN sign now starts the shift when clicked",
-        "Sidebar logo made smaller and more subtle"
+        "Sidebar logo made smaller"
       ]
     },
     {
@@ -58,8 +67,8 @@
       "date": "2026-05-08",
       "title": "Cook Like You Mean It",
       "highlights": [
-        "Drag-and-drop ingredient assembly (replaces tap-in-order)",
-        "Order ticket is now a paper receipt with prices",
+        "Drag-and-drop ingredient assembly",
+        "Order ticket as a paper receipt with prices",
         "Food truck screen redressed: diamond plate, stainless counter, rivets",
         "Big SERVE bell button"
       ]
@@ -69,16 +78,10 @@
       "date": "2026-05-08",
       "title": "Quality of Life",
       "highlights": [
-        "Theatrical shift opening — OPEN sign drop, Ray reacts to your rep",
-        "Profile redesigned with hero card and evolving story",
+        "Theatrical shift opening — OPEN sign drop",
+        "Profile redesigned with hero card",
         "Smoother iOS-style toggle animations"
       ]
-    },
-    {
-      "version": "1.0.1",
-      "date": "2026-05-06",
-      "title": "Official Branding",
-      "highlights": ["Brushstroke logo", "Custom sun + skyline icon"]
     },
     {
       "version": "1.0.0",

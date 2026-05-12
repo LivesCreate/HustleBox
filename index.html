@@ -1358,6 +1358,105 @@
     }
 
     /* Theatrical shift-opening intro */
+    .home-workplace {
+      background: linear-gradient(180deg, rgba(255,167,38,0.05) 0%, transparent 60%), var(--bg-1);
+      border: 1px solid var(--line-strong);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 160ms ease;
+    }
+    .home-workplace:hover { border-color: var(--amber); }
+    .home-workplace:active { transform: scale(0.99); }
+    .home-workplace-scene {
+      height: 110px;
+      position: relative;
+      background: linear-gradient(180deg, #0a0808 0%, #1a1410 75%, #2a2018 100%);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      border: 1px solid rgba(255,167,38,0.1);
+    }
+    .home-workplace-scene::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 12% 22%, #ffe082 100%, transparent),
+        radial-gradient(1px 1px at 28% 36%, #ffd54f 100%, transparent),
+        radial-gradient(1px 1px at 62% 22%, #ffeb99 100%, transparent),
+        radial-gradient(1px 1px at 82% 30%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 45% 18%, #ffeb99 100%, transparent);
+      opacity: 0.55;
+    }
+    /* Curb line at bottom of scene */
+    .home-workplace-scene::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 5px;
+      background: linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .home-workplace-scene .truck {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    /* Tiny "OPEN" sign attached above the parked truck */
+    .home-workplace-scene .wp-sign {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Permanent Marker', cursive;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #ffe082;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,224,130,0.4);
+      padding: 2px 8px;
+      border-radius: 3px;
+      animation: swingSign 4s ease-in-out infinite;
+      transform-origin: 50% -4px;
+    }
+    @keyframes swingSign {
+      0%, 100% { transform: translateX(-50%) rotate(-2deg); }
+      50%      { transform: translateX(-50%) rotate(2deg); }
+    }
+    .home-workplace-caption {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .home-workplace-caption .wp-name {
+      font-family: 'Permanent Marker', cursive;
+      font-size: 18px;
+      color: var(--amber);
+      letter-spacing: 1.5px;
+    }
+    .home-workplace-caption .wp-loc {
+      font-size: 11px;
+      color: var(--text-faint);
+      letter-spacing: 1px;
+      text-align: right;
+    }
+    .home-workplace-grad-note {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--line);
+      font-size: 11px;
+      color: var(--gold);
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* Theatrical shift-opening intro */
     .shift-intro {
       background: linear-gradient(180deg, rgba(255,167,38,0.08) 0%, rgba(0,0,0,0.4) 100%), var(--bg-1);
       border: 1px solid var(--line-strong);
@@ -1566,7 +1665,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.2.1';
+    const VERSION = '1.2.2';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -1581,12 +1680,12 @@
     const TICK_MS = 1000;
 
     const RANKS = [
-      { id: 'broke',    name: 'Broke',    threshold: 0,        wagePerSec: 0.5  },
-      { id: 'hustler',  name: 'Hustler',  threshold: 100,      wagePerSec: 0.75 },
-      { id: 'grinder',  name: 'Grinder',  threshold: 1000,     wagePerSec: 1.0  },
-      { id: 'player',   name: 'Player',   threshold: 10000,    wagePerSec: 1.75 },
-      { id: 'boss',     name: 'Boss',     threshold: 100000,   wagePerSec: 3.0  },
-      { id: 'legend',   name: 'Legend',   threshold: 1000000,  wagePerSec: 5.0  }
+      { id: 'dishwasher', name: 'Dishwasher', threshold: 0,        wagePerSec: 0.5  },
+      { id: 'prep_cook',  name: 'Prep Cook',  threshold: 100,      wagePerSec: 0.75 },
+      { id: 'line_cook',  name: 'Line Cook',  threshold: 1000,     wagePerSec: 1.0  },
+      { id: 'head_cook',  name: 'Head Cook',  threshold: 10000,    wagePerSec: 1.75 },
+      { id: 'manager',    name: 'Manager',    threshold: 100000,   wagePerSec: 3.0  },
+      { id: 'owner',      name: 'Owner',      threshold: 1000000,  wagePerSec: 5.0  }
     ];
 
     const REP_TIERS = [
@@ -1745,7 +1844,10 @@
         account: {
           username: 'Marcus',
           avatar: '🧢',
-          friendCode: generateFriendCode()
+          friendCode: generateFriendCode(),
+          graduated: false,
+          graduatedAt: null,    // ISO date string when ending fired
+          nextJobDate: null      // ISO date string (~1 week after graduation) for the new job
         },
         // Multiplayer/friends data layer ready — UI coming in future update
         friends: [],
@@ -2116,6 +2218,80 @@
 
       return { engineRumble, doorClose, footsteps, snore };
     })();
+
+    // ============================================================
+    // EndingSequence — graduation overlay shown ONCE when player
+    // reaches the Owner rank threshold. A letter saying they got
+    // accepted to a next job (deliberately vague) starting ~1 week
+    // out. Game stays playable after dismissal.
+    // ============================================================
+    function EndingSequence({ onDismiss }) {
+      const today = new Date();
+      const nextJob = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const nextJobDateStr = nextJob.toLocaleDateString(undefined, {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric'
+      });
+      const sentDateStr = today.toLocaleDateString(undefined, {
+        month: 'short', day: 'numeric', year: 'numeric'
+      });
+
+      return e('div', { className: 'shift-end-overlay' },
+        e('div', { className: 'shift-end-card', style: { maxWidth: 500, padding: '28px 22px' } },
+          e('div', { style: { fontSize: 36, textAlign: 'center', marginBottom: 6 } }, '✉️'),
+          e('div', { className: 'shift-end-title display-font', style: { textAlign: 'center', marginBottom: 14 } }, "A Letter Came Today"),
+
+          // Letter body — receipt-paper styling
+          e('div', {
+            style: {
+              background: 'linear-gradient(180deg, #f5e6c8 0%, #e8d5ad 100%)',
+              color: '#2a1f15',
+              padding: '20px 20px 24px',
+              fontFamily: "'Courier New', monospace",
+              borderRadius: 4,
+              lineHeight: 1.6,
+              fontSize: 13,
+              textAlign: 'left',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
+            }
+          },
+            e('div', { style: { textAlign: 'right', fontSize: 10, color: '#5a4a3a', marginBottom: 14 } }, sentDateStr),
+            e('div', null, 'Marcus —'),
+            e('br'),
+            e('div', null,
+              "We've been watching the truck on 5th and Main. The hours. The reputation. The way you went from washing dishes to running the place."
+            ),
+            e('br'),
+            e('div', null,
+              "We'd be glad to have you on the team."
+            ),
+            e('br'),
+            e('div', null,
+              "You start ",
+              e('strong', null, nextJobDateStr),
+              ". Details to follow."
+            ),
+            e('br'),
+            e('div', null,
+              "Tell Ray. He'll be proud."
+            ),
+            e('br'),
+            e('br'),
+            e('div', { style: { fontStyle: 'italic', textAlign: 'right' } }, '— The Management')
+          ),
+
+          e('div', { style: { marginTop: 18, color: 'var(--text-dim)', fontSize: 13, fontStyle: 'italic', textAlign: 'center', lineHeight: 1.5 } },
+            "You folded the letter and put it in your back pocket. Tomorrow's another shift — for now."
+          ),
+          e('button', {
+            className: 'btn btn-primary',
+            style: { width: '100%', fontSize: 15, marginTop: 16 },
+            onClick: onDismiss
+          }, 'Continue')
+        )
+      );
+    }
 
     // ============================================================
     // HustleFire — Firebase wrapper for auth, cloud save, and friends
@@ -2511,25 +2687,50 @@
       const customers = state.customersServed || 0;
       const failRate = customers > 0 ? state.failedOrders / customers : 0;
       const perfectRate = customers > 0 ? state.perfectOrders / customers : 0;
+      const graduated = !!(state.account && state.account.graduated);
       const out = [];
 
-      // Main story by money tier
+      // Post-graduation: everything that follows is epilogue
+      if (graduated) {
+        out.push({ text: "You did the impossible. Started as the " });
+        out.push({ text: "dishwasher", em: true });
+        out.push({ text: " who couldn't afford rent — ended up running the truck, then walking away with " });
+        out.push({ text: "something bigger", em: true });
+        out.push({ text: " waiting for you. Ray hugged you when you told him. He said he saw it coming. You're still around the block, but your eyes are already on what's next." });
+        return out;
+      }
+
+      // Main story by career tier (mirrors rank progression)
       if (earned < 100) {
+        // Dishwasher
         out.push({ text: "Nineteen, broke, evicted last week. " });
         out.push({ text: "Uncle Ray", em: true });
-        out.push({ text: " gave you a shot at his food truck — 5th and Main, the only spot he hasn't burned yet. You started with $12 in your pocket. The block doesn't know your name yet." });
+        out.push({ text: " gave you a shot — bottom of the rung, scrubbing dishes and prepping ingredients. 5th and Main. The block doesn't know your name yet." });
       } else if (earned < 1000) {
-        out.push({ text: "You're not broke anymore. People walk past the truck and they recognize you now. Ray nods more than he scolds. You're not anyone yet — but you're " });
-        out.push({ text: "someone", em: true });
-        out.push({ text: " on this block." });
+        // Prep Cook
+        out.push({ text: "Ray moved you to " });
+        out.push({ text: "prep", em: true });
+        out.push({ text: " — chopping, marinating, getting the line ready for the rush. You're not in front of customers yet, but you're learning the rhythm. Ray nods more than he scolds." });
       } else if (earned < 10000) {
-        out.push({ text: "Word's spreading. Regulars come by name. You've got " });
-        out.push({ text: "real money", em: true });
-        out.push({ text: " on you for the first time in your life. Ray talks about expanding. The back room calls every now and then." });
+        // Line Cook
+        out.push({ text: "You're on the " });
+        out.push({ text: "line now", em: true });
+        out.push({ text: ". Actually cooking. The window is yours during the rush. People walk past and they recognize the work — the burgers come out hot, the orders come out right." });
+      } else if (earned < 100000) {
+        // Head Cook
+        out.push({ text: "Head cook. " });
+        out.push({ text: "You run the line", em: true });
+        out.push({ text: " when Ray's not there. Regulars come by name. You've got real money on you for the first time in your life. Ray talks about expanding. The back room calls every now and then." });
+      } else if (earned < 1000000) {
+        // Manager
+        out.push({ text: "Ray gave you the " });
+        out.push({ text: "manager keys", em: true });
+        out.push({ text: ". You hire, you fire, you handle the suppliers. Some days Ray doesn't even come in. The block knows your name now — and the truck runs on what you decide." });
       } else {
-        out.push({ text: "You came up. Started with $12 — now look at you. The block " });
-        out.push({ text: "knows", em: true });
-        out.push({ text: " your name. The question isn't whether you'll make it. It's how high you climb." });
+        // Owner — final pre-graduation tier
+        out.push({ text: "You " });
+        out.push({ text: "bought the truck", em: true });
+        out.push({ text: " from Ray. He's still around — he comes by, drinks coffee, gives advice you don't always take. Started with $12 and a couch to sleep on. Now you're the one telling the new kid where the sponges are." });
       }
 
       // Reputation flavor (kicks in after a few customers — needs sample size)
@@ -2716,13 +2917,45 @@
     // ============================================================
     // Bottom Nav (mobile)
     // ============================================================
+    // Crossed spatula + knife — Work tab icon, scales via currentColor
+    const SPATULA_KNIFE_SVG = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%">' +
+      // Spatula rotated -45 (head goes upper-left, handle to lower-right)
+      '<g transform="rotate(-45 12 12)" fill="currentColor">' +
+        '<rect x="9" y="3" width="6" height="4" rx="1"/>' +
+        '<rect x="11" y="7" width="2" height="13" rx="0.8"/>' +
+        '<rect x="10.5" y="3.8" width="0.7" height="2.6" fill="rgba(0,0,0,0.35)"/>' +
+        '<rect x="11.7" y="3.8" width="0.7" height="2.6" fill="rgba(0,0,0,0.35)"/>' +
+        '<rect x="12.9" y="3.8" width="0.7" height="2.6" fill="rgba(0,0,0,0.35)"/>' +
+      '</g>' +
+      // Knife rotated +45 (blade goes upper-right, handle to lower-left)
+      '<g transform="rotate(45 12 12)" fill="currentColor">' +
+        '<path d="M 10.5 3 L 13.5 3 L 13.5 12 L 11 14 Z"/>' +
+        '<rect x="10.5" y="12" width="3" height="8" rx="0.5"/>' +
+        '<circle cx="12" cy="14.5" r="0.55" fill="rgba(0,0,0,0.45)"/>' +
+        '<circle cx="12" cy="17.5" r="0.55" fill="rgba(0,0,0,0.45)"/>' +
+      '</g>' +
+    '</svg>';
+
     const NAV_TABS = [
       { id: 'home',     label: 'Home',     icon: '🏠' },
-      { id: 'work',     label: 'Work',     icon: '🍔' },
+      { id: 'work',     label: 'Work',     iconHtml: SPATULA_KNIFE_SVG },
       { id: 'arcade',   label: 'Arcade',   icon: '🎰', soon: true },
-      { id: 'friends',  label: 'Friends',  icon: '👥', soon: true },
+      { id: 'friends',  label: 'Friends',  icon: '👥' },
       { id: 'more',     label: 'More',     icon: '⚙️' }
     ];
+
+    // Helper: render the tab icon. If iconHtml is present, inject it as SVG;
+    // otherwise treat .icon as plain text (emoji).
+    function renderTabIcon(t, sizePx) {
+      if (t.iconHtml) {
+        const px = sizePx || 22;
+        return e('span', {
+          style: { display: 'inline-block', width: px + 'px', height: px + 'px', lineHeight: 0 },
+          dangerouslySetInnerHTML: { __html: t.iconHtml }
+        });
+      }
+      return t.icon;
+    }
 
     function BottomNav({ tab, onChange }) {
       return e('div', { className: 'bottomnav' },
@@ -2735,7 +2968,7 @@
           },
             e('span', { className: 'icon' },
               e('span', { className: 'icon-bg' }),
-              t.icon
+              renderTabIcon(t, 22)
             ),
             e('span', null, t.label),
             t.soon ? e('span', { className: 'badge-soon' }, 'SOON') : null
@@ -2758,7 +2991,9 @@
             className: 'sidebar-tab' + (tab === t.id ? ' active' : ''),
             onClick: () => onChange(t.id)
           },
-            e('span', { style: { fontSize: 20 } }, t.icon),
+            e('span', { style: { fontSize: 20, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22 } },
+              renderTabIcon(t, 20)
+            ),
             e('span', { style: { flex: 1, textAlign: 'left' } }, t.label),
             t.soon ? e('span', { className: 'pill', style: { fontSize: 9 } }, 'Soon') : null
           )
@@ -2785,6 +3020,35 @@
         e('div', { className: 'screen-header' },
           e('h1', { className: 'screen-title display-font' }, 'The Block'),
           e('p', { className: 'screen-subtitle' }, "5th and Main. Ray's truck. Your shift.")
+        ),
+        // Workplace card — parked truck on the curb at night, click to start shift
+        e('div', {
+          className: 'home-workplace',
+          onClick: () => onGoTo('work'),
+          role: 'button',
+          'aria-label': "Open Ray's Food Truck"
+        },
+          e('div', { className: 'home-workplace-scene' },
+            e('div', { className: 'wp-sign' }, "RAY'S"),
+            e('div', { className: 'truck' },
+              e('div', { className: 'truck-smoke' }),
+              e('div', { className: 'truck-body' }),
+              e('div', { className: 'truck-cab' }),
+              e('div', { className: 'truck-window' }),
+              e('div', { className: 'truck-wheel left' }),
+              e('div', { className: 'truck-wheel right' })
+            )
+          ),
+          e('div', { className: 'home-workplace-caption' },
+            e('div', { className: 'wp-name' }, "Ray's Food Truck"),
+            e('div', { className: 'wp-loc' }, '5th & Main')
+          ),
+          state.account && state.account.graduated && state.account.nextJobDate
+            ? e('div', { className: 'home-workplace-grad-note' },
+                "Last days here. Next chapter starts " +
+                new Date(state.account.nextJobDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })
+              )
+            : null
         ),
         // Marcus story card on first launch
         state.customersServed === 0
@@ -4003,10 +4267,12 @@
         e('div', { className: 'card', style: { marginBottom: 14 } },
           e('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: 8 } },
             e('div', { style: { fontSize: 11, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: 1 } }, 'The Climb'),
-            nextRank
-              ? e('div', { style: { fontSize: 12, color: 'var(--text-dim)' } },
-                  fmtStacks(nextRank.threshold - state.totalEarned) + ' to ' + nextRank.name)
-              : e('div', { style: { fontSize: 12, color: 'var(--gold)' } }, '🏆 LEGEND')
+            state.account && state.account.graduated
+              ? e('div', { style: { fontSize: 12, color: 'var(--gold)' } }, '🎓 GRADUATED')
+              : nextRank
+                ? e('div', { style: { fontSize: 12, color: 'var(--text-dim)' } },
+                    fmtStacks(nextRank.threshold - state.totalEarned) + ' to ' + nextRank.name)
+                : e('div', { style: { fontSize: 12, color: 'var(--gold)' } }, '🏆 OWNER')
           ),
           e('div', { className: 'rep-bar-track' },
             e('div', { className: 'rep-bar-fill', style: { width: rankProgress + '%', background: 'linear-gradient(90deg, var(--amber-deep), var(--amber))' } })
@@ -4014,7 +4280,13 @@
           e('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-faint)', marginTop: 6 } },
             e('span', null, rank.name),
             nextRank ? e('span', null, nextRank.name) : null
-          )
+          ),
+          // Next-job date footer for graduates
+          state.account && state.account.graduated && state.account.nextJobDate
+            ? e('div', { style: { marginTop: 10, paddingTop: 8, borderTop: '1px dashed var(--line)', fontSize: 11, color: 'var(--gold)', textAlign: 'center', fontStyle: 'italic' } },
+                'Next chapter starts ' + new Date(state.account.nextJobDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })
+              )
+            : null
         ),
 
         // Story (dynamic based on multiple progression dimensions)
@@ -4082,6 +4354,7 @@
       const [authReady, setAuthReady] = useState(false);
       const [syncStatus, setSyncStatus] = useState('idle'); // idle | syncing | synced | error
       const [conflict, setConflict] = useState(null); // { localState, cloudState, cloudMeta }
+      const [showEnding, setShowEnding] = useState(false); // graduation ending overlay
       const [pendingFriendCode, setPendingFriendCode] = useState(null); // from ?friend=CODE
       const cloudSyncTimerRef = useRef(null);
       const lastPushedAtRef = useRef(0);
@@ -4216,6 +4489,26 @@
         setConflict(null);
       };
 
+      // ---- Graduation ending: fires ONCE when totalEarned crosses Owner threshold ----
+      useEffect(() => {
+        const OWNER_THRESHOLD = 1000000;
+        const acc = game.state.account || {};
+        if ((game.state.totalEarned || 0) >= OWNER_THRESHOLD && !acc.graduated && !showEnding) {
+          setShowEnding(true);
+        }
+      }, [game.state.totalEarned, game.state.account ? game.state.account.graduated : null]);
+
+      const dismissEnding = () => {
+        const today = new Date();
+        const nextJob = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+        game.updateAccount({
+          graduated: true,
+          graduatedAt: today.toISOString(),
+          nextJobDate: nextJob.toISOString()
+        });
+        setShowEnding(false);
+      };
+
       const goTo = (target) => {
         // Map convenience targets to tabs/subscreens
         if (target === 'work')   { setTab('work');   setSubscreen(null); return; }
@@ -4263,6 +4556,8 @@
         layout.isMobile ? e(BottomNav, { tab, onChange: (t) => { setTab(t); setSubscreen(null); } }) : null,
         // Toasts
         e(ToastStack, { toasts }),
+        // Graduation ending overlay (fires once when crossing Owner threshold)
+        showEnding ? e(EndingSequence, { onDismiss: dismissEnding }) : null,
         // Conflict resolution dialog (cloud vs local)
         conflict ? e('div', { className: 'shift-end-overlay' },
           e('div', { className: 'shift-end-card', style: { maxWidth: 440 } },
