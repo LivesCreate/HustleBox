@@ -1,22 +1,34 @@
 {
-  "version": "1.2.4",
-  "title": "HustleBox v1.2.4 — Sound, Voices, and a Real Sign-In",
+  "version": "1.2.5",
+  "title": "HustleBox v1.2.5 — The Back Room Opens",
   "date": "2026-05-12",
-  "message": "Auth got a real UI. Audio got a real soundtrack.\n\nNEW SIGN-IN FLOW\nThe cluttered all-options-visible Account section is gone. In its place: two clean buttons — Log In and Sign Up. Tapping either opens a polished modal with:\n• 🔗 Continue with Google (primary big button — most secure, no password stored)\n• 👤 Continue as Guest (secondary)\n• ✉️ Sign in with Email — small text link, de-emphasized\n\nPicking Email opens a sub-view of the modal with a Log In / Sign Up toggle, email + password fields, and a note that Google is the more secure option. Modeled after how TikTok, Instagram, and GitHub do their sign-in flows.\n\nThe modal closes on backdrop tap, the X button, or successful auth. Email auto-complete attributes are set correctly so password managers work.\n\nSOUND EFFECTS\n• 🔔 Bell ding when you serve an order successfully\n• 🍳 Sizzle when a new customer arrives\n• 🪙 Coin drop when you earn Stacks\n• All synthesized with the Web Audio API — no asset files, no bundle bloat\n• Tied to the existing Sound Effects toggle (renamed from 'Sound')\n\nBACKGROUND AMBIENCE (NEW TOGGLE)\nSubtle low-frequency street/city noise plays while you're working a shift. Off by default — turn it on in Settings if you want that food-truck-at-night vibe. Auto-stops when you leave the Work tab.\n\nCUSTOMER VOICES (NEW TOGGLE)\nNew experimental setting: when a customer arrives, they speak their order out loud. Uses your device's built-in text-to-speech with a randomly picked voice + pitch each time so customers sound different. Off by default — quality and voice availability varies by device and browser. Best on Android Chrome and modern iOS Safari.\n\nNo save data wiped. Existing accounts still work. Cloud sync unchanged.",
+  "message": "Ray told you to stay out. You're going anyway.\n\nTHE BACK ROOM\nThe Arcade tab is now called the Back Room — single name everywhere. It's a CSS-rendered scene of a dingy basement: hanging lightbulb that sways overhead, peeling wallpaper texture, cracked window with neon leaking in, Ray's note pinned to the wall warning you off. Four tappable objects in the room:\n• 🪙 Coin Flip — pick heads or tails, double or nothing\n• 🎰 Slot Machine — three reels, pair = 2x, jackpot (three matching) = 10x\n• 🃏 Scratch Card — buy a card, reveal 9 squares, three matching icons win (diamonds pay 10x)\n• 🎲 Dice — bet over/under 7 for 2x, or exact 7 for 5x\n\nAll four are playable. Bets start at 10 Stacks. Tap Ray's note for a special message.\n\nNEW ACHIEVEMENTS\n• 5 Back Room achievements (Ray Said Don't, House Bleeds, Jackpot, Lucky Seven, Three Diamonds)\n• 2 secret achievements (Whale: win 1000+ in one play, Ray Was Right: lose everything)\n\nCUSTOMER VOICES — 35+ NEW PHRASINGS\nThe voice lines are way more varied now. Polite customers, gruff customers, in-a-rush customers, hungry customers, indecisive customers. Plus item-specific commentary — burger fans, pizza fans, Tuesday taco people, salad eaters trying to eat clean.\n\nQR CODE IS A POP-UP NOW\nFriends → Show QR now opens a centered modal with the QR code big, easy to scan with a phone camera. Tap outside or the X to close.\n\nWALKING MARCUS REDESIGN\nThe end-of-shift cinematic now shows a full side-profile Marcus with animated arms and legs — proper walking cycle, opposing limb swing, head bob. Not just a floating head with a cap anymore.\n\nPROFILE → RESUME LAYOUT\nProfile is now structured like a resume: hero card up top, career timeline as the main section (dots connecting Dishwasher → Owner with 'YOU ARE HERE' marker on your current rank), story quote, stats grid, trophy count footer.\n\nDESKTOP LAYOUT FIXES\n• Mouse scroll wheel now works on desktop. The bug was scroll-lock being applied during gameplay regardless of platform — on desktop with a fixed sidebar, that blocked all page scroll. Now scroll-lock is mobile-only.\n• Content has a max width on desktop so text doesn't stretch across a 4K monitor. Cards are contained, achievements display in 2 columns, profile hero is bigger.\n\nNo save data wiped.",
   "entries": [
+    {
+      "version": "1.2.5",
+      "date": "2026-05-12",
+      "title": "The Back Room Opens",
+      "highlights": [
+        "Arcade renamed Back Room everywhere",
+        "CSS-rendered Back Room scene with hanging lightbulb, neon window, Ray's note",
+        "Coin Flip, Slot Machine, Scratch Card, Dice — all four games playable",
+        "7 new Back Room achievements (including secrets)",
+        "35+ new customer voice phrasings with item-specific lines",
+        "QR code is now a centered pop-up modal, not inline",
+        "Walking-home figure redesigned: full body with animated legs and arms",
+        "Profile redesigned as a resume — career timeline as the headline",
+        "Fixed: desktop mouse-wheel scroll was broken because scroll-lock applied on desktop",
+        "Desktop layout polish: max-width containers, 2-column achievements, bigger hero"
+      ]
+    },
     {
       "version": "1.2.4",
       "date": "2026-05-12",
       "title": "Sound, Voices, and a Real Sign-In",
       "highlights": [
-        "Auth UI redesigned: two-button entry + modal with method picker",
-        "Google = primary recommended option; Email de-emphasized as a small text link",
-        "Bell ding, sizzle, and coin drop SFX during shifts",
-        "Background Ambience toggle — subtle synthesized street noise",
-        "Customer Voices toggle — orders spoken via device TTS (experimental)",
-        "Sound setting renamed to Sound Effects",
-        "Email form opens to Sign Up or Log In based on which button you tapped",
-        "Password manager autocomplete attributes added"
+        "Auth UI redesigned with method-picker modal",
+        "Bell ding, sizzle, coin drop SFX",
+        "Background Ambience toggle, Customer Voices toggle"
       ]
     },
     {
@@ -25,9 +37,7 @@
       "title": "Trophy Case Opens",
       "highlights": [
         "22 achievements live across 5 categories",
-        "Toasts on unlock, full categorized Achievements screen",
-        "Fixed Loyal Regular event (now credits a perfect order)",
-        "Fixed Supplier Deal event (+50 Stacks bonus)"
+        "Fixed Loyal Regular and Supplier Deal events"
       ]
     },
     {
@@ -36,18 +46,7 @@
       "title": "The Climb (and the Exit)",
       "highlights": [
         "Career ranks: Dishwasher → Owner",
-        "Graduation ending letter at the Owner threshold",
-        "Home screen now shows Ray's truck parked on the curb",
-        "Spatula + knife icon for Work tab"
-      ]
-    },
-    {
-      "version": "1.2.1",
-      "date": "2026-05-10",
-      "title": "Plate Fix",
-      "highlights": [
-        "Build plate taller — DRAG TO PLATE text no longer clipped",
-        "Removed 3D perspective rotation that broke in Android WebView"
+        "Graduation ending letter at the Owner threshold"
       ]
     },
     {
@@ -56,24 +55,6 @@
       "title": "Friends and the Cloud",
       "highlights": [
         "Firebase auth + cloud save + friend system"
-      ]
-    },
-    {
-      "version": "1.1.2",
-      "date": "2026-05-09",
-      "title": "Marcus Has a Face Now",
-      "highlights": [
-        "Marcus is a hand-drawn SVG character",
-        "Extended end-of-shift cinematic with synthesized audio"
-      ]
-    },
-    {
-      "version": "1.1.0",
-      "date": "2026-05-08",
-      "title": "Cook Like You Mean It",
-      "highlights": [
-        "Drag-and-drop ingredient assembly",
-        "Food truck visual theme"
       ]
     },
     {

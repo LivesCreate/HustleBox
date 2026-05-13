@@ -223,9 +223,9 @@
       flex-direction: column;
       gap: 4px;
       z-index: 30;
-      /* Allow mouse wheel to scroll the document when hovering the sidebar */
+      /* Sidebar content is short by design — let the document handle scroll. */
       overflow-y: auto;
-      overscroll-behavior: contain;
+      overscroll-behavior: auto;
     }
     .sidebar::-webkit-scrollbar { width: 0; }
     .sidebar-logo-wrap {
@@ -1333,13 +1333,31 @@
     }
 
     /* Walking Marcus */
+    /* Full-body walking Marcus — side profile with animated limbs */
     .walking-figure {
       position: absolute;
-      bottom: 10px;
-      width: 28px;
-      height: 60px;
+      bottom: 8px;
+      width: 36px;
+      height: 80px;
       animation: walkBob 0.55s ease-in-out infinite;
     }
+    .walking-figure svg { width: 100%; height: 100%; overflow: visible; }
+    .walking-figure .wf-arm-front,
+    .walking-figure .wf-arm-back,
+    .walking-figure .wf-leg-front,
+    .walking-figure .wf-leg-back {
+      transform-origin: 18px 0;
+      transform-box: fill-box;
+    }
+    /* Front arm and back leg swing together, back arm and front leg the other way */
+    .walking-figure .wf-arm-front { animation: armSwingA 0.55s ease-in-out infinite; transform-origin: top center; }
+    .walking-figure .wf-arm-back  { animation: armSwingB 0.55s ease-in-out infinite; transform-origin: top center; }
+    .walking-figure .wf-leg-front { animation: legSwingA 0.55s ease-in-out infinite; transform-origin: top center; }
+    .walking-figure .wf-leg-back  { animation: legSwingB 0.55s ease-in-out infinite; transform-origin: top center; }
+    @keyframes armSwingA { 0%,100% { transform: rotate(20deg); } 50% { transform: rotate(-20deg); } }
+    @keyframes armSwingB { 0%,100% { transform: rotate(-20deg); } 50% { transform: rotate(20deg); } }
+    @keyframes legSwingA { 0%,100% { transform: rotate(-25deg); } 50% { transform: rotate(25deg); } }
+    @keyframes legSwingB { 0%,100% { transform: rotate(25deg); } 50% { transform: rotate(-25deg); } }
     .walking-figure.stage-walk-right {
       left: 0;
       animation: walkBob 0.55s ease-in-out infinite, walkAcrossRight 5s linear forwards;
@@ -1347,10 +1365,11 @@
     .walking-figure.stage-walk-left {
       right: 0;
       animation: walkBob 0.55s ease-in-out infinite, walkAcrossLeft 5s linear forwards;
+      transform: scaleX(-1);
     }
     @keyframes walkBob {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
+      50%      { transform: translateY(-3px); }
     }
     @keyframes walkAcrossRight {
       0%   { left: -8%; }
@@ -1533,6 +1552,137 @@
       letter-spacing: 1px;
     }
 
+    /* Resume-style career timeline */
+    .career-timeline {
+      position: relative;
+      padding-left: 32px;
+      margin: 12px 0 18px;
+    }
+    .career-timeline::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--amber) 0%, var(--line) 70%, transparent 100%);
+    }
+    .ct-step {
+      position: relative;
+      padding: 6px 0 14px;
+      opacity: 0.5;
+    }
+    .ct-step.achieved { opacity: 1; }
+    .ct-step.current  { opacity: 1; }
+    .ct-step::before {
+      content: '';
+      position: absolute;
+      left: -23px;
+      top: 11px;
+      width: 12px; height: 12px;
+      background: #2a1f15;
+      border: 2px solid var(--line);
+      border-radius: 50%;
+    }
+    .ct-step.achieved::before {
+      background: var(--amber);
+      border-color: var(--amber);
+      box-shadow: 0 0 8px rgba(255,167,38,0.5);
+    }
+    .ct-step.current::before {
+      background: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(255,224,130,0.7);
+      animation: ctPulse 1.6s ease-in-out infinite;
+    }
+    @keyframes ctPulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.2); }
+    }
+    .ct-step.graduated::before {
+      background: var(--good);
+      border-color: var(--good);
+    }
+    .ct-rank {
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .ct-step.current .ct-rank { color: var(--gold); }
+    .ct-step.achieved:not(.current) .ct-rank { color: var(--amber); }
+    .ct-threshold {
+      font-size: 11px;
+      color: var(--text-faint);
+      margin-top: 2px;
+    }
+    .ct-current-tag {
+      display: inline-block;
+      background: var(--gold);
+      color: #1a0d00;
+      font-size: 9px;
+      letter-spacing: 1px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .ct-graduated-step {
+      margin-top: 4px;
+      padding: 10px 12px;
+      background: rgba(76,175,80,0.06);
+      border: 1px dashed var(--good);
+      border-radius: 8px;
+    }
+    .ct-graduated-step .ct-rank { color: var(--good); }
+
+    /* Resume-style sections in Profile */
+    .resume-section {
+      margin-top: 18px;
+    }
+    .resume-section-label {
+      font-family: 'Permanent Marker', cursive;
+      color: var(--amber);
+      font-size: 14px;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--line);
+    }
+    .resume-mini-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .resume-mini-grid > div {
+      padding: 8px 10px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 6px;
+      border: 1px solid var(--line);
+    }
+    .resume-mini-grid .lbl {
+      font-size: 10px;
+      color: var(--text-faint);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .resume-mini-grid .val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--gold);
+      margin-top: 2px;
+    }
+    .resume-quote {
+      padding: 10px 12px;
+      background: rgba(255,167,38,0.04);
+      border-left: 3px solid var(--amber);
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
     /* Achievements styling */
     .ach-progress {
       background: rgba(0,0,0,0.4);
@@ -1621,7 +1771,508 @@
     }
     .ach-card.locked .ach-status { color: #4a3a2a; }
 
-    /* Chalkboard frame for "side menus" — Settings, Friends, Arcade, Achievements, Update Log */
+    /* ===== BACK ROOM SCENE ===== */
+    .backroom-scene {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 11;
+      max-height: 360px;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 18%, rgba(255,224,130,0.18) 0%, rgba(0,0,0,0) 70%),
+        linear-gradient(180deg, #1a1208 0%, #0a0805 50%, #050302 100%);
+      border: 2px solid #2a1f15;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 12px 0 16px;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.7);
+    }
+    /* Peeling wallpaper texture */
+    .backroom-scene::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(90deg, transparent 0 18px, rgba(80,50,30,0.06) 18px 19px),
+        repeating-linear-gradient(0deg,  transparent 0 22px, rgba(40,30,20,0.10) 22px 23px);
+      pointer-events: none;
+    }
+    /* Hanging lightbulb */
+    .backroom-bulb {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 2px;
+      height: 38px;
+      background: #2a1f15;
+      transform-origin: top center;
+      animation: bulbSway 6s ease-in-out infinite;
+      z-index: 2;
+    }
+    .backroom-bulb::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 22px;
+      background: radial-gradient(ellipse at 50% 30%, #fff8d4 0%, #ffd54f 40%, #b87010 100%);
+      border-radius: 50% 50% 45% 45%;
+      box-shadow:
+        0 0 24px rgba(255, 213, 79, 0.8),
+        0 0 50px rgba(255, 167, 38, 0.4);
+    }
+    @keyframes bulbSway {
+      0%, 100% { transform: rotate(-1.2deg); }
+      50%      { transform: rotate(1.2deg); }
+    }
+    /* Cracked window with neon */
+    .backroom-window {
+      position: absolute;
+      top: 22%;
+      right: 6%;
+      width: 22%;
+      height: 30%;
+      background: linear-gradient(135deg, #ff4081 0%, #6a1b9a 60%, #1a0840 100%);
+      border: 3px solid #1a1208;
+      border-radius: 2px;
+      box-shadow: 0 0 20px rgba(255, 64, 129, 0.4), inset 0 0 12px rgba(0,0,0,0.5);
+      opacity: 0.55;
+    }
+    .backroom-window::before, .backroom-window::after {
+      content: '';
+      position: absolute;
+      background: rgba(0,0,0,0.5);
+    }
+    .backroom-window::before { top: 0; bottom: 0; left: 50%; width: 2px; }
+    .backroom-window::after  { left: 0; right: 0; top: 50%; height: 2px; }
+    /* Ray's pinned note */
+    .backroom-note {
+      position: absolute;
+      top: 24%;
+      left: 5%;
+      width: 70px;
+      padding: 6px 8px;
+      background: #e8d5a8;
+      color: #2a1f15;
+      font-family: 'Permanent Marker', cursive;
+      font-size: 8px;
+      line-height: 1.2;
+      transform: rotate(-3deg);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      cursor: pointer;
+      z-index: 3;
+    }
+    .backroom-note::before {
+      content: '📌';
+      position: absolute;
+      top: -8px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+    }
+    .backroom-note:hover { transform: rotate(-3deg) scale(1.08); }
+    /* Game object — tappable */
+    .br-game {
+      position: absolute;
+      cursor: pointer;
+      transition: transform 160ms ease, filter 160ms ease;
+      z-index: 4;
+    }
+    .br-game:hover { transform: scale(1.05); filter: brightness(1.15) drop-shadow(0 0 14px rgba(255,167,38,0.5)); }
+    .br-game:active { transform: scale(0.96); }
+    .br-game .br-label {
+      position: absolute;
+      bottom: -18px; left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Permanent Marker', cursive;
+      font-size: 10px;
+      color: #ffe082;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      text-shadow: 0 0 4px rgba(0,0,0,0.9);
+    }
+    /* Slot machine */
+    .br-slot {
+      bottom: 22%;
+      left: 8%;
+      width: 60px;
+      height: 88px;
+    }
+    .br-slot-cab {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, #d32f2f 0%, #8a1010 60%, #4a0808 100%);
+      border: 2px solid #1a0808;
+      border-radius: 6px 6px 8px 8px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.6);
+    }
+    .br-slot-screen {
+      position: absolute;
+      top: 14px; left: 6px; right: 6px;
+      height: 22px;
+      background: #ffe082;
+      border: 2px solid #1a0808;
+      border-radius: 3px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      font-size: 11px;
+      box-shadow: 0 0 6px rgba(255, 213, 79, 0.6);
+    }
+    .br-slot-handle {
+      position: absolute;
+      right: -8px;
+      top: 16px;
+      width: 8px;
+      height: 30px;
+      background: linear-gradient(180deg, #888 0%, #444 100%);
+      border-radius: 3px;
+    }
+    .br-slot-handle::after {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -2px;
+      width: 12px; height: 8px;
+      background: radial-gradient(circle, #d32f2f 30%, #4a0808 100%);
+      border-radius: 50%;
+    }
+    /* Card table */
+    .br-table {
+      bottom: 14%;
+      left: 38%;
+      width: 90px;
+      height: 70px;
+    }
+    .br-table-felt {
+      position: absolute;
+      bottom: 14px; left: 0; right: 0;
+      height: 30px;
+      background: radial-gradient(ellipse, #2a5d3a 0%, #1a3a25 70%);
+      border: 2px solid #1a0808;
+      border-radius: 50%;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.7);
+    }
+    .br-table-leg {
+      position: absolute;
+      bottom: 0; left: 50%;
+      width: 6px; height: 18px;
+      background: #2a1f15;
+      transform: translateX(-50%);
+    }
+    .br-table-cards {
+      position: absolute;
+      top: 0; left: 8px;
+      display: flex; gap: 2px;
+    }
+    .br-table-cards > div {
+      width: 12px; height: 16px;
+      background: linear-gradient(135deg, #ffe082, #c8a040);
+      border: 1px solid #2a1f15;
+      border-radius: 2px;
+      transform: rotate(-6deg);
+    }
+    .br-table-cards > div:nth-child(2) { transform: rotate(2deg); margin-top: 2px; }
+    .br-table-cards > div:nth-child(3) { transform: rotate(8deg); }
+    /* Dice on felt */
+    .br-dice {
+      bottom: 18%;
+      right: 32%;
+      width: 50px;
+      height: 36px;
+    }
+    .br-dice-mat {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 14px;
+      background: radial-gradient(ellipse, #4a1010 0%, #2a0808 80%);
+      border-radius: 50%;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.6);
+    }
+    .br-die {
+      position: absolute;
+      width: 14px; height: 14px;
+      background: linear-gradient(135deg, #fff, #ccc);
+      border: 1px solid #444;
+      border-radius: 3px;
+      box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; color: #222; font-weight: 700;
+    }
+    .br-die:first-child { left: 10px; bottom: 8px; transform: rotate(-12deg); }
+    .br-die:last-child  { right: 8px; bottom: 14px; transform: rotate(8deg); }
+    /* Coin on stool */
+    .br-coin {
+      bottom: 10%;
+      right: 8%;
+      width: 36px;
+      height: 50px;
+    }
+    .br-stool {
+      position: absolute;
+      bottom: 0; left: 50%;
+      width: 28px; height: 20px;
+      background: linear-gradient(180deg, #3a2918 0%, #1a1208 100%);
+      transform: translateX(-50%);
+      border-radius: 4px 4px 2px 2px;
+    }
+    .br-stool::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 50%;
+      width: 4px; height: 14px;
+      background: #1a1208;
+      transform: translateX(-50%);
+    }
+    .br-coin-disc {
+      position: absolute;
+      top: 8px; left: 50%;
+      transform: translateX(-50%);
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffeb99, #c8a040 70%, #806010);
+      border: 1px solid #604010;
+      box-shadow: 0 0 10px rgba(255, 213, 79, 0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800; color: #2a1f15;
+    }
+
+    /* ===== INSIDE-GAME SCREENS ===== */
+    .br-game-screen {
+      padding: 14px;
+    }
+    .br-game-title {
+      font-family: 'Permanent Marker', cursive;
+      color: var(--amber);
+      font-size: 26px;
+      text-align: center;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+    .br-game-subtitle {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+    .br-balance {
+      text-align: center;
+      padding: 10px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .br-balance strong { color: var(--gold); font-weight: 800; }
+    .br-bet-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .br-bet-row button {
+      padding: 10px 4px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 120ms ease;
+    }
+    .br-bet-row button.active { border-color: var(--amber); background: rgba(255,167,38,0.1); color: var(--amber); }
+    .br-action-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(180deg, var(--amber), var(--amber-deep));
+      border: none;
+      border-radius: 10px;
+      color: #1a0d00;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: filter 160ms ease;
+    }
+    .br-action-btn:hover { filter: brightness(1.1); }
+    .br-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .br-result {
+      padding: 14px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 10px;
+      text-align: center;
+      margin: 14px 0;
+      animation: brResult 400ms ease;
+    }
+    @keyframes brResult {
+      from { opacity: 0; transform: scale(0.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .br-result.win  { border: 2px solid var(--good); background: rgba(76,175,80,0.08); }
+    .br-result.lose { border: 2px solid var(--bad);  background: rgba(239,83,80,0.08); }
+    .br-result-label {
+      font-family: 'Permanent Marker', cursive;
+      font-size: 22px;
+      letter-spacing: 2px;
+    }
+    .br-result.win .br-result-label  { color: var(--good); }
+    .br-result.lose .br-result-label { color: var(--bad); }
+    .br-result-amount {
+      font-size: 16px;
+      margin-top: 4px;
+      font-weight: 700;
+    }
+
+    /* Coin Flip — animated coin */
+    .br-flip-stage {
+      height: 180px;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at 50% 60%, rgba(255,167,38,0.08), transparent 60%);
+      margin-bottom: 12px;
+      border-radius: 10px;
+      perspective: 800px;
+    }
+    .br-flip-coin {
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffeb99, #c8a040 70%, #806010);
+      border: 3px solid #604010;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 42px; font-weight: 900; color: #2a1f15;
+      box-shadow: 0 0 30px rgba(255,213,79,0.4);
+      transform-style: preserve-3d;
+    }
+    .br-flip-coin.flipping {
+      animation: coinFlip 1.6s cubic-bezier(0.4, 0, 0.6, 1);
+    }
+    @keyframes coinFlip {
+      0%   { transform: rotateY(0deg) translateY(0); }
+      40%  { transform: rotateY(1080deg) translateY(-60px); }
+      80%  { transform: rotateY(1800deg) translateY(0); }
+      100% { transform: rotateY(1980deg) translateY(0); }
+    }
+    .br-side-choice {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .br-side-choice button {
+      padding: 16px;
+      background: rgba(0,0,0,0.5);
+      border: 2px solid var(--line-strong);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+    .br-side-choice button.active { border-color: var(--amber); background: rgba(255,167,38,0.1); color: var(--amber); }
+
+    /* Slot Machine — 3 reels */
+    .br-slots-cabinet {
+      background: linear-gradient(180deg, #8a1010 0%, #4a0808 100%);
+      border: 4px solid #1a0808;
+      border-radius: 14px;
+      padding: 18px 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.6);
+    }
+    .br-slot-reels {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      background: #1a0808;
+      border-radius: 8px;
+      padding: 8px;
+    }
+    .br-slot-reel {
+      background: #ffe082;
+      border-radius: 4px;
+      height: 80px;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+    }
+    .br-slot-reel.spinning {
+      animation: reelSpin 0.08s linear infinite;
+    }
+    @keyframes reelSpin {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-12px); }
+    }
+
+    /* Scratch Card — 3x3 grid */
+    .br-scratch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .br-scratch-cell {
+      aspect-ratio: 1 / 1;
+      background: linear-gradient(135deg, #888, #555);
+      border: 2px solid #2a2a2a;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 120ms ease;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
+    }
+    .br-scratch-cell::before {
+      content: '?';
+      font-family: 'Permanent Marker', cursive;
+      color: #2a2a2a;
+      font-size: 26px;
+      transition: opacity 200ms ease;
+    }
+    .br-scratch-cell.revealed {
+      background: linear-gradient(135deg, #2a1f15, #0a0805);
+      border-color: var(--amber);
+      cursor: default;
+    }
+    .br-scratch-cell.revealed::before { opacity: 0; }
+    .br-scratch-cell.revealed .scratch-icon {
+      animation: scratchReveal 380ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes scratchReveal {
+      from { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0); opacity: 1; }
+    }
+    .scratch-icon { position: relative; z-index: 2; }
+
+    /* Dice game */
+    .br-dice-stage {
+      height: 140px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 24px;
+      background: radial-gradient(ellipse at 50% 60%, rgba(74,16,16,0.4), transparent 60%);
+      margin-bottom: 12px;
+      border-radius: 10px;
+    }
+    .br-dice-big {
+      width: 70px; height: 70px;
+      background: linear-gradient(135deg, #fff, #ddd);
+      border: 3px solid #2a2a2a;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px; font-weight: 900; color: #2a1f15;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+    }
+    .br-dice-big.rolling { animation: diceRoll 0.8s linear; }
+    @keyframes diceRoll {
+      0%   { transform: rotate(0); }
+      100% { transform: rotate(720deg); }
+    }
+
+    /* Chalkboard frame for "side menus" — Settings, Friends, Back Room, Achievements, Update Log */
     .side-menu-frame {
       background:
         radial-gradient(ellipse at center, rgba(50,40,30,0.18) 0%, transparent 70%),
@@ -1934,6 +2585,37 @@
       .build-plate { max-width: 480px; }
       /* On desktop there's no bottom nav — kill the wasted padding */
       .main.has-bottomnav { padding-bottom: 32px; }
+
+      /* ---- Desktop layout polish ---- */
+      /* Constrain content width so text doesn't stretch across a 4K monitor */
+      .main { max-width: 980px; margin: 0 auto; padding-left: 32px; padding-right: 32px; }
+      /* Side-menu chalkboard frames look better when contained */
+      .side-menu-frame { max-width: 720px; margin-left: auto; margin-right: auto; }
+      /* Profile hero — bigger avatar on desktop */
+      .profile-hero { padding: 30px 24px; }
+      .profile-avatar-frame { width: 110px !important; height: 110px !important; }
+      .profile-name { font-size: 38px; }
+      /* Resume sections: place stat grid in 3 columns on desktop */
+      .resume-mini-grid { grid-template-columns: repeat(3, 1fr); }
+      /* Settings rows look better with breathing room */
+      .row { padding: 16px 18px; }
+      /* Achievements: 2 columns on desktop instead of 1 */
+      .ach-list { grid-template-columns: 1fr 1fr; gap: 10px; }
+      /* Update Log: contain receipt-card width so they don't stretch */
+      .receipt-card { max-width: 560px; margin-left: auto; margin-right: auto; }
+      /* Back Room scene scales up nicely */
+      .backroom-scene { max-width: 680px; margin: 12px auto 16px; max-height: 460px; }
+      /* News header titles slightly larger on desktop */
+      .screen-title { font-size: 36px; }
+      .screen-subtitle { font-size: 14px; }
+      /* Workplace card on Home — taller so the truck reads bigger */
+      .home-workplace { max-width: 640px; margin-left: auto; margin-right: auto; }
+      .home-workplace-scene { height: 150px; }
+      /* Auth modal stays centered, no change needed */
+    }
+    @media (min-width: 1100px) {
+      /* On wider screens, give the resume + stats a 2-col layout */
+      .main { max-width: 1080px; }
     }
   </style>
 </head>
@@ -1962,7 +2644,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.2.4';
+    const VERSION = '1.2.5';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -2026,10 +2708,19 @@
       { id: 'owner',           cat: 'Progression', icon: '👑',   title: 'Own the Truck',              desc: 'Become Owner.',                             check: s => (s.totalEarned || 0) >= 1000000 },
       { id: 'graduate',        cat: 'Progression', icon: '🎓',   title: 'Graduate',                   desc: 'Get accepted to the next chapter.',         check: s => !!(s.account && s.account.graduated) },
 
+      // ---- Back Room (gambling — triggered from games, not auto-checked) ----
+      { id: 'br_first_play',   cat: 'Back Room', icon: '🎰',   title: "Ray Said Don't",             desc: 'Play your first back room game.',           check: s => false },
+      { id: 'br_first_win',    cat: 'Back Room', icon: '💵',   title: 'House Bleeds',               desc: 'Win your first back room game.',            check: s => false },
+      { id: 'br_jackpot',      cat: 'Back Room', icon: '🎉',   title: 'Jackpot',                    desc: 'Hit three matching reels on the slots.',    check: s => false },
+      { id: 'br_lucky_seven',  cat: 'Back Room', icon: '🎲',   title: 'Lucky Seven',                desc: 'Win the exact-7 bet on dice.',              check: s => false },
+      { id: 'br_diamond',      cat: 'Back Room', icon: '💎',   title: 'Three Diamonds',             desc: 'Reveal three diamonds on a scratch card.',  check: s => false },
+
       // ---- Secret (hidden description until unlocked) ----
       { id: 'first_fail',      cat: 'Secret', secret: true, icon: '🔥', title: 'Burn One',           desc: 'Fail your first order.',                     check: s => (s.failedOrders || 0) >= 1 },
       { id: 'rough_day',       cat: 'Secret', secret: true, icon: '😩', title: 'Rough Day',          desc: 'Fail 10 orders in your career.',             check: s => (s.failedOrders || 0) >= 10 },
-      { id: 'made_a_friend',   cat: 'Secret', secret: true, icon: '👋', title: 'Made a Friend',      desc: 'Sign in and add your first friend.',         check: s => false /* triggered by Friends flow — see App */ }
+      { id: 'made_a_friend',   cat: 'Secret', secret: true, icon: '👋', title: 'Made a Friend',      desc: 'Sign in and add your first friend.',         check: s => false },
+      { id: 'br_big_win',      cat: 'Secret', secret: true, icon: '💰', title: 'Whale',              desc: 'Win 1,000+ Stacks in one back room play.',  check: s => false },
+      { id: 'br_broke',        cat: 'Secret', secret: true, icon: '🪦', title: 'Ray Was Right',      desc: 'Lose all your Stacks in the back room.',    check: s => false }
     ];
 
     const MENU_ITEMS = [
@@ -2064,7 +2755,7 @@
       { id: 'found_cash',       type: 'positive', jobs: ['*'],             title: 'Found Cash', desc: "Marcus found a $20 in his apron pocket.", effect: { stacks: 20 } },
       { id: 'loyal_regular',    type: 'positive', jobs: ['food_truck'],    title: 'Loyal Regular', desc: "Maria's here for her usual. Easy perfect.", effect: { autoPerfect: true } },
       { id: 'street_buzz',      type: 'positive', jobs: ['*'],             title: 'Street Buzz', desc: 'Word spreads. More customers all shift.', effect: { customerMult: 1.4, durationMs: 240000 } },
-      { id: 'lucky_day',        type: 'positive', jobs: ['*'],             title: 'Lucky Day', desc: 'Next arcade play is half price. (Arcade — coming soon)', effect: { arcadeDiscount: 0.5 } },
+      { id: 'lucky_day',        type: 'positive', jobs: ['*'],             title: 'Lucky Day', desc: 'Next back room play is half price.', effect: { arcadeDiscount: 0.5 } },
       { id: 'supplier_deal',    type: 'positive', jobs: ['food_truck'],    title: 'Supplier Deal', desc: 'Free restock! Ingredients are fully covered.', effect: { freeStock: true } },
       { id: 'shoutout',         type: 'positive', jobs: ['*'],             title: 'Neighborhood Shoutout', desc: 'Local influencer mentioned your spot. +8 reputation.', effect: { rep: 8 } },
       // Negative (11-20)
@@ -2224,7 +2915,7 @@
         customers:   { id: 'customers',   name: 'Customers',   desc: 'Customers waiting at your job' },
         missions:    { id: 'missions',    name: 'Missions',    desc: 'Daily/weekly missions available' },
         reputation:  { id: 'reputation',  name: 'Reputation',  desc: 'Reputation milestone reached' },
-        arcade:      { id: 'arcade',      name: 'Arcade',      desc: 'Bonus or free play available' },
+        arcade:      { id: 'arcade',      name: 'Back Room',   desc: 'Bonus or free play available' },
         general:     { id: 'general',     name: 'General',     desc: 'Game updates and announcements' }
       },
       isSupported: typeof Notification !== 'undefined',
@@ -2402,6 +3093,64 @@
       return e('div', {
         style: { width: px, height: px, display: 'inline-block', flexShrink: 0 },
         dangerouslySetInnerHTML: { __html: MARCUS_SVG }
+      });
+    }
+
+    // Full-body walking Marcus — side profile, with separate groups for animated limbs.
+    // viewBox is 36x80. Origin (0,0) top-left. Center column ~x=18.
+    const WALKING_MARCUS_SVG =
+      '<svg viewBox="0 0 36 80" xmlns="http://www.w3.org/2000/svg">' +
+        // ---- BACK leg (drawn first, behind body) ----
+        '<g class="wf-leg-back" style="transform-origin: 18px 48px;">' +
+          '<rect x="15" y="48" width="6" height="22" rx="2.5" fill="#1a1a2a"/>' +  // pant leg
+          '<rect x="13" y="68" width="10" height="5" rx="1.5" fill="#2a1a0a"/>' + // shoe
+        '</g>' +
+        // ---- BACK arm (drawn behind body) ----
+        '<g class="wf-arm-back" style="transform-origin: 18px 32px;">' +
+          '<rect x="15.5" y="32" width="5" height="16" rx="2" fill="#d65a1a"/>' +  // sleeve
+          '<circle cx="18" cy="50" r="2.5" fill="#c98664"/>' +                       // hand
+        '</g>' +
+        // ---- Body (torso, hoodie) ----
+        '<path d="M 11 32 Q 11 30 13 30 L 23 30 Q 25 30 25 32 L 25 48 Q 25 50 23 50 L 13 50 Q 11 50 11 48 Z" fill="#e96a1f"/>' +
+        // Hoodie shading
+        '<path d="M 11 32 Q 11 30 13 30 L 16 30 L 16 50 L 13 50 Q 11 50 11 48 Z" fill="rgba(0,0,0,0.15)"/>' +
+        // Belt
+        '<rect x="11" y="46" width="14" height="2" fill="#2a1a0a"/>' +
+        // ---- Head ----
+        '<circle cx="18" cy="20" r="9" fill="#c98664"/>' +
+        // Hair (side view — fringe under cap brim)
+        '<path d="M 10 16 Q 10 11 18 11 Q 26 11 26 16 L 22 17 Q 18 14 14 17 Z" fill="#2a1a0a"/>' +
+        // Eye (side view — one eye visible, looking forward)
+        '<circle cx="23" cy="20" r="1.1" fill="#1a1a1a"/>' +
+        '<circle cx="23.3" cy="19.7" r="0.4" fill="#fff"/>' +
+        // Eyebrow
+        '<rect x="21.5" y="17.5" width="3" height="0.7" rx="0.3" fill="#1a1a0a"/>' +
+        // Subtle nose profile
+        '<path d="M 26 20 Q 27 21 26 22" stroke="#a06548" stroke-width="0.7" fill="none"/>' +
+        // Mouth
+        '<path d="M 24 24 Q 25 25 26 24" stroke="#5a2a1a" stroke-width="0.7" fill="none"/>' +
+        // ---- Baseball cap (side view) ----
+        '<path d="M 9 13 Q 9 9 18 9 Q 27 9 27 13 L 27 15 L 9 15 Z" fill="#1a1a1a"/>' +
+        // Cap brim pointing forward (right side)
+        '<path d="M 27 13 Q 33 13 33 15 L 27 15 Z" fill="#0a0a0a"/>' +
+        // HustleBox amber dot on cap
+        '<circle cx="20" cy="12" r="1.4" fill="#ffa726"/>' +
+        // ---- FRONT arm (drawn on top of body) ----
+        '<g class="wf-arm-front" style="transform-origin: 18px 32px;">' +
+          '<rect x="15.5" y="32" width="5" height="16" rx="2" fill="#e96a1f"/>' +  // sleeve (full brightness)
+          '<circle cx="18" cy="50" r="2.5" fill="#c98664"/>' +                       // hand
+        '</g>' +
+        // ---- FRONT leg (drawn on top) ----
+        '<g class="wf-leg-front" style="transform-origin: 18px 48px;">' +
+          '<rect x="15" y="48" width="6" height="22" rx="2.5" fill="#22223a"/>' +  // pant leg (lighter for front)
+          '<rect x="13" y="68" width="10" height="5" rx="1.5" fill="#3a2a1a"/>' + // shoe
+        '</g>' +
+      '</svg>';
+
+    function WalkingMarcus() {
+      return e('div', {
+        style: { width: '100%', height: '100%', display: 'inline-block' },
+        dangerouslySetInnerHTML: { __html: WALKING_MARCUS_SVG }
       });
     }
 
@@ -3105,7 +3854,7 @@
         );
       } else if (stage === 3) {
         scene = e('div', { className: 'walking-figure stage-walk-right' },
-          e(MarcusAvatar, { size: 60 })
+          e(WalkingMarcus, null)
         );
         caption = 'Walking home.';
       } else if (stage === 4) {
@@ -3465,7 +4214,7 @@
     const NAV_TABS = [
       { id: 'home',     label: 'Home',     icon: '🏠' },
       { id: 'work',     label: 'Work',     iconHtml: SPATULA_KNIFE_SVG },
-      { id: 'arcade',   label: 'Arcade',   icon: '🎰', soon: true },
+      { id: 'arcade',   label: 'Back Room', icon: '🎰' },
       { id: 'friends',  label: 'Friends',  icon: '👥' },
       { id: 'more',     label: 'More',     icon: '⚙️' }
     ];
@@ -3728,20 +4477,72 @@
         // SFX: sizzle on customer arrival
         AudioFX.sizzle(!!state.settings.sound);
 
-        // Customer voice (TTS): speak the order
+        // Customer voice (TTS): speak the order — large pool of varied phrasings + scenarios
         if (state.settings.voices && newOrder.length > 0) {
-          const names = newOrder.map(emoji => {
+          const itemNames = newOrder.map(emoji => {
             const item = MENU_ITEMS.find(m => m.emoji === emoji);
             return item ? item.name.toLowerCase() : '';
           }).filter(Boolean);
-          // Natural-sounding order phrasing
+
+          // Build "a X and a Y and a Z" string (article tweaked for vowel starts)
+          const article = (word) => /^[aeiou]/i.test(word) ? 'an ' : 'a ';
+          const itemPhrase = itemNames.map(n => article(n) + n).join(' and ');
+          // Plural-only version for single-item lines: "two burgers" feel
+          const firstItem = itemNames[0];
+          const lastItem = itemNames[itemNames.length - 1];
+
+          // 35+ scenario lines — picked at random per customer
           const phrasings = [
-            "Let me get a " + names.join(' and a ') + ", please.",
-            "I'll take a " + names.join(' and a ') + ".",
-            "Can I get a " + names.join(' and a ') + "?",
-            "Hey, a " + names.join(' and a ') + " when you can.",
-            "Gimme a " + names.join(' and a ') + "."
-          ];
+            // Polite
+            "Could I get " + itemPhrase + ", please?",
+            "Hi, I'll have " + itemPhrase + ".",
+            "Excuse me — " + itemPhrase + " when you have a moment.",
+            "Hey there. " + itemPhrase + ", thanks.",
+            "Good afternoon. " + itemPhrase + ", please.",
+            // Casual / regular
+            "Yo, lemme get " + itemPhrase + ".",
+            "Just " + itemPhrase + " today.",
+            "Hit me with " + itemPhrase + ".",
+            "Gimme " + itemPhrase + ".",
+            "Same as always — " + itemPhrase + ".",
+            "Yeah, " + itemPhrase + " — that's it.",
+            "I'll take " + itemPhrase + ".",
+            // In-a-rush
+            "Quick — " + itemPhrase + ", I'm late.",
+            itemPhrase + ", fast as you can.",
+            "Make it quick — " + itemPhrase + ".",
+            "Running late. " + itemPhrase + ".",
+            // Hungry / craving
+            "I am starving. " + itemPhrase + ", let's go.",
+            "Been thinking about " + (firstItem || 'food') + " all day. " + itemPhrase + ".",
+            "I need " + itemPhrase + " in my life right now.",
+            "Smelled this from the corner. " + itemPhrase + ".",
+            // Gruff / impatient
+            itemPhrase + ".",
+            "One " + (firstItem || 'order') + (itemNames.length > 1 ? ", and " + article(itemNames[1]) + itemNames[1] : '') + ".",
+            "Look — " + itemPhrase + ".",
+            "Just give me " + itemPhrase + ".",
+            // Indecisive / friendly
+            "Hmm... yeah, " + itemPhrase + ".",
+            "You know what, " + itemPhrase + ".",
+            "Let's do " + itemPhrase + ".",
+            "Surprise me. Kidding — " + itemPhrase + ".",
+            // Item-specific commentary (chosen if order is short)
+            firstItem === 'burger'  ? "Heard the burgers here are no joke. " + itemPhrase + "." : null,
+            firstItem === 'pizza'   ? "Pizza guy! " + itemPhrase + "." : null,
+            firstItem === 'taco'    ? "Tuesday calls for tacos. " + itemPhrase + "." : null,
+            firstItem === 'fries'   ? "Mostly here for the fries. " + itemPhrase + "." : null,
+            firstItem === 'hot dog' ? "Classic. " + itemPhrase + "." : null,
+            firstItem === 'salad'   ? "Trying to eat clean. " + itemPhrase + "." : null,
+            firstItem === 'donut'   ? "It's a donut kind of day. " + itemPhrase + "." : null,
+            firstItem === 'drink'   ? "Thirsty. " + itemPhrase + "." : null,
+            // Reputation flavor — only if last item is a drink
+            lastItem === 'drink' && itemNames.length > 1 ? itemPhrase + ". Cold one, please." : null,
+            // Generic closers
+            "Yeah, " + itemPhrase + " sounds good.",
+            "Alright, " + itemPhrase + " it is."
+          ].filter(Boolean);
+
           const phrase = phrasings[Math.floor(Math.random() * phrasings.length)];
           // Small delay so sizzle is heard first
           setTimeout(() => AudioFX.speak(phrase, true), 350);
@@ -3785,7 +4586,9 @@
       const dismissShiftEnd = () => setShiftEndSummary(null);
 
       useEffect(() => {
-        document.body.classList.toggle('scroll-locked', shiftActive && !!order);
+        const isMobileLikely = typeof window !== 'undefined' && window.innerWidth < 768;
+        const shouldLock = isMobileLikely && shiftActive && !!order;
+        document.body.classList.toggle('scroll-locked', shouldLock);
         return () => document.body.classList.remove('scroll-locked');
       }, [shiftActive, order]);
 
@@ -4743,16 +5546,8 @@
             e('div', { style: { display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' } },
               e('button', { className: 'btn btn-ghost', style: { fontSize: 12, padding: '6px 14px' }, onClick: copyCode }, '📋 Copy Code'),
               e('button', { className: 'btn btn-ghost', style: { fontSize: 12, padding: '6px 14px' }, onClick: copyLink }, '🔗 Copy Invite Link'),
-              qrSvg ? e('button', { className: 'btn btn-ghost', style: { fontSize: 12, padding: '6px 14px' }, onClick: () => setShowQR(!showQR) }, showQR ? 'Hide QR' : '📱 Show QR') : null
-            ),
-            showQR && qrSvg
-              ? e('div', { style: { background: '#fff', display: 'inline-block', padding: 10, marginTop: 14, borderRadius: 6, maxWidth: 200 } },
-                  e('div', { dangerouslySetInnerHTML: { __html: qrSvg }, style: { width: 180, height: 180 } })
-                )
-              : null,
-            showQR && !qrSvg
-              ? e('div', { style: { fontSize: 12, marginTop: 12, color: '#a89878' } }, 'QR generator did not load. Use the code instead.')
-              : null
+              qrSvg ? e('button', { className: 'btn btn-ghost', style: { fontSize: 12, padding: '6px 14px' }, onClick: () => setShowQR(true) }, '📱 Show QR') : null
+            )
           )
         ),
 
@@ -4823,31 +5618,500 @@
                     )
                   )
                 )
-        )
+        ),
+
+        // QR code modal — pop-up rather than inline expansion
+        showQR ? e('div', {
+          className: 'auth-modal-backdrop',
+          onClick: (ev) => { if (ev.target.classList.contains('auth-modal-backdrop')) setShowQR(false); }
+        },
+          e('div', { className: 'auth-modal', style: { maxWidth: 320 } },
+            e('button', { className: 'auth-close', onClick: () => setShowQR(false), 'aria-label': 'Close' }, '✕'),
+            e('div', { className: 'auth-modal-logo' }, 'YOUR CODE'),
+            e('div', { className: 'auth-modal-subtitle' }, 'Have a friend scan this with their phone camera.'),
+            qrSvg
+              ? e('div', { style: { background: '#fff', padding: 14, borderRadius: 10, margin: '0 auto', maxWidth: 240, boxShadow: '0 8px 24px rgba(0,0,0,0.6)' } },
+                  e('div', { dangerouslySetInnerHTML: { __html: qrSvg }, style: { width: '100%', height: 'auto' } })
+                )
+              : e('div', { style: { color: 'var(--text-faint)', textAlign: 'center', padding: 20 } }, 'QR generator did not load.'),
+            e('div', { style: { textAlign: 'center', marginTop: 14, fontFamily: 'monospace', fontSize: 18, letterSpacing: 4, color: '#ffe082', fontWeight: 800 } },
+              myCode
+            ),
+            e('div', { className: 'auth-footer-note' }, 'Code: ' + myCode)
+          )
+        ) : null
       );
     }
 
     // ============================================================
     // Arcade — Coming Soon (back room)
     // ============================================================
-    function ArcadeScreen() {
+    // ============================================================
+    // BACK ROOM — the underground gambling space behind the truck
+    // Renders a CSS room scene with tappable game objects.
+    // Each game is a self-contained sub-screen.
+    // ============================================================
+    function BackRoomScreen({ state, addStacks, toast, unlockAchievement }) {
+      const [game, setGame] = useState(null); // null | 'flip' | 'slots' | 'scratch' | 'dice'
+      const stacks = Math.floor(state.stacks || 0);
+
+      if (game === 'flip')    return e(CoinFlipGame,   { state, addStacks, toast, unlockAchievement, onBack: () => setGame(null) });
+      if (game === 'slots')   return e(SlotsGame,      { state, addStacks, toast, unlockAchievement, onBack: () => setGame(null) });
+      if (game === 'scratch') return e(ScratchGame,    { state, addStacks, toast, unlockAchievement, onBack: () => setGame(null) });
+      if (game === 'dice')    return e(DiceGame,       { state, addStacks, toast, unlockAchievement, onBack: () => setGame(null) });
+
+      // Room scene
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header' },
           e('h1', { className: 'screen-title display-font' }, 'The Back Room'),
           e('p', { className: 'screen-subtitle' }, "Ray told you to stay out. You didn't listen.")
         ),
-        e('div', { className: 'side-menu-frame' },
-          e('div', { className: 'smf-title' }, 'BACK ROOM'),
-          e('div', { className: 'coming-soon', style: { padding: '32px 16px' } },
-            e('div', { className: 'cs-emoji' }, '🎰'),
-            e('h2', { className: 'cs-title display-font' }, 'Coming Soon'),
-            e('p', { style: { maxWidth: 340, lineHeight: 1.5, color: '#d4c5a0' } },
-              'Slots. Scratch cards. Dice. Coin flip. Numbers. Underground hustle games for when grinding burgers gets old.'
+        e('div', { style: { fontSize: 12, color: 'var(--text-dim)', textAlign: 'center', marginBottom: 6 } },
+          'Tap a game to play. Bet your Stacks. House always wins — eventually.'
+        ),
+
+        // The room
+        e('div', { className: 'backroom-scene' },
+          e('div', { className: 'backroom-bulb' }),
+          e('div', { className: 'backroom-window' }),
+          e('div', { className: 'backroom-note', onClick: () => toast && toast("Ray's note: \"I told you not to come down here. — Ray\"", 'amber') },
+            'STAY OUT', e('br'), '— RAY'
+          ),
+          // Slot machine
+          e('div', { className: 'br-game br-slot', onClick: () => setGame('slots') },
+            e('div', { className: 'br-slot-cab' }),
+            e('div', { className: 'br-slot-screen' },
+              e('span', null, '🍒'), e('span', null, '🍋'), e('span', null, '🔔')
             ),
-            e('div', { style: { marginTop: 16, fontSize: 12, color: '#a89878', maxWidth: 320, textAlign: 'center', lineHeight: 1.5 } },
-              'The back room opens once the core job loop is solid and polished.'
-            )
+            e('div', { className: 'br-slot-handle' }),
+            e('div', { className: 'br-label' }, 'SLOTS')
+          ),
+          // Card / Scratch table
+          e('div', { className: 'br-game br-table', onClick: () => setGame('scratch') },
+            e('div', { className: 'br-table-leg' }),
+            e('div', { className: 'br-table-felt' }),
+            e('div', { className: 'br-table-cards' },
+              e('div'), e('div'), e('div')
+            ),
+            e('div', { className: 'br-label' }, 'SCRATCH')
+          ),
+          // Dice
+          e('div', { className: 'br-game br-dice', onClick: () => setGame('dice') },
+            e('div', { className: 'br-dice-mat' }),
+            e('div', { className: 'br-die' }, '⚀'),
+            e('div', { className: 'br-die' }, '⚄'),
+            e('div', { className: 'br-label' }, 'DICE')
+          ),
+          // Coin on stool
+          e('div', { className: 'br-game br-coin', onClick: () => setGame('flip') },
+            e('div', { className: 'br-stool' }),
+            e('div', { className: 'br-coin-disc' }, '$'),
+            e('div', { className: 'br-label' }, 'COIN FLIP')
           )
+        ),
+
+        e('div', { style: { padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--line-strong)', borderRadius: 8, textAlign: 'center', fontSize: 13 } },
+          'You have ', e('strong', { style: { color: 'var(--gold)' } }, fmtStacks(stacks)), ' Stacks.'
+        )
+      );
+    }
+
+    // Shared helpers for back-room games
+    function brHeader(onBack, title, subtitle) {
+      return e('div', { className: 'screen-header' },
+        onBack ? e('button', { className: 'back-btn', onClick: onBack },
+          e('span', { className: 'arrow' }, '‹'), 'Back Room'
+        ) : null,
+        e('h1', { className: 'screen-title display-font' }, title),
+        e('p', { className: 'screen-subtitle' }, subtitle)
+      );
+    }
+    function brBetControls(bet, setBet, maxBet) {
+      const options = [10, 50, 100, Math.min(500, maxBet)];
+      return e('div', { className: 'br-bet-row' },
+        options.map((amt, i) =>
+          e('button', {
+            key: i,
+            className: bet === amt ? 'active' : '',
+            disabled: amt > maxBet,
+            onClick: () => setBet(amt)
+          }, fmtStacks(amt))
+        )
+      );
+    }
+    function brBalanceBar(stacks, bet) {
+      return e('div', { className: 'br-balance' },
+        'Balance: ', e('strong', null, fmtStacks(stacks)),
+        ' · Bet: ', e('strong', null, fmtStacks(bet))
+      );
+    }
+
+    // ============================================================
+    // COIN FLIP — pick heads or tails, 2x payout on win
+    // ============================================================
+    function CoinFlipGame({ state, addStacks, toast, unlockAchievement, onBack }) {
+      const stacks = Math.floor(state.stacks || 0);
+      const [bet, setBet] = useState(10);
+      const [side, setSide] = useState('H');
+      const [flipping, setFlipping] = useState(false);
+      const [result, setResult] = useState(null); // { won, side, payout }
+
+      const play = () => {
+        if (flipping) return;
+        if (stacks < bet) { toast && toast('Not enough Stacks.', 'bad'); return; }
+        addStacks(-bet);
+        setFlipping(true);
+        setResult(null);
+        AudioFX.coinDrop(!!state.settings.sound);
+        if (unlockAchievement) unlockAchievement('br_first_play');
+        setTimeout(() => {
+          const landed = Math.random() < 0.5 ? 'H' : 'T';
+          const won = landed === side;
+          const payout = won ? bet * 2 : 0;
+          if (won) {
+            addStacks(payout);
+            AudioFX.bellDing(!!state.settings.sound);
+            if (unlockAchievement) {
+              unlockAchievement('br_first_win');
+              if (payout >= 1000) unlockAchievement('br_big_win');
+            }
+          } else if (unlockAchievement && (stacks - bet) <= 0) {
+            unlockAchievement('br_broke');
+          }
+          setResult({ won, side: landed, payout });
+          setFlipping(false);
+        }, 1600);
+      };
+
+      return e('div', { className: 'main has-bottomnav' },
+        brHeader(onBack, 'Coin Flip', 'Pick a side. 50/50. Double or nothing.'),
+        e('div', { className: 'br-game-screen' },
+          brBalanceBar(stacks, bet),
+          e('div', { className: 'br-flip-stage' },
+            e('div', {
+              className: 'br-flip-coin' + (flipping ? ' flipping' : ''),
+              key: flipping ? 'flip-' + Date.now() : 'static'
+            }, result && !flipping ? (result.side === 'H' ? 'H' : 'T') : '$')
+          ),
+          result && !flipping
+            ? e('div', { className: 'br-result ' + (result.won ? 'win' : 'lose') },
+                e('div', { className: 'br-result-label' }, result.won ? 'YOU WIN' : 'YOU LOSE'),
+                e('div', { className: 'br-result-amount' },
+                  result.won ? '+' + fmtStacks(result.payout) + ' Stacks' : 'Landed on ' + (result.side === 'H' ? 'Heads' : 'Tails')
+                )
+              )
+            : null,
+          e('div', { className: 'br-side-choice' },
+            e('button', {
+              className: side === 'H' ? 'active' : '',
+              onClick: () => setSide('H'),
+              disabled: flipping
+            }, 'HEADS'),
+            e('button', {
+              className: side === 'T' ? 'active' : '',
+              onClick: () => setSide('T'),
+              disabled: flipping
+            }, 'TAILS')
+          ),
+          brBetControls(bet, setBet, stacks),
+          e('button', {
+            className: 'br-action-btn',
+            onClick: play,
+            disabled: flipping || stacks < bet
+          }, flipping ? 'Flipping...' : 'FLIP COIN')
+        )
+      );
+    }
+
+    // ============================================================
+    // SLOT MACHINE — 3 reels, matches pay out
+    // 3 identical = jackpot (10x bet); 2 identical = 2x; otherwise lose
+    // ============================================================
+    const SLOT_SYMBOLS = ['🍒', '🍋', '🔔', '⭐', '💎', '7️⃣'];
+    function SlotsGame({ state, addStacks, toast, unlockAchievement, onBack }) {
+      const stacks = Math.floor(state.stacks || 0);
+      const [bet, setBet] = useState(10);
+      const [reels, setReels] = useState(['🍒', '🍋', '🔔']);
+      const [spinning, setSpinning] = useState(false);
+      const [result, setResult] = useState(null);
+
+      const play = () => {
+        if (spinning) return;
+        if (stacks < bet) { toast && toast('Not enough Stacks.', 'bad'); return; }
+        addStacks(-bet);
+        setSpinning(true);
+        setResult(null);
+        AudioFX.coinDrop(!!state.settings.sound);
+        if (unlockAchievement) unlockAchievement('br_first_play');
+        // Cycle reels visually during spin
+        const cycle = setInterval(() => {
+          setReels([
+            SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)],
+            SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)],
+            SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)]
+          ]);
+        }, 80);
+        setTimeout(() => {
+          clearInterval(cycle);
+          const final = [
+            SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)],
+            SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)],
+            SLOT_SYMBOLS[Math.floor(Math.random() * SLOT_SYMBOLS.length)]
+          ];
+          setReels(final);
+          let payout = 0;
+          let label = 'No match';
+          if (final[0] === final[1] && final[1] === final[2]) {
+            payout = bet * 10;
+            label = 'JACKPOT! Three in a row!';
+            if (unlockAchievement) unlockAchievement('br_jackpot');
+          } else if (final[0] === final[1] || final[1] === final[2] || final[0] === final[2]) {
+            payout = bet * 2;
+            label = 'Pair! 2x bet.';
+          }
+          if (payout > 0) {
+            addStacks(payout);
+            AudioFX.bellDing(!!state.settings.sound);
+            if (unlockAchievement) {
+              unlockAchievement('br_first_win');
+              if (payout >= 1000) unlockAchievement('br_big_win');
+            }
+          } else if (unlockAchievement && (stacks - bet) <= 0) {
+            unlockAchievement('br_broke');
+          }
+          setResult({ won: payout > 0, payout, label });
+          setSpinning(false);
+        }, 1800);
+      };
+
+      return e('div', { className: 'main has-bottomnav' },
+        brHeader(onBack, 'Slots', 'Three in a row = jackpot. Two matching = 2x.'),
+        e('div', { className: 'br-game-screen' },
+          brBalanceBar(stacks, bet),
+          e('div', { className: 'br-slots-cabinet' },
+            e('div', { className: 'br-slot-reels' },
+              reels.map((sym, i) =>
+                e('div', {
+                  key: i,
+                  className: 'br-slot-reel' + (spinning ? ' spinning' : '')
+                }, sym)
+              )
+            )
+          ),
+          result && !spinning
+            ? e('div', { className: 'br-result ' + (result.won ? 'win' : 'lose') },
+                e('div', { className: 'br-result-label' }, result.won ? 'YOU WIN' : 'YOU LOSE'),
+                e('div', { className: 'br-result-amount' },
+                  result.won ? '+' + fmtStacks(result.payout) + ' Stacks' : result.label
+                )
+              )
+            : null,
+          brBetControls(bet, setBet, stacks),
+          e('button', {
+            className: 'br-action-btn',
+            onClick: play,
+            disabled: spinning || stacks < bet
+          }, spinning ? 'Spinning...' : 'SPIN')
+        )
+      );
+    }
+
+    // ============================================================
+    // SCRATCH CARD — 3x3 grid, tap to reveal. 3 matching icons = win
+    // Win payout based on the matching icon's value tier
+    // ============================================================
+    const SCRATCH_ICONS = [
+      { emoji: '💎', mult: 10, weight: 1 },   // rare jackpot
+      { emoji: '⭐', mult: 5,  weight: 2 },
+      { emoji: '🔔', mult: 3,  weight: 3 },
+      { emoji: '🍒', mult: 2,  weight: 4 },
+      { emoji: '🍋', mult: 1.5, weight: 4 },
+      { emoji: '🥮', mult: 0,  weight: 6 }    // common, no win
+    ];
+    function pickScratchIcon() {
+      const totalWeight = SCRATCH_ICONS.reduce((s, i) => s + i.weight, 0);
+      let r = Math.random() * totalWeight;
+      for (const ic of SCRATCH_ICONS) {
+        r -= ic.weight;
+        if (r <= 0) return ic;
+      }
+      return SCRATCH_ICONS[SCRATCH_ICONS.length - 1];
+    }
+    function ScratchGame({ state, addStacks, toast, unlockAchievement, onBack }) {
+      const stacks = Math.floor(state.stacks || 0);
+      const [bet, setBet] = useState(10);
+      const [card, setCard] = useState(null); // array of 9 icon objects
+      const [revealed, setRevealed] = useState([]); // array of 9 booleans
+      const [result, setResult] = useState(null);
+
+      const buy = () => {
+        if (stacks < bet) { toast && toast('Not enough Stacks.', 'bad'); return; }
+        addStacks(-bet);
+        const newCard = [];
+        for (let i = 0; i < 9; i++) newCard.push(pickScratchIcon());
+        setCard(newCard);
+        setRevealed([false, false, false, false, false, false, false, false, false]);
+        setResult(null);
+        AudioFX.coinDrop(!!state.settings.sound);
+        if (unlockAchievement) unlockAchievement('br_first_play');
+      };
+
+      const reveal = (i) => {
+        if (!card || revealed[i]) return;
+        const newRevealed = revealed.slice();
+        newRevealed[i] = true;
+        setRevealed(newRevealed);
+        // When all revealed, compute result
+        if (newRevealed.every(v => v)) {
+          // Count matches — find any icon appearing 3+ times
+          const counts = {};
+          card.forEach(ic => { counts[ic.emoji] = (counts[ic.emoji] || 0) + 1; });
+          let bestPayout = 0;
+          let bestLabel = 'No matches';
+          Object.keys(counts).forEach(emoji => {
+            if (counts[emoji] >= 3) {
+              const ic = card.find(c => c.emoji === emoji);
+              const payout = Math.floor(bet * ic.mult);
+              if (payout > bestPayout) {
+                bestPayout = payout;
+                bestLabel = 'Three ' + emoji + '! ' + ic.mult + 'x bet';
+              }
+            }
+          });
+          if (bestPayout > 0) {
+            addStacks(bestPayout);
+            AudioFX.bellDing(!!state.settings.sound);
+            if (unlockAchievement) {
+              unlockAchievement('br_first_win');
+              if (bestPayout >= 1000) unlockAchievement('br_big_win');
+              if (bestLabel.indexOf('💎') >= 0) unlockAchievement('br_diamond');
+            }
+          } else if (unlockAchievement && stacks <= 0) {
+            unlockAchievement('br_broke');
+          }
+          setResult({ won: bestPayout > 0, payout: bestPayout, label: bestLabel });
+        }
+      };
+
+      return e('div', { className: 'main has-bottomnav' },
+        brHeader(onBack, 'Scratch Card', 'Buy a card. Reveal all 9. 3 matching = win.'),
+        e('div', { className: 'br-game-screen' },
+          brBalanceBar(stacks, bet),
+          card
+            ? e('div', { className: 'br-scratch-grid' },
+                card.map((ic, i) =>
+                  e('div', {
+                    key: i,
+                    className: 'br-scratch-cell' + (revealed[i] ? ' revealed' : ''),
+                    onClick: () => reveal(i)
+                  },
+                    revealed[i] ? e('span', { className: 'scratch-icon' }, ic.emoji) : null
+                  )
+                )
+              )
+            : e('div', { style: { textAlign: 'center', padding: 30, color: 'var(--text-faint)' } },
+                'Pick a bet and buy a card to play.'
+              ),
+          result
+            ? e('div', { className: 'br-result ' + (result.won ? 'win' : 'lose') },
+                e('div', { className: 'br-result-label' }, result.won ? 'WINNER' : 'NO LUCK'),
+                e('div', { className: 'br-result-amount' },
+                  result.won ? '+' + fmtStacks(result.payout) + ' Stacks' : result.label
+                )
+              )
+            : null,
+          brBetControls(bet, setBet, stacks),
+          e('button', {
+            className: 'br-action-btn',
+            onClick: buy,
+            disabled: stacks < bet
+          }, card && !result ? 'Reveal all 9 squares' : 'BUY CARD')
+        )
+      );
+    }
+
+    // ============================================================
+    // DICE — over/under 7 (sum of 2 dice)
+    // Pick over, under, or exactly 7. Over/under pays 2x, exactly-7 pays 5x
+    // ============================================================
+    function DiceGame({ state, addStacks, toast, unlockAchievement, onBack }) {
+      const stacks = Math.floor(state.stacks || 0);
+      const [bet, setBet] = useState(10);
+      const [choice, setChoice] = useState('under'); // 'under' | 'seven' | 'over'
+      const [rolling, setRolling] = useState(false);
+      const [dice, setDice] = useState([3, 4]);
+      const [result, setResult] = useState(null);
+
+      const play = () => {
+        if (rolling) return;
+        if (stacks < bet) { toast && toast('Not enough Stacks.', 'bad'); return; }
+        addStacks(-bet);
+        setRolling(true);
+        setResult(null);
+        AudioFX.coinDrop(!!state.settings.sound);
+        if (unlockAchievement) unlockAchievement('br_first_play');
+        // Roll animation: cycle dice values
+        const cycle = setInterval(() => {
+          setDice([1 + Math.floor(Math.random() * 6), 1 + Math.floor(Math.random() * 6)]);
+        }, 80);
+        setTimeout(() => {
+          clearInterval(cycle);
+          const d1 = 1 + Math.floor(Math.random() * 6);
+          const d2 = 1 + Math.floor(Math.random() * 6);
+          const sum = d1 + d2;
+          setDice([d1, d2]);
+          let won = false;
+          let payout = 0;
+          if (choice === 'under' && sum < 7) { won = true; payout = bet * 2; }
+          else if (choice === 'over' && sum > 7) { won = true; payout = bet * 2; }
+          else if (choice === 'seven' && sum === 7) {
+            won = true;
+            payout = bet * 5;
+            if (unlockAchievement) unlockAchievement('br_lucky_seven');
+          }
+          if (won) {
+            addStacks(payout);
+            AudioFX.bellDing(!!state.settings.sound);
+            if (unlockAchievement) {
+              unlockAchievement('br_first_win');
+              if (payout >= 1000) unlockAchievement('br_big_win');
+            }
+          } else if (unlockAchievement && (stacks - bet) <= 0) {
+            unlockAchievement('br_broke');
+          }
+          setResult({ won, payout, sum });
+          setRolling(false);
+        }, 900);
+      };
+
+      return e('div', { className: 'main has-bottomnav' },
+        brHeader(onBack, 'Dice', 'Two dice. Bet on the sum. Over/under pays 2x. Lucky 7 pays 5x.'),
+        e('div', { className: 'br-game-screen' },
+          brBalanceBar(stacks, bet),
+          e('div', { className: 'br-dice-stage' },
+            e('div', { className: 'br-dice-big' + (rolling ? ' rolling' : '') }, dice[0]),
+            e('div', { className: 'br-dice-big' + (rolling ? ' rolling' : '') }, dice[1])
+          ),
+          result && !rolling
+            ? e('div', { className: 'br-result ' + (result.won ? 'win' : 'lose') },
+                e('div', { className: 'br-result-label' }, result.won ? 'WIN' : 'LOSE'),
+                e('div', { className: 'br-result-amount' },
+                  'Sum: ' + result.sum + (result.won ? ' · +' + fmtStacks(result.payout) + ' Stacks' : '')
+                )
+              )
+            : null,
+          e('div', { className: 'br-bet-row' },
+            e('button', { className: choice === 'under' ? 'active' : '', onClick: () => setChoice('under'),  disabled: rolling }, 'Under 7'),
+            e('button', { className: choice === 'seven' ? 'active' : '', onClick: () => setChoice('seven'),  disabled: rolling }, 'Exactly 7'),
+            e('button', { className: choice === 'over'  ? 'active' : '', onClick: () => setChoice('over'),   disabled: rolling }, 'Over 7'),
+            e('div', null)
+          ),
+          brBetControls(bet, setBet, stacks),
+          e('button', {
+            className: 'br-action-btn',
+            onClick: play,
+            disabled: rolling || stacks < bet
+          }, rolling ? 'Rolling...' : 'ROLL')
         )
       );
     }
@@ -4968,11 +6232,9 @@
       const rank = getRank(state.totalEarned);
       const nextRank = getNextRank(state.totalEarned);
       const tier = getRepTier(state.reputation);
-      const rankProgress = nextRank
-        ? Math.min(100, ((state.totalEarned - rank.threshold) / (nextRank.threshold - rank.threshold)) * 100)
-        : 100;
+      const graduated = !!(state.account && state.account.graduated);
 
-      // Dynamic story — branches on money tier × reputation × skill rate × experience
+      // Story segments (used for the quote section below the timeline)
       const storySegments = buildMarcusStory(state);
 
       return e('div', { className: 'main has-bottomnav' },
@@ -4983,14 +6245,14 @@
           e('h1', { className: 'screen-title display-font' }, 'Profile')
         ),
 
-        // Hero card
+        // ---- Hero card ----
         e('div', { className: 'profile-hero' },
           e('div', { className: 'profile-avatar-frame', style: { padding: 0, overflow: 'hidden' } },
             e(MarcusAvatar, { size: 92 })
           ),
           e('div', { className: 'profile-name' }, 'MARCUS'),
           e('div', null,
-            e('span', { className: 'profile-rank-badge' }, '★ ' + rank.name),
+            e('span', { className: 'profile-rank-badge' }, '★ ' + (graduated ? 'Graduated' : rank.name)),
             ' ',
             e('span', { className: 'profile-rank-badge', style: { marginLeft: 4 } }, tier.name)
           ),
@@ -4999,68 +6261,92 @@
           )
         ),
 
-        // Rank progress
-        e('div', { className: 'card', style: { marginBottom: 14 } },
-          e('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: 8 } },
-            e('div', { style: { fontSize: 11, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: 1 } }, 'The Climb'),
-            state.account && state.account.graduated
-              ? e('div', { style: { fontSize: 12, color: 'var(--gold)' } }, '🎓 GRADUATED')
-              : nextRank
-                ? e('div', { style: { fontSize: 12, color: 'var(--text-dim)' } },
-                    fmtStacks(nextRank.threshold - state.totalEarned) + ' to ' + nextRank.name)
-                : e('div', { style: { fontSize: 12, color: 'var(--gold)' } }, '🏆 OWNER')
+        // ---- Career Timeline (headline section) ----
+        e('div', { className: 'resume-section' },
+          e('div', { className: 'resume-section-label' }, '📜 CAREER'),
+          e('div', { className: 'career-timeline' },
+            RANKS.map((r, i) => {
+              const achieved = state.totalEarned >= r.threshold;
+              const isCurrent = !graduated && r.id === rank.id;
+              const cls = 'ct-step' + (achieved ? ' achieved' : '') + (isCurrent ? ' current' : '');
+              return e('div', { key: r.id, className: cls },
+                e('div', null,
+                  e('span', { className: 'ct-rank' }, r.name),
+                  isCurrent ? e('span', { className: 'ct-current-tag' }, 'YOU ARE HERE') : null
+                ),
+                e('div', { className: 'ct-threshold' },
+                  i === 0 ? 'Started here.' : 'Reached at ' + fmtStacks(r.threshold) + ' lifetime Stacks'
+                )
+              );
+            }),
+            // Graduation as final timeline step (visible only after graduating)
+            graduated
+              ? e('div', { className: 'ct-step achieved graduated' },
+                  e('div', null,
+                    e('span', { className: 'ct-rank' }, '🎓 Graduated'),
+                    e('span', { className: 'ct-current-tag', style: { background: 'var(--good)' } }, 'NEW CHAPTER')
+                  ),
+                  e('div', { className: 'ct-threshold' },
+                    state.account.nextJobDate
+                      ? 'Next role starts ' + new Date(state.account.nextJobDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })
+                      : 'Walking out of the truck.'
+                  )
+                )
+              : null
           ),
-          e('div', { className: 'rep-bar-track' },
-            e('div', { className: 'rep-bar-fill', style: { width: rankProgress + '%', background: 'linear-gradient(90deg, var(--amber-deep), var(--amber))' } })
-          ),
-          e('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-faint)', marginTop: 6 } },
-            e('span', null, rank.name),
-            nextRank ? e('span', null, nextRank.name) : null
-          ),
-          // Next-job date footer for graduates
-          state.account && state.account.graduated && state.account.nextJobDate
-            ? e('div', { style: { marginTop: 10, paddingTop: 8, borderTop: '1px dashed var(--line)', fontSize: 11, color: 'var(--gold)', textAlign: 'center', fontStyle: 'italic' } },
-                'Next chapter starts ' + new Date(state.account.nextJobDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })
-              )
-            : null
+          // Progress to next rank (small bar below timeline)
+          !graduated && nextRank ? e('div', { style: { fontSize: 11, color: 'var(--text-faint)', marginTop: 4 } },
+            fmtStacks(nextRank.threshold - state.totalEarned) + ' Stacks to ' + nextRank.name
+          ) : null
         ),
 
-        // Story (dynamic based on multiple progression dimensions)
-        e('div', { className: 'profile-section-title' }, 'THE STORY SO FAR'),
-        e('div', { className: 'profile-story' },
-          storySegments.map((seg, i) =>
-            seg.em
-              ? e('em', { key: i }, seg.text)
-              : e('span', { key: i }, seg.text)
+        // ---- Story / About (resume "objective" equivalent) ----
+        e('div', { className: 'resume-section' },
+          e('div', { className: 'resume-section-label' }, '📝 ABOUT'),
+          e('div', { className: 'resume-quote' },
+            storySegments.map((seg, i) =>
+              seg.em ? e('em', { key: i }, seg.text) : e('span', { key: i }, seg.text)
+            )
           )
         ),
 
-        // Numbers (smaller, secondary)
-        e('div', { className: 'profile-section-title' }, 'BY THE NUMBERS'),
-        e('div', { className: 'stat-mini-grid' },
-          e('div', { className: 'stat-mini' },
-            e('div', { className: 'smv' }, fmtStacks(state.stacks)),
-            e('div', { className: 'sml' }, 'Stacks')
-          ),
-          e('div', { className: 'stat-mini' },
-            e('div', { className: 'smv' }, fmtStacks(state.totalEarned)),
-            e('div', { className: 'sml' }, 'Lifetime')
-          ),
-          e('div', { className: 'stat-mini' },
-            e('div', { className: 'smv' }, state.customersServed),
-            e('div', { className: 'sml' }, 'Customers')
-          ),
-          e('div', { className: 'stat-mini' },
-            e('div', { className: 'smv' }, state.perfectOrders),
-            e('div', { className: 'sml' }, 'Perfect')
-          ),
-          e('div', { className: 'stat-mini' },
-            e('div', { className: 'smv' }, Math.floor(state.reputation)),
-            e('div', { className: 'sml' }, 'Reputation')
-          ),
-          e('div', { className: 'stat-mini' },
-            e('div', { className: 'smv', style: { color: state.failedOrders > 0 ? 'var(--bad)' : 'var(--amber)' } }, state.failedOrders),
-            e('div', { className: 'sml' }, 'Failed')
+        // ---- Numbers (resume "experience metrics") ----
+        e('div', { className: 'resume-section' },
+          e('div', { className: 'resume-section-label' }, '📊 BY THE NUMBERS'),
+          e('div', { className: 'resume-mini-grid' },
+            e('div', null,
+              e('div', { className: 'lbl' }, 'Stacks'),
+              e('div', { className: 'val' }, fmtStacks(state.stacks))
+            ),
+            e('div', null,
+              e('div', { className: 'lbl' }, 'Lifetime'),
+              e('div', { className: 'val' }, fmtStacks(state.totalEarned))
+            ),
+            e('div', null,
+              e('div', { className: 'lbl' }, 'Customers'),
+              e('div', { className: 'val' }, state.customersServed || 0)
+            ),
+            e('div', null,
+              e('div', { className: 'lbl' }, 'Perfect Orders'),
+              e('div', { className: 'val' }, state.perfectOrders || 0)
+            ),
+            e('div', null,
+              e('div', { className: 'lbl' }, 'Reputation'),
+              e('div', { className: 'val' }, Math.floor(state.reputation || 0))
+            ),
+            e('div', null,
+              e('div', { className: 'lbl' }, 'Failed Orders'),
+              e('div', { className: 'val', style: { color: (state.failedOrders || 0) > 0 ? 'var(--bad)' : 'var(--amber)' } }, state.failedOrders || 0)
+            )
+          )
+        ),
+
+        // ---- Trophies (count summary, link to full screen) ----
+        e('div', { className: 'resume-section' },
+          e('div', { className: 'resume-section-label' }, '🏆 TROPHIES'),
+          e('div', { style: { padding: '10px 12px', background: 'rgba(0,0,0,0.4)', borderRadius: 8, border: '1px solid var(--line)', textAlign: 'center', fontSize: 13, color: 'var(--text-dim)' } },
+            (state.unlockedAchievements || []).length + ' / ' + ACHIEVEMENTS.length + ' unlocked',
+            e('div', { style: { fontSize: 11, color: 'var(--text-faint)', marginTop: 4 } }, 'See the full Trophy Case in the More menu.')
           )
         )
       );
@@ -5291,7 +6577,7 @@
         }
         if (tab === 'home')    return e(HomeScreen,     { state: game.state, onGoTo: goTo });
         if (tab === 'work')    return e(FoodTruckScreen,{ state: game.state, addStacks: game.addStacks, addReputation: game.addReputation, recordOrder: game.recordOrder, logEvent: game.logEvent, completeJob: game.completeJob, toast: pushToast });
-        if (tab === 'arcade')  return e(ArcadeScreen,   null);
+        if (tab === 'arcade')  return e(BackRoomScreen, { state: game.state, addStacks: game.addStacks, toast: pushToast, unlockAchievement: game.unlockAchievement });
         if (tab === 'friends') return e(FriendsScreen,  { state: game.state, currentUser, onGoTo: goTo, pendingFriendCode, clearPendingFriendCode: () => setPendingFriendCode(null), toast: pushToast, unlockAchievement: game.unlockAchievement });
         if (tab === 'more')    return e(MoreScreen,     { onGoTo: goTo, state: game.state });
         return null;
