@@ -951,6 +951,215 @@
     }
 
     /* End-of-shift overlay */
+    /* ===== Auth Modal (sign-in / sign-up flow) ===== */
+    .auth-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: authFade 220ms ease;
+    }
+    @keyframes authFade { from { opacity: 0; } to { opacity: 1; } }
+    .auth-modal {
+      background: linear-gradient(180deg, #15110d 0%, var(--bg-1) 100%);
+      border: 1px solid var(--line-strong);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 380px;
+      padding: 28px 24px 22px;
+      position: relative;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,167,38,0.08) inset;
+      animation: authSlide 320ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes authSlide {
+      from { transform: translateY(40px) scale(0.96); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .auth-close, .auth-back {
+      position: absolute;
+      top: 14px;
+      background: transparent;
+      border: none;
+      color: var(--text-faint);
+      cursor: pointer;
+      padding: 6px 10px;
+      font-size: 18px;
+      line-height: 1;
+      border-radius: 6px;
+      transition: color 120ms ease, background 120ms ease;
+    }
+    .auth-close { right: 10px; }
+    .auth-back  { left: 10px; font-size: 14px; display: flex; align-items: center; gap: 4px; }
+    .auth-close:hover, .auth-back:hover { color: var(--amber); background: rgba(255,167,38,0.06); }
+    .auth-modal-logo {
+      text-align: center;
+      font-family: 'Permanent Marker', cursive;
+      font-size: 26px;
+      color: var(--amber);
+      letter-spacing: 2px;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+    .auth-modal-subtitle {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 13px;
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+    .auth-method {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(0,0,0,0.45);
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease, transform 100ms ease;
+      text-align: left;
+    }
+    .auth-method:hover { border-color: var(--amber); background: rgba(255,167,38,0.06); }
+    .auth-method:active { transform: scale(0.985); }
+    .auth-method:disabled { opacity: 0.5; cursor: not-allowed; }
+    .auth-method.primary {
+      background: linear-gradient(180deg, var(--amber) 0%, var(--amber-deep) 100%);
+      border-color: var(--amber);
+      color: #1a0d00;
+    }
+    .auth-method.primary:hover { background: linear-gradient(180deg, var(--gold) 0%, var(--amber) 100%); }
+    .auth-method .auth-method-icon {
+      font-size: 22px;
+      width: 30px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .auth-method .auth-method-label { flex: 1; }
+    .auth-method .auth-method-chevron { color: var(--text-faint); font-size: 18px; }
+    .auth-method.primary .auth-method-chevron { color: rgba(26,13,0,0.6); }
+    .auth-divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 14px 0;
+      color: var(--text-faint);
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--line);
+    }
+    .auth-email-link {
+      text-align: center;
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-color: rgba(255,255,255,0.2);
+      text-underline-offset: 3px;
+    }
+    .auth-email-link:hover { color: var(--amber); text-decoration-color: var(--amber); }
+    .auth-footer-note {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-faint);
+      line-height: 1.5;
+    }
+    /* Email form view inside modal */
+    .auth-mode-toggle {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      padding: 4px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 10px;
+    }
+    .auth-mode-toggle button {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 7px;
+      transition: background 160ms ease, color 160ms ease;
+    }
+    .auth-mode-toggle button.active {
+      background: var(--amber);
+      color: #1a0d00;
+    }
+    .auth-input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 14px;
+      margin-bottom: 10px;
+      transition: border-color 160ms ease;
+    }
+    .auth-input:focus { outline: none; border-color: var(--amber); }
+    .auth-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(180deg, var(--amber) 0%, var(--amber-deep) 100%);
+      border: none;
+      border-radius: 10px;
+      color: #1a0d00;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: filter 160ms ease;
+    }
+    .auth-submit:hover { filter: brightness(1.1); }
+    .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    .auth-security-note {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: rgba(255,167,38,0.05);
+      border: 1px dashed rgba(255,167,38,0.25);
+      border-radius: 8px;
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* Settings auth entry buttons (signed-out state) */
+    .auth-entry-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .auth-entry-row > button { flex: 1; }
+    .auth-entry-note {
+      font-size: 11px;
+      color: var(--text-faint);
+      text-align: center;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+
     .shift-end-overlay {
       position: fixed;
       inset: 0;
@@ -1324,6 +1533,94 @@
       letter-spacing: 1px;
     }
 
+    /* Achievements styling */
+    .ach-progress {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,224,130,0.25);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+    }
+    .ach-progress-top {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .ach-progress-label {
+      font-family: 'Permanent Marker', cursive;
+      color: #ffe082; font-size: 14px; letter-spacing: 1px;
+    }
+    .ach-progress-count {
+      color: var(--gold); font-weight: 800; font-size: 14px;
+    }
+    .ach-progress-bar {
+      height: 6px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .ach-progress-bar > div {
+      height: 100%;
+      background: linear-gradient(90deg, var(--amber-deep), var(--amber));
+      border-radius: 3px;
+      transition: width 400ms ease;
+    }
+    .ach-category-title {
+      font-family: 'Permanent Marker', cursive;
+      color: var(--gold);
+      font-size: 16px;
+      letter-spacing: 2px;
+      margin: 16px 0 8px;
+      text-transform: uppercase;
+    }
+    .ach-category-title:first-of-type { margin-top: 4px; }
+    .ach-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .ach-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      transition: background 160ms ease, border-color 160ms ease;
+    }
+    .ach-card.unlocked {
+      background: linear-gradient(180deg, rgba(255,167,38,0.10), rgba(0,0,0,0.35));
+      border-color: rgba(255,167,38,0.35);
+      box-shadow: 0 0 0 1px rgba(255,167,38,0.08) inset;
+    }
+    .ach-card.locked .ach-icon { opacity: 0.35; filter: grayscale(1); }
+    .ach-card.locked .ach-title { color: #5a4a3a; }
+    .ach-card.locked .ach-desc { color: #4a3a2a; font-style: italic; }
+    .ach-icon {
+      font-size: 28px; line-height: 1;
+      min-width: 36px; text-align: center;
+    }
+    .ach-text { flex: 1; min-width: 0; }
+    .ach-title {
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--amber);
+      letter-spacing: 0.3px;
+    }
+    .ach-desc {
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+    .ach-status {
+      font-size: 11px;
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .ach-card.locked .ach-status { color: #4a3a2a; }
+
     /* Chalkboard frame for "side menus" — Settings, Friends, Arcade, Achievements, Update Log */
     .side-menu-frame {
       background:
@@ -1665,7 +1962,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.2.2';
+    const VERSION = '1.2.4';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -1694,6 +1991,45 @@
       { min: 40, max: 59,  name: 'Known',       desc: 'Slightly reduced flow, smaller tips',                  flow: 0.85, tip: 0.85 },
       { min: 20, max: 39,  name: 'Doubted',     desc: 'Noticeably fewer customers, Ray gives warnings',       flow: 0.6,  tip: 0.7  },
       { min: 0,  max: 19,  name: 'Blacklisted', desc: 'Minimal customers, certain jobs locked',               flow: 0.35, tip: 0.5  }
+    ];
+
+    // ============================================================
+    // ACHIEVEMENTS — checked against state on every change.
+    // .check(state) returns true when the achievement is earned.
+    // .secret = true hides the description until unlocked.
+    // ============================================================
+    const ACHIEVEMENTS = [
+      // ---- Work ----
+      { id: 'first_day',       cat: 'Work',        icon: '👨‍🍳', title: 'First Day',                 desc: 'Serve your first customer.',                check: s => (s.customersServed || 0) >= 1 },
+      { id: 'first_perfect',   cat: 'Work',        icon: '⭐',   title: 'First Perfect',             desc: 'Score your first PERFECT order.',           check: s => (s.perfectOrders || 0) >= 1 },
+      { id: 'getting_hang',    cat: 'Work',        icon: '🎯',   title: 'Getting the Hang of It',     desc: 'Serve 10 customers.',                       check: s => (s.customersServed || 0) >= 10 },
+      { id: 'regular_register',cat: 'Work',        icon: '📋',   title: 'Regular at the Register',    desc: 'Serve 100 customers.',                      check: s => (s.customersServed || 0) >= 100 },
+      { id: 'truck_veteran',   cat: 'Work',        icon: '🏪',   title: 'Truck Veteran',              desc: 'Serve 500 customers.',                      check: s => (s.customersServed || 0) >= 500 },
+      { id: 'perfectionist',   cat: 'Work',        icon: '✨',   title: 'Perfectionist',              desc: 'Score 50 PERFECT orders.',                  check: s => (s.perfectOrders || 0) >= 50 },
+
+      // ---- Stacks ----
+      { id: 'first_hundred',   cat: 'Stacks',      icon: '💵',   title: 'First Hundred',              desc: 'Earn 100 Stacks total.',                    check: s => (s.totalEarned || 0) >= 100 },
+      { id: 'comma_club',      cat: 'Stacks',      icon: '💰',   title: 'Comma Club',                 desc: 'Earn 1,000 Stacks total.',                  check: s => (s.totalEarned || 0) >= 1000 },
+      { id: 'five_figures',    cat: 'Stacks',      icon: '💼',   title: 'Five Figures',               desc: 'Earn 10,000 Stacks total.',                 check: s => (s.totalEarned || 0) >= 10000 },
+      { id: 'six_figures',     cat: 'Stacks',      icon: '🏦',   title: 'Six Figures',                desc: 'Earn 100,000 Stacks total.',                check: s => (s.totalEarned || 0) >= 100000 },
+      { id: 'millionaire',     cat: 'Stacks',      icon: '💎',   title: 'Millionaire',                desc: 'Earn 1,000,000 Stacks total.',              check: s => (s.totalEarned || 0) >= 1000000 },
+
+      // ---- Reputation ----
+      { id: 'known_block',     cat: 'Reputation',  icon: '🤝',   title: 'Known to the Block',         desc: 'Reach 60 Reputation.',                       check: s => (s.reputation || 0) >= 60 },
+      { id: 'beloved',         cat: 'Reputation',  icon: '❤️',   title: 'Beloved',                    desc: 'Reach 80 Reputation.',                       check: s => (s.reputation || 0) >= 80 },
+
+      // ---- Progression ----
+      { id: 'prep_cook',       cat: 'Progression', icon: '🔪',   title: 'Promoted',                   desc: 'Become a Prep Cook.',                       check: s => (s.totalEarned || 0) >= 100 },
+      { id: 'line_cook',       cat: 'Progression', icon: '🍳',   title: 'On the Line',                desc: 'Become a Line Cook.',                       check: s => (s.totalEarned || 0) >= 1000 },
+      { id: 'head_cook',       cat: 'Progression', icon: '🥘',   title: 'Head Cook',                  desc: 'Run the whole line.',                       check: s => (s.totalEarned || 0) >= 10000 },
+      { id: 'manager',         cat: 'Progression', icon: '🗝️',   title: 'Boss Material',              desc: 'Become Manager.',                           check: s => (s.totalEarned || 0) >= 100000 },
+      { id: 'owner',           cat: 'Progression', icon: '👑',   title: 'Own the Truck',              desc: 'Become Owner.',                             check: s => (s.totalEarned || 0) >= 1000000 },
+      { id: 'graduate',        cat: 'Progression', icon: '🎓',   title: 'Graduate',                   desc: 'Get accepted to the next chapter.',         check: s => !!(s.account && s.account.graduated) },
+
+      // ---- Secret (hidden description until unlocked) ----
+      { id: 'first_fail',      cat: 'Secret', secret: true, icon: '🔥', title: 'Burn One',           desc: 'Fail your first order.',                     check: s => (s.failedOrders || 0) >= 1 },
+      { id: 'rough_day',       cat: 'Secret', secret: true, icon: '😩', title: 'Rough Day',          desc: 'Fail 10 orders in your career.',             check: s => (s.failedOrders || 0) >= 10 },
+      { id: 'made_a_friend',   cat: 'Secret', secret: true, icon: '👋', title: 'Made a Friend',      desc: 'Sign in and add your first friend.',         check: s => false /* triggered by Friends flow — see App */ }
     ];
 
     const MENU_ITEMS = [
@@ -1837,7 +2173,9 @@
         currentJob: 'food_truck',
         unlockedJobs: ['food_truck'], // Other jobs = PLACEHOLDER for future versions
         settings: {
-          sound: true,
+          sound: true,                 // master SFX (bell, sizzle, coin, end-of-shift)
+          ambience: false,             // background street noise (off by default — subtle but not for everyone)
+          voices: false,               // customer TTS voices (off by default — experimental, varies per device)
           vibration: true,
           notifications: false // PLACEHOLDER — Coming Soon, foundation only in v1.0.0
         },
@@ -1854,6 +2192,7 @@
         rivals: [],
         weeklyChallenge: null,
         achievements: {},
+        unlockedAchievements: [],
         eventLog: [],
         newsLastReadVersion: null
       };
@@ -1868,6 +2207,7 @@
       merged.friends = Array.isArray(saved.friends) ? saved.friends : [];
       merged.rivals = Array.isArray(saved.rivals) ? saved.rivals : [];
       merged.achievements = saved.achievements || {};
+      merged.unlockedAchievements = Array.isArray(saved.unlockedAchievements) ? saved.unlockedAchievements : [];
       merged.eventLog = Array.isArray(saved.eventLog) ? saved.eventLog : [];
       if (!merged.account.friendCode) merged.account.friendCode = generateFriendCode();
       return merged;
@@ -2216,7 +2556,161 @@
         src.stop(t0 + 3);
       }
 
-      return { engineRumble, doorClose, footsteps, snore };
+      // Bell ding — bright sine + harmonics, ~0.7s. Plays on serving an order.
+      function bellDing(soundOn) {
+        if (!soundOn) return;
+        const c = getCtx();
+        if (!c) return;
+        const t0 = c.currentTime;
+        // Three harmonically related sines = bell timbre
+        const freqs = [880, 1320, 1760];
+        const gains = [0.18, 0.10, 0.06];
+        freqs.forEach((f, i) => {
+          const osc = c.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.value = f;
+          const gain = c.createGain();
+          gain.gain.setValueAtTime(0, t0);
+          gain.gain.linearRampToValueAtTime(gains[i], t0 + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.7 - (i * 0.05));
+          osc.connect(gain);
+          gain.connect(c.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.7);
+        });
+      }
+
+      // Sizzle — band-passed white noise burst, ~0.3s. Plays when customer arrives.
+      function sizzle(soundOn) {
+        if (!soundOn) return;
+        const c = getCtx();
+        if (!c) return;
+        const t0 = c.currentTime;
+        const bufSize = c.sampleRate * 0.35;
+        const buf = c.createBuffer(1, bufSize, c.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+        const src = c.createBufferSource();
+        src.buffer = buf;
+        const filter = c.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 2200;
+        filter.Q.value = 1.2;
+        const gain = c.createGain();
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(0.12, t0 + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.35);
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(c.destination);
+        src.start(t0);
+      }
+
+      // Coin drop — descending blip, ~0.25s. Plays when earning Stacks.
+      function coinDrop(soundOn) {
+        if (!soundOn) return;
+        const c = getCtx();
+        if (!c) return;
+        const t0 = c.currentTime;
+        const osc = c.createOscillator();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(880, t0);
+        osc.frequency.exponentialRampToValueAtTime(440, t0 + 0.18);
+        const gain = c.createGain();
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(0.10, t0 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.25);
+        osc.connect(gain);
+        gain.connect(c.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.25);
+      }
+
+      // ---- Background ambience (looping, can be started/stopped) ----
+      let ambienceNodes = null;
+      function startAmbience(ambienceOn) {
+        if (!ambienceOn) return;
+        const c = getCtx();
+        if (!c || ambienceNodes) return;
+        // Continuous low-rumble (city/street) + filtered noise (wind/breath)
+        const bufSize = c.sampleRate * 4; // 4-second loop
+        const buf = c.createBuffer(1, bufSize, c.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+        const noise = c.createBufferSource();
+        noise.buffer = buf;
+        noise.loop = true;
+        const filter = c.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 380;
+        const gain = c.createGain();
+        gain.gain.value = 0.04; // subtle
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(c.destination);
+        noise.start(0);
+        ambienceNodes = { noise, gain };
+      }
+      function stopAmbience() {
+        if (!ambienceNodes) return;
+        try {
+          const c = getCtx();
+          if (c) {
+            ambienceNodes.gain.gain.linearRampToValueAtTime(0, c.currentTime + 0.4);
+            setTimeout(() => {
+              try { ambienceNodes.noise.stop(); } catch (e) {}
+              ambienceNodes = null;
+            }, 450);
+          } else {
+            ambienceNodes.noise.stop();
+            ambienceNodes = null;
+          }
+        } catch (e) { ambienceNodes = null; }
+      }
+
+      // ---- Customer voice (SpeechSynthesis TTS) ----
+      // Picks a random available voice each call so different customers sound different.
+      let cachedVoices = null;
+      function getVoices() {
+        if (typeof speechSynthesis === 'undefined') return [];
+        if (cachedVoices && cachedVoices.length) return cachedVoices;
+        const list = speechSynthesis.getVoices();
+        if (list && list.length) cachedVoices = list;
+        return list || [];
+      }
+      // Some browsers load voices asynchronously
+      if (typeof speechSynthesis !== 'undefined') {
+        try { speechSynthesis.onvoiceschanged = () => { cachedVoices = speechSynthesis.getVoices(); }; } catch (e) {}
+      }
+      function speak(text, voicesOn) {
+        if (!voicesOn || !text) return;
+        if (typeof speechSynthesis === 'undefined' || typeof SpeechSynthesisUtterance === 'undefined') return;
+        try {
+          // Cancel anything currently speaking so customer voices don't pile up
+          speechSynthesis.cancel();
+          const utt = new SpeechSynthesisUtterance(text);
+          const voices = getVoices();
+          if (voices.length > 0) {
+            utt.voice = voices[Math.floor(Math.random() * voices.length)];
+          }
+          utt.rate = 0.95 + Math.random() * 0.2;   // 0.95–1.15 — slight variation per customer
+          utt.pitch = 0.8 + Math.random() * 0.5;   // 0.8–1.3
+          utt.volume = 0.85;
+          speechSynthesis.speak(utt);
+        } catch (e) { /* ignore */ }
+      }
+      function cancelSpeech() {
+        if (typeof speechSynthesis !== 'undefined') {
+          try { speechSynthesis.cancel(); } catch (e) {}
+        }
+      }
+
+      return {
+        engineRumble, doorClose, footsteps, snore,
+        bellDing, sizzle, coinDrop,
+        startAmbience, stopAmbience,
+        speak, cancelSpeech
+      };
     })();
 
     // ============================================================
@@ -2880,11 +3374,43 @@
         setState(s => ({ ...s, jobsCompleted: (s.jobsCompleted || 0) + 1 }));
       }, []);
 
+      // Manually unlock an achievement (used for triggered-not-checked ones like 'made_a_friend')
+      const unlockAchievement = useCallback((id) => {
+        setState(s => {
+          const cur = Array.isArray(s.unlockedAchievements) ? s.unlockedAchievements : [];
+          if (cur.indexOf(id) >= 0) return s;
+          return { ...s, unlockedAchievements: [...cur, id] };
+        });
+      }, []);
+
+      // Auto-detect achievements on state changes (only check fields that matter)
+      useEffect(() => {
+        setState(s => {
+          const cur = Array.isArray(s.unlockedAchievements) ? s.unlockedAchievements : [];
+          const curSet = new Set(cur);
+          const newly = [];
+          for (let i = 0; i < ACHIEVEMENTS.length; i++) {
+            const a = ACHIEVEMENTS[i];
+            if (!curSet.has(a.id)) {
+              try {
+                if (a.check && a.check(s)) newly.push(a.id);
+              } catch (e) { /* ignore bad check */ }
+            }
+          }
+          if (newly.length === 0) return s;
+          return { ...s, unlockedAchievements: [...cur, ...newly] };
+        });
+      }, [
+        state.customersServed, state.perfectOrders, state.failedOrders,
+        state.totalEarned, state.reputation,
+        state.account && state.account.graduated
+      ]);
+
       return {
         state, setState,
         addStacks, addReputation, recordOrder,
         updateSettings, markNewsRead, updateAccount,
-        logEvent, completeJob
+        logEvent, completeJob, unlockAchievement
       };
     }
 
@@ -3152,6 +3678,17 @@
       const plateRef = useRef(null);
       const nextCustomerTimeoutRef = useRef(null);
 
+      // Background ambience: starts when this screen mounts (if enabled), stops on unmount
+      useEffect(() => {
+        if (state.settings.ambience && state.settings.sound) {
+          AudioFX.startAmbience(true);
+        }
+        return () => {
+          AudioFX.stopAmbience();
+          AudioFX.cancelSpeech(); // stop any TTS that was in flight when leaving the screen
+        };
+      }, [state.settings.ambience, state.settings.sound]);
+
       // Item lookup helper
       const itemByEmoji = (emoji) => MENU_ITEMS.find(m => m.emoji === emoji);
 
@@ -3187,7 +3724,29 @@
         setMaxTime(time);
         setCustomerFace(CUSTOMER_FACES[Math.floor(Math.random() * CUSTOMER_FACES.length)]);
         setResult(null);
-      }, [event, activeBuffs, state.eventLog]);
+
+        // SFX: sizzle on customer arrival
+        AudioFX.sizzle(!!state.settings.sound);
+
+        // Customer voice (TTS): speak the order
+        if (state.settings.voices && newOrder.length > 0) {
+          const names = newOrder.map(emoji => {
+            const item = MENU_ITEMS.find(m => m.emoji === emoji);
+            return item ? item.name.toLowerCase() : '';
+          }).filter(Boolean);
+          // Natural-sounding order phrasing
+          const phrasings = [
+            "Let me get a " + names.join(' and a ') + ", please.",
+            "I'll take a " + names.join(' and a ') + ".",
+            "Can I get a " + names.join(' and a ') + "?",
+            "Hey, a " + names.join(' and a ') + " when you can.",
+            "Gimme a " + names.join(' and a ') + "."
+          ];
+          const phrase = phrasings[Math.floor(Math.random() * phrasings.length)];
+          // Small delay so sizzle is heard first
+          setTimeout(() => AudioFX.speak(phrase, true), 350);
+        }
+      }, [event, activeBuffs, state.eventLog, state.settings.sound, state.settings.voices]);
 
       const startShift = () => {
         setShiftStartSnapshot({
@@ -3259,6 +3818,14 @@
         recordOrder(resultKey);
         setResult({ key: resultKey, stacks: stacksEarned });
         vibrate(state, resultKey === 'perfect' ? [40, 40, 80] : resultKey === 'failed' ? [200] : [60]);
+
+        // SFX: stop any currently-speaking customer voice (order is done)
+        AudioFX.cancelSpeech();
+        // SFX: bell ding on success, no chime on a fail
+        if (resultKey !== 'failed' && state.settings.sound) AudioFX.bellDing(true);
+        // SFX: coin drop when earning Stacks
+        if (stacksEarned > 0 && state.settings.sound) AudioFX.coinDrop(true);
+
         // BUG FIX: clear any prior queued next-customer call before scheduling a new one
         if (nextCustomerTimeoutRef.current) clearTimeout(nextCustomerTimeoutRef.current);
         nextCustomerTimeoutRef.current = setTimeout(() => {
@@ -3364,6 +3931,20 @@
         if (effect.rep) {
           addReputation(effect.rep);
           summary += (effect.rep > 0 ? '+' : '') + effect.rep + ' rep. ';
+        }
+        // Auto-perfect: Loyal Regular skips the drag-drop and credits a perfect order.
+        if (effect.autoPerfect) {
+          const tipMult = activeBuffs.tipMult || 1;
+          const bonus = Math.round(25 * tipMult);
+          addStacks(bonus);
+          addReputation(2);
+          recordOrder('perfect');
+          summary += '+' + bonus + ' Stacks (perfect). +2 rep. ';
+        }
+        // Free stock: supplier deal — flat bonus.
+        if (effect.freeStock) {
+          addStacks(50);
+          summary += '+50 Stacks (free supply). ';
         }
         if (effect.tipMult || effect.customerMult || effect.timerPenalty) {
           setActiveBuffs(b => ({ ...b, ...effect }));
@@ -3670,12 +4251,29 @@
     // ============================================================
     function SettingsScreen({ state, updateSettings, onGoTo, onBack, currentUser, authReady, syncStatus, toast }) {
       const s = state.settings;
-      const [authMode, setAuthMode] = useState('signin'); // signin | signup
+      // Auth modal state — 'signin' | 'signup' | null (closed); 'picker' or 'email' subview
+      const [authModalMode, setAuthModalMode] = useState(null);
+      const [authModalView, setAuthModalView] = useState('picker');
+      const [emailFormMode, setEmailFormMode] = useState('signin'); // mode for the email form itself
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
       const [authBusy, setAuthBusy] = useState(false);
       const fbReady = HustleFire.ready();
       const isCapacitor = HustleFire.isCapacitor();
+
+      const openAuthModal = (mode) => {
+        // mode = 'signin' or 'signup'
+        setAuthModalMode(mode);
+        setAuthModalView('picker');
+        setEmailFormMode(mode === 'signup' ? 'signup' : 'signin');
+        setEmail('');
+        setPassword('');
+      };
+      const closeAuthModal = () => {
+        setAuthModalMode(null);
+        setAuthModalView('picker');
+        setAuthBusy(false);
+      };
 
       const doSignIn = async () => {
         if (!email || !password) { toast && toast('Email and password required.', 'bad'); return; }
@@ -3683,11 +4281,11 @@
         try {
           await HustleFire.signInEmail(email, password);
           toast && toast('Signed in.', 'good');
-          setEmail(''); setPassword('');
+          closeAuthModal();
         } catch (e) {
           toast && toast(e.message || 'Sign-in failed.', 'bad');
+          setAuthBusy(false);
         }
-        setAuthBusy(false);
       };
       const doSignUp = async () => {
         if (!email || !password) { toast && toast('Email and password required.', 'bad'); return; }
@@ -3696,31 +4294,33 @@
         try {
           await HustleFire.signUpEmail(email, password, 'Marcus');
           toast && toast('Account created.', 'good');
-          setEmail(''); setPassword('');
+          closeAuthModal();
         } catch (e) {
           toast && toast(e.message || 'Sign-up failed.', 'bad');
+          setAuthBusy(false);
         }
-        setAuthBusy(false);
       };
       const doGoogle = async () => {
         setAuthBusy(true);
         try {
           await HustleFire.signInGoogle();
           toast && toast('Signed in with Google.', 'good');
+          closeAuthModal();
         } catch (e) {
           toast && toast(e.message || 'Google sign-in failed.', 'bad');
+          setAuthBusy(false);
         }
-        setAuthBusy(false);
       };
       const doAnon = async () => {
         setAuthBusy(true);
         try {
           await HustleFire.signInAnon();
           toast && toast('Continuing as guest.', 'good');
+          closeAuthModal();
         } catch (e) {
           toast && toast(e.message || 'Could not start guest session.', 'bad');
+          setAuthBusy(false);
         }
-        setAuthBusy(false);
       };
       const doSignOut = async () => {
         if (!confirm('Sign out? Your local save stays on this device, but cloud sync will stop.')) return;
@@ -3795,57 +4395,22 @@
                     )
                   : null
               )
-            : // Signed out — show sign in / sign up form
+            : // Signed out — clean two-button entry; modal handles methods
               e('div', null,
-                // Toggle between sign-in and sign-up
-                e('div', { style: { display: 'flex', gap: 6, marginBottom: 12 } },
+                e('div', { className: 'auth-entry-row' },
                   e('button', {
-                    className: 'btn ' + (authMode === 'signin' ? 'btn-primary' : 'btn-ghost'),
-                    style: { flex: 1, fontSize: 13 },
-                    onClick: () => setAuthMode('signin')
-                  }, 'Sign In'),
+                    className: 'btn btn-primary',
+                    style: { fontSize: 14, padding: '14px 16px' },
+                    onClick: () => openAuthModal('signin')
+                  }, 'Log In'),
                   e('button', {
-                    className: 'btn ' + (authMode === 'signup' ? 'btn-primary' : 'btn-ghost'),
-                    style: { flex: 1, fontSize: 13 },
-                    onClick: () => setAuthMode('signup')
-                  }, 'Create Account')
+                    className: 'btn btn-ghost',
+                    style: { fontSize: 14, padding: '14px 16px' },
+                    onClick: () => openAuthModal('signup')
+                  }, 'Sign Up')
                 ),
-                e('input', {
-                  type: 'email',
-                  placeholder: 'Email',
-                  value: email,
-                  onChange: (ev) => setEmail(ev.target.value),
-                  style: inputStyle
-                }),
-                e('input', {
-                  type: 'password',
-                  placeholder: 'Password' + (authMode === 'signup' ? ' (6+ characters)' : ''),
-                  value: password,
-                  onChange: (ev) => setPassword(ev.target.value),
-                  style: inputStyle
-                }),
-                e('button', {
-                  className: 'btn btn-primary',
-                  style: { width: '100%', marginBottom: 10 },
-                  disabled: authBusy,
-                  onClick: authMode === 'signin' ? doSignIn : doSignUp
-                }, authBusy ? 'Working...' : (authMode === 'signin' ? 'Sign In with Email' : 'Create Account')),
-                // Google sign-in (web only)
-                !isCapacitor ? e('button', {
-                  className: 'btn btn-ghost',
-                  style: { width: '100%', marginBottom: 6, fontSize: 13 },
-                  disabled: authBusy,
-                  onClick: doGoogle
-                }, '🔗 Sign In with Google') : null,
-                // Anonymous fallback
-                e('button', {
-                  className: 'btn btn-ghost',
-                  style: { width: '100%', fontSize: 12, opacity: 0.7 },
-                  disabled: authBusy,
-                  onClick: doAnon
-                }, 'Continue as Guest'),
-                e('div', { style: { fontSize: 11, color: 'var(--text-faint)', marginTop: 10, lineHeight: 1.5, textAlign: 'center' } },
-                  'Sign in to enable cloud save and friends.'
+                e('div', { className: 'auth-entry-note' },
+                  'Sign in to enable cloud save and friends. Your local save stays on this device either way.'
                 )
               );
 
@@ -3858,13 +4423,32 @@
           e('p', { className: 'screen-subtitle' }, 'Tune the experience.')
         ),
 
-        // Sound
+        // Sound Effects (master SFX toggle)
         e('div', { className: 'row', onClick: () => updateSettings({ sound: !s.sound }) },
           e('div', null,
-            e('div', { className: 'row-label' }, '🔊 Sound'),
-            e('div', { className: 'row-sub' }, 'Engine, footsteps, and shift-end audio')
+            e('div', { className: 'row-label' }, '🔊 Sound Effects'),
+            e('div', { className: 'row-sub' }, 'Bell, sizzle, coin drop, end-of-shift audio')
           ),
           e('div', { className: 'toggle' + (s.sound ? ' on' : '') })
+        ),
+        // Background Ambience
+        e('div', {
+          className: 'row' + (!s.sound ? ' disabled' : ''),
+          onClick: () => { if (s.sound) updateSettings({ ambience: !s.ambience }); }
+        },
+          e('div', null,
+            e('div', { className: 'row-label' }, '🌃 Background Ambience'),
+            e('div', { className: 'row-sub' }, 'Subtle street noise during shifts')
+          ),
+          e('div', { className: 'toggle' + (s.ambience ? ' on' : '') })
+        ),
+        // Customer Voices (TTS)
+        e('div', { className: 'row', onClick: () => updateSettings({ voices: !s.voices }) },
+          e('div', null,
+            e('div', { className: 'row-label' }, '🗣️ Customer Voices'),
+            e('div', { className: 'row-sub' }, 'Customers read their order out loud (experimental)')
+          ),
+          e('div', { className: 'toggle' + (s.voices ? ' on' : '') })
         ),
         // Vibration
         e('div', { className: 'row', onClick: () => updateSettings({ vibration: !s.vibration }) },
@@ -3928,14 +4512,115 @@
               }
             }
           }, 'Reset Save Data')
-        )
+        ),
+
+        // ========= AUTH MODAL =========
+        authModalMode ? e('div', {
+          className: 'auth-modal-backdrop',
+          onClick: (ev) => { if (ev.target.classList.contains('auth-modal-backdrop')) closeAuthModal(); }
+        },
+          e('div', { className: 'auth-modal' },
+            // Header buttons
+            authModalView === 'email'
+              ? e('button', { className: 'auth-back', onClick: () => setAuthModalView('picker') }, '‹ Back')
+              : null,
+            e('button', { className: 'auth-close', onClick: closeAuthModal, 'aria-label': 'Close' }, '✕'),
+
+            // PICKER VIEW
+            authModalView === 'picker'
+              ? e('div', null,
+                  e('div', { className: 'auth-modal-logo' }, 'HUSTLEBOX'),
+                  e('div', { className: 'auth-modal-subtitle' },
+                    authModalMode === 'signup' ? 'Get started — how do you want to play?' : 'Welcome back. How do you want to sign in?'
+                  ),
+                  // Google — primary big button
+                  !isCapacitor ? e('button', {
+                    className: 'auth-method primary',
+                    onClick: doGoogle,
+                    disabled: authBusy
+                  },
+                    e('span', { className: 'auth-method-icon' }, '🔗'),
+                    e('span', { className: 'auth-method-label' }, authBusy ? 'Opening Google...' : 'Continue with Google'),
+                    e('span', { className: 'auth-method-chevron' }, '›')
+                  ) : e('div', {
+                    style: { padding: 12, background: 'rgba(255,167,38,0.05)', border: '1px dashed rgba(255,167,38,0.25)', borderRadius: 8, fontSize: 12, color: 'var(--text-dim)', marginBottom: 10, lineHeight: 1.5 }
+                  }, 'Google sign-in is web-only for now. On the APK, use Guest or Email.'),
+
+                  // Guest — secondary
+                  e('button', {
+                    className: 'auth-method',
+                    onClick: doAnon,
+                    disabled: authBusy
+                  },
+                    e('span', { className: 'auth-method-icon' }, '👤'),
+                    e('span', { className: 'auth-method-label' }, 'Continue as Guest'),
+                    e('span', { className: 'auth-method-chevron' }, '›')
+                  ),
+
+                  // Divider before the de-emphasized email link
+                  e('div', { className: 'auth-divider' }, 'OR'),
+                  e('button', {
+                    className: 'auth-email-link',
+                    onClick: () => setAuthModalView('email')
+                  }, '✉️ Sign in with Email instead'),
+
+                  e('div', { className: 'auth-footer-note' },
+                    'Google is the most secure option — no password to remember or leak.'
+                  )
+                )
+              : null,
+
+            // EMAIL FORM VIEW
+            authModalView === 'email'
+              ? e('div', null,
+                  e('div', { className: 'auth-modal-logo' }, 'HUSTLEBOX'),
+                  e('div', { className: 'auth-modal-subtitle' }, 'Sign in or create an account with your email.'),
+                  e('div', { className: 'auth-mode-toggle' },
+                    e('button', {
+                      className: emailFormMode === 'signin' ? 'active' : '',
+                      onClick: () => setEmailFormMode('signin')
+                    }, 'Log In'),
+                    e('button', {
+                      className: emailFormMode === 'signup' ? 'active' : '',
+                      onClick: () => setEmailFormMode('signup')
+                    }, 'Sign Up')
+                  ),
+                  e('input', {
+                    type: 'email',
+                    className: 'auth-input',
+                    placeholder: 'Email',
+                    value: email,
+                    onChange: (ev) => setEmail(ev.target.value),
+                    autoComplete: emailFormMode === 'signup' ? 'email' : 'username',
+                    autoCapitalize: 'none'
+                  }),
+                  e('input', {
+                    type: 'password',
+                    className: 'auth-input',
+                    placeholder: emailFormMode === 'signup' ? 'Password (6+ characters)' : 'Password',
+                    value: password,
+                    onChange: (ev) => setPassword(ev.target.value),
+                    autoComplete: emailFormMode === 'signup' ? 'new-password' : 'current-password'
+                  }),
+                  e('button', {
+                    className: 'auth-submit',
+                    disabled: authBusy,
+                    onClick: emailFormMode === 'signin' ? doSignIn : doSignUp
+                  }, authBusy ? 'Working...' : (emailFormMode === 'signin' ? 'Log In' : 'Create Account')),
+                  e('div', { className: 'auth-security-note' },
+                    'Heads up: passwords are less secure than Google sign-in. Use a strong, unique password if you go this route.'
+                  )
+                )
+              : null
+          )
+        ) : null
       );
     }
 
     // ============================================================
     // Friends — Coming Soon (foundation laid in data layer)
     // ============================================================
-    function FriendsScreen({ state, currentUser, onGoTo, pendingFriendCode, clearPendingFriendCode, toast }) {
+    function FriendsScreen({ state, currentUser, onGoTo, pendingFriendCode, clearPendingFriendCode, toast, unlockAchievement }) {
       const [friends, setFriends] = useState([]);
       const [loading, setLoading] = useState(false);
       const [codeInput, setCodeInput] = useState('');
@@ -3978,6 +4663,7 @@
           }
           await HustleFire.addFriend(currentUser.uid, found.uid, code, found.displayName || 'Marcus');
           toast && toast('Friend added!', 'good');
+          if (unlockAchievement) unlockAchievement('made_a_friend');
           setCodeInput('');
           refreshFriends();
         } catch (e) {
@@ -4203,7 +4889,25 @@
     // ============================================================
     // Achievements — foundation only
     // ============================================================
-    function AchievementsScreen({ onBack }) {
+    function AchievementsScreen({ onBack, state }) {
+      const unlockedList = Array.isArray(state.unlockedAchievements) ? state.unlockedAchievements : [];
+      const unlockedSet = new Set(unlockedList);
+      const total = ACHIEVEMENTS.length;
+      const earned = unlockedList.filter(id => ACHIEVEMENTS.some(a => a.id === id)).length;
+      const pct = total > 0 ? Math.round((earned / total) * 100) : 0;
+
+      // Group by category, preserve order from ACHIEVEMENTS array
+      const byCategory = {};
+      const categoryOrder = [];
+      for (let i = 0; i < ACHIEVEMENTS.length; i++) {
+        const a = ACHIEVEMENTS[i];
+        if (!byCategory[a.cat]) {
+          byCategory[a.cat] = [];
+          categoryOrder.push(a.cat);
+        }
+        byCategory[a.cat].push(a);
+      }
+
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header' },
           onBack ? e('button', { className: 'back-btn', onClick: onBack },
@@ -4214,13 +4918,45 @@
         ),
         e('div', { className: 'side-menu-frame' },
           e('div', { className: 'smf-title' }, 'TROPHY CASE'),
-          e('div', { className: 'coming-soon', style: { padding: '32px 16px' } },
-            e('div', { className: 'cs-emoji' }, '🏆'),
-            e('h2', { className: 'cs-title display-font' }, 'Coming Soon'),
-            e('p', { style: { maxWidth: 340, lineHeight: 1.5, color: '#d4c5a0' } },
-              'Work, Stacks, Reputation, Arcade, Progression, and Secret achievements. Foundation is in place — full list and rewards rolling out in the next update.'
+
+          // Progress header
+          e('div', { className: 'ach-progress' },
+            e('div', { className: 'ach-progress-top' },
+              e('span', { className: 'ach-progress-label' }, 'Unlocked'),
+              e('span', { className: 'ach-progress-count' }, earned + ' / ' + total)
+            ),
+            e('div', { className: 'ach-progress-bar' },
+              e('div', { style: { width: pct + '%' } })
             )
-          )
+          ),
+
+          // Categories
+          categoryOrder.map(catName => {
+            const items = byCategory[catName];
+            const earnedInCat = items.filter(a => unlockedSet.has(a.id)).length;
+            return e('div', { key: catName },
+              e('div', { className: 'ach-category-title' },
+                catName + ' (' + earnedInCat + '/' + items.length + ')'
+              ),
+              e('div', { className: 'ach-list' },
+                items.map(a => {
+                  const unlocked = unlockedSet.has(a.id);
+                  const hideForSecret = a.secret && !unlocked;
+                  return e('div', {
+                    key: a.id,
+                    className: 'ach-card ' + (unlocked ? 'unlocked' : 'locked')
+                  },
+                    e('div', { className: 'ach-icon' }, hideForSecret ? '❓' : a.icon),
+                    e('div', { className: 'ach-text' },
+                      e('div', { className: 'ach-title' }, hideForSecret ? '???' : a.title),
+                      e('div', { className: 'ach-desc' }, hideForSecret ? 'Keep playing to discover this one.' : a.desc)
+                    ),
+                    e('div', { className: 'ach-status' }, unlocked ? '✓' : '—')
+                  );
+                })
+              )
+            );
+          })
         )
       );
     }
@@ -4509,6 +5245,26 @@
         setShowEnding(false);
       };
 
+      // ---- Achievement unlock toasts ----
+      // First render: mark all currently-unlocked as already-seen so we don't toast on load.
+      const seenAchievementsRef = useRef(null);
+      useEffect(() => {
+        const unlocked = Array.isArray(game.state.unlockedAchievements) ? game.state.unlockedAchievements : [];
+        if (seenAchievementsRef.current === null) {
+          // Initial mount — seed the set without toasting.
+          seenAchievementsRef.current = new Set(unlocked);
+          return;
+        }
+        const seen = seenAchievementsRef.current;
+        for (let i = 0; i < unlocked.length; i++) {
+          const id = unlocked[i];
+          if (seen.has(id)) continue;
+          seen.add(id);
+          const ach = ACHIEVEMENTS.find(a => a.id === id);
+          if (ach) pushToast('🏆 ' + ach.title + ' unlocked!', 'good');
+        }
+      }, [game.state.unlockedAchievements]);
+
       const goTo = (target) => {
         // Map convenience targets to tabs/subscreens
         if (target === 'work')   { setTab('work');   setSubscreen(null); return; }
@@ -4530,13 +5286,13 @@
           const backToMore = () => setSubscreen(null);
           if (subscreen === 'settings')     return e(SettingsScreen,     { state: game.state, updateSettings: game.updateSettings, onGoTo: goTo, onBack: backToMore, currentUser, authReady, syncStatus, toast: pushToast });
           if (subscreen === 'news')         return e(NewsScreen,         { markRead: game.markNewsRead, onBack: backToMore });
-          if (subscreen === 'achievements') return e(AchievementsScreen, { onBack: backToMore });
+          if (subscreen === 'achievements') return e(AchievementsScreen, { onBack: backToMore, state: game.state });
           if (subscreen === 'profile')      return e(ProfileScreen,      { state: game.state, onBack: backToMore });
         }
         if (tab === 'home')    return e(HomeScreen,     { state: game.state, onGoTo: goTo });
         if (tab === 'work')    return e(FoodTruckScreen,{ state: game.state, addStacks: game.addStacks, addReputation: game.addReputation, recordOrder: game.recordOrder, logEvent: game.logEvent, completeJob: game.completeJob, toast: pushToast });
         if (tab === 'arcade')  return e(ArcadeScreen,   null);
-        if (tab === 'friends') return e(FriendsScreen,  { state: game.state, currentUser, onGoTo: goTo, pendingFriendCode, clearPendingFriendCode: () => setPendingFriendCode(null), toast: pushToast });
+        if (tab === 'friends') return e(FriendsScreen,  { state: game.state, currentUser, onGoTo: goTo, pendingFriendCode, clearPendingFriendCode: () => setPendingFriendCode(null), toast: pushToast, unlockAchievement: game.unlockAchievement });
         if (tab === 'more')    return e(MoreScreen,     { onGoTo: goTo, state: game.state });
         return null;
       };

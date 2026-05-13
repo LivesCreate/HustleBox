@@ -1,23 +1,44 @@
 {
-  "version": "1.2.2",
-  "title": "HustleBox v1.2.2 — The Climb (and the Exit)",
-  "date": "2026-05-11",
-  "message": "The career arc is real now.\n\nNEW RANK SYSTEM\nThe generic Broke → Legend ladder is gone. You're climbing a real career inside Ray's truck:\n• Dishwasher (start)\n• Prep Cook\n• Line Cook\n• Head Cook\n• Manager\n• Owner (you bought the truck from Ray)\n\nGRADUATION ENDING\nReach Owner and a letter shows up. Someone's been watching the truck — your hours, your reputation, your climb. They want you on their team. They don't say where. You start in about a week.\n• Game stays fully playable after the ending fires.\n• The ending shows ONCE — your save tracks that you've graduated, and the Profile shows your next-job date going forward.\n• Profile reads 🎓 GRADUATED instead of 🏆 OWNER once it's done.\n\nDYNAMIC STORY UPDATED\nThe profile story now mirrors the career ladder: bottom-of-the-rung dishwasher narrative at $0, prep-cook chopping narrative at $100, line cook at $1K, head cook at $10K, manager at $100K, owner at $1M. After graduation, a special epilogue paragraph.\n\nHOME SCREEN — RAY'S TRUCK GRAPHIC\nThe top of the Home screen now shows Ray's truck parked on the curb at night — diamond plate body, glowing window, a tiny 'RAY'S' sign swinging on a string, stars overhead, smoke puffing from the side. Tap anywhere on the card to start a shift. If you've graduated, a 'last days here' caption shows your next-job date.\n\nNEW WORK TAB ICON\nThe burger emoji in the bottom nav has been replaced with a crossed spatula + knife SVG icon for the Work tab. More food-truck, less ambient food. Also: removed the SOON badge from Friends in the bottom nav since friends is fully wired now.\n\nNo save data wiped. Existing players with progress past the Owner threshold will see the graduation ending on next launch — the trigger fires once and stores the date going forward.",
+  "version": "1.2.4",
+  "title": "HustleBox v1.2.4 — Sound, Voices, and a Real Sign-In",
+  "date": "2026-05-12",
+  "message": "Auth got a real UI. Audio got a real soundtrack.\n\nNEW SIGN-IN FLOW\nThe cluttered all-options-visible Account section is gone. In its place: two clean buttons — Log In and Sign Up. Tapping either opens a polished modal with:\n• 🔗 Continue with Google (primary big button — most secure, no password stored)\n• 👤 Continue as Guest (secondary)\n• ✉️ Sign in with Email — small text link, de-emphasized\n\nPicking Email opens a sub-view of the modal with a Log In / Sign Up toggle, email + password fields, and a note that Google is the more secure option. Modeled after how TikTok, Instagram, and GitHub do their sign-in flows.\n\nThe modal closes on backdrop tap, the X button, or successful auth. Email auto-complete attributes are set correctly so password managers work.\n\nSOUND EFFECTS\n• 🔔 Bell ding when you serve an order successfully\n• 🍳 Sizzle when a new customer arrives\n• 🪙 Coin drop when you earn Stacks\n• All synthesized with the Web Audio API — no asset files, no bundle bloat\n• Tied to the existing Sound Effects toggle (renamed from 'Sound')\n\nBACKGROUND AMBIENCE (NEW TOGGLE)\nSubtle low-frequency street/city noise plays while you're working a shift. Off by default — turn it on in Settings if you want that food-truck-at-night vibe. Auto-stops when you leave the Work tab.\n\nCUSTOMER VOICES (NEW TOGGLE)\nNew experimental setting: when a customer arrives, they speak their order out loud. Uses your device's built-in text-to-speech with a randomly picked voice + pitch each time so customers sound different. Off by default — quality and voice availability varies by device and browser. Best on Android Chrome and modern iOS Safari.\n\nNo save data wiped. Existing accounts still work. Cloud sync unchanged.",
   "entries": [
+    {
+      "version": "1.2.4",
+      "date": "2026-05-12",
+      "title": "Sound, Voices, and a Real Sign-In",
+      "highlights": [
+        "Auth UI redesigned: two-button entry + modal with method picker",
+        "Google = primary recommended option; Email de-emphasized as a small text link",
+        "Bell ding, sizzle, and coin drop SFX during shifts",
+        "Background Ambience toggle — subtle synthesized street noise",
+        "Customer Voices toggle — orders spoken via device TTS (experimental)",
+        "Sound setting renamed to Sound Effects",
+        "Email form opens to Sign Up or Log In based on which button you tapped",
+        "Password manager autocomplete attributes added"
+      ]
+    },
+    {
+      "version": "1.2.3",
+      "date": "2026-05-11",
+      "title": "Trophy Case Opens",
+      "highlights": [
+        "22 achievements live across 5 categories",
+        "Toasts on unlock, full categorized Achievements screen",
+        "Fixed Loyal Regular event (now credits a perfect order)",
+        "Fixed Supplier Deal event (+50 Stacks bonus)"
+      ]
+    },
     {
       "version": "1.2.2",
       "date": "2026-05-11",
       "title": "The Climb (and the Exit)",
       "highlights": [
-        "Ranks rewritten as food-truck career titles: Dishwasher → Owner",
-        "Graduation ending: letter arrives when you reach Owner, hints at a next job ~1 week out",
-        "Game stays playable after ending — sandbox continues",
-        "Profile shows 🎓 GRADUATED + next-job date once ending fires",
-        "Story paragraphs rewritten to mirror career ladder",
-        "Home screen now shows Ray's truck parked at the curb (clickable to go to Work)",
-        "Tiny 'RAY'S' sign swings above the parked truck on Home",
-        "Spatula + knife SVG icon for the Work tab in the bottom nav",
-        "Friends tab no longer shows SOON badge (it's live)"
+        "Career ranks: Dishwasher → Owner",
+        "Graduation ending letter at the Owner threshold",
+        "Home screen now shows Ray's truck parked on the curb",
+        "Spatula + knife icon for Work tab"
       ]
     },
     {
@@ -26,8 +47,7 @@
       "title": "Plate Fix",
       "highlights": [
         "Build plate taller — DRAG TO PLATE text no longer clipped",
-        "Removed 3D perspective rotation that broke in Android WebView",
-        "Ingredient cards have proper padding + min-height"
+        "Removed 3D perspective rotation that broke in Android WebView"
       ]
     },
     {
@@ -35,10 +55,7 @@
       "date": "2026-05-10",
       "title": "Friends and the Cloud",
       "highlights": [
-        "Email + Google + Anonymous sign-in",
-        "Cloud save with auto-sync and conflict resolution",
-        "Friend system: code, QR, invite link, manual entry",
-        "Friends list with remove option"
+        "Firebase auth + cloud save + friend system"
       ]
     },
     {
@@ -47,19 +64,7 @@
       "title": "Marcus Has a Face Now",
       "highlights": [
         "Marcus is a hand-drawn SVG character",
-        "Profile story branches on rep × skill × experience × money",
-        "Extended end-of-shift cinematic with engine + footsteps + snore audio",
-        "Update Log redressed as paper receipts in chalkboard frames"
-      ]
-    },
-    {
-      "version": "1.1.1",
-      "date": "2026-05-08",
-      "title": "Hotfix",
-      "highlights": [
-        "Fixed mouse-wheel scroll on desktop",
-        "OPEN sign now starts the shift when clicked",
-        "Sidebar logo made smaller"
+        "Extended end-of-shift cinematic with synthesized audio"
       ]
     },
     {
@@ -68,19 +73,7 @@
       "title": "Cook Like You Mean It",
       "highlights": [
         "Drag-and-drop ingredient assembly",
-        "Order ticket as a paper receipt with prices",
-        "Food truck screen redressed: diamond plate, stainless counter, rivets",
-        "Big SERVE bell button"
-      ]
-    },
-    {
-      "version": "1.0.2",
-      "date": "2026-05-08",
-      "title": "Quality of Life",
-      "highlights": [
-        "Theatrical shift opening — OPEN sign drop",
-        "Profile redesigned with hero card",
-        "Smoother iOS-style toggle animations"
+        "Food truck visual theme"
       ]
     },
     {
