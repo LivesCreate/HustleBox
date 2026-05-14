@@ -7,7 +7,7 @@
 HustleBox is a browser-based hustle game built around a single street corner. You're Marcus — 19, broke, working Uncle Ray's food truck on 5th and Main. Take orders, build the burgers right, ride the rep ladder from Dishwasher to Owner. Or duck down the alley to the back room and try your luck with Ray's other side business.
 
 **Play in your browser:** [livescreate.github.io/HustleBox](https://livescreate.github.io/HustleBox/)
-**Get the Android APK:** distributed privately — message me for the link.
+**Get the Android APK:** distributed privately —
 
 ---
 
@@ -50,42 +50,25 @@ No bundler. No framework lock-in. Open `index.html` in a browser and it runs.
 
 ---
 
-## File layout (repo root)
-
-```
-HustleBox/
-├── index.html         ← the game (single file, ~7000 lines)
-├── sw.js              ← service worker (cache name bumps every release)
-├── version.txt        ← plain text version, used by SW for hard-refresh
-├── news.json          ← changelog data, displayed inside the game's Update Log
-├── manifest.json      ← PWA manifest (icons, theme color, display mode)
-├── firestore.rules    ← Firebase Firestore security rules
-├── logo-full.png      ← in-app logo (also used in this README)
-├── icon-512.png       ← favicon + small icon
-└── README.md
-```
-
----
-
 ## Build the Android APK
 
-You only need this if you want to package a new release as an APK.
+##You only need this if you want to package a new release as an APK.
 
 **One-time setup:**
-- Install Node.js 20+, Android Studio, and Java JDK 17+
-- Add `ANDROID_HOME` to your env, pointing at your Android SDK
-- `npm install -g @capacitor/cli`
+##- Install Node.js 20+, Android Studio, and Java JDK 17+
+##- Add `ANDROID_HOME` to your env, pointing at your Android SDK
+##- `npm install -g @capacitor/cli`
 
 **Per-release:**
-1. Drop the updated `apk/index.html` into `C:\Projects\hustlebox\www\` (renamed to `index.html`)
-2. Drop the updated `news.json` into the same folder
-3. `npx cap sync`
-4. Open `android/` in Android Studio
-5. Build → Build APK(s) → take `app-debug.apk` from `app/build/outputs/apk/debug/`
+##1. Drop the updated `apk/index.html` into `C:\Projects\hustlebox\www\` (renamed to `index.html`)
+##2. Drop the updated `news.json` into the same folder
+##3. `npx cap sync`
+##4. Open `android/` in Android Studio
+##5. Build → Build APK(s) → take `app-debug.apk` from `app/build/outputs/apk/debug/`
 
-The `versionCode` in `app/build.gradle` auto-increments on every build, and the version-bump triggers the in-app cache-clear-on-update logic. The `versionName` is bumped manually to match `const VERSION` in `index.html`.
+##The `versionCode` in `app/build.gradle` auto-increments on every build, and the version-bump triggers the in-app cache-clear-on-update logic. The `versionName` is bumped manually to match `const VERSION` in `index.html`.
 
----
+##---
 
 ## Project history
 
