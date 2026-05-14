@@ -46,6 +46,7 @@
       color: var(--text);
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       overflow-x: hidden;
+      overflow-y: auto;          /* explicit — make sure long pages scroll */
       width: 100%;
       min-height: 100vh;
       min-height: 100dvh;
@@ -55,7 +56,7 @@
       user-select: none;
     }
     /* IMPORTANT: never zoom or transform-scale html/body. Per delivery rules. */
-    body.scroll-locked { overflow: hidden; touch-action: none; }
+    body.scroll-locked { overflow: hidden !important; touch-action: none; }
     #root { min-height: 100vh; min-height: 100dvh; }
     button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; padding: 0; }
     input, textarea { font: inherit; color: inherit; }
@@ -1337,8 +1338,8 @@
     .walking-figure {
       position: absolute;
       bottom: 8px;
-      width: 36px;
-      height: 80px;
+      width: 50px;
+      height: 110px;
       animation: walkBob 0.55s ease-in-out infinite;
     }
     .walking-figure svg { width: 100%; height: 100%; overflow: visible; }
@@ -1491,6 +1492,114 @@
     }
 
     /* Receipt-style update log entries (used in Update Log) */
+    /* Update Log — single continuous lined notebook page */
+    .news-notebook {
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(100,80,40,0.20) 23px, rgba(100,80,40,0.20) 24px),
+        linear-gradient(180deg, #f5e6c8 0%, #ecdab0 100%);
+      color: #2a1f15;
+      border-radius: 6px;
+      padding: 18px 22px 22px 50px;          /* left padding leaves room for red margin line */
+      font-family: 'Courier New', monospace;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(0,0,0,0.05);
+      position: relative;
+      overflow: hidden;
+    }
+    /* Red margin line on the left, like a real notebook */
+    .news-notebook::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: 38px;
+      width: 1px;
+      background: rgba(200, 60, 40, 0.55);
+    }
+    /* Three-ring binder holes on the left edge */
+    .news-notebook::after {
+      content: '';
+      position: absolute;
+      top: 12px; bottom: 12px; left: 14px;
+      width: 10px;
+      background:
+        radial-gradient(circle, rgba(0,0,0,0.4) 0 4px, transparent 5px) center / 10px 24px repeat-y;
+    }
+    .news-entry {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(42,31,21,0.22);
+    }
+    .news-entry:last-child { border-bottom: none; }
+    .news-entry:first-child { padding-top: 0; }
+    .news-entry-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .news-version-tag {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #2a1f15;
+    }
+    .news-version-tag .latest-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 1px 7px;
+      background: #b8551a;
+      color: #fff;
+      font-size: 9px;
+      letter-spacing: 1px;
+      border-radius: 3px;
+      vertical-align: middle;
+      font-weight: 800;
+    }
+    .news-entry-title {
+      font-size: 13px;
+      font-style: italic;
+      color: #4a3a28;
+      margin-bottom: 6px;
+    }
+    .news-entry-date {
+      font-size: 10px;
+      color: #6a5a44;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    .news-entry-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .news-entry-list li::before {
+      content: '— ';
+      color: #b8551a;
+      font-weight: 700;
+    }
+    .news-entry-message {
+      font-size: 12px;
+      line-height: 1.7;
+      white-space: pre-line;
+      margin-top: 4px;
+    }
+    /* Bold mode (setting toggle in Settings) */
+    body.bold-news .news-notebook,
+    body.bold-news .news-entry-message,
+    body.bold-news .news-entry-list {
+      font-weight: 700;
+    }
+    body.bold-news .news-entry-list li {
+      font-weight: 700;
+    }
+    body.bold-news .news-entry-title {
+      font-weight: 700;
+      font-style: italic;
+      color: #2a1f15;
+    }
+
+    /* Legacy receipt-card kept for any other use, but no longer applied in News */
     .receipt-card {
       background:
         repeating-linear-gradient(0deg, transparent, transparent 22px, rgba(0,0,0,0.05) 22px, rgba(0,0,0,0.05) 23px),
@@ -1502,15 +1611,6 @@
       font-family: 'Courier New', monospace;
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
       position: relative;
-      transform: rotate(-0.5deg);
-    }
-    .receipt-card:nth-child(odd) { transform: rotate(0.5deg); }
-    .receipt-card::after {
-      content: '';
-      position: absolute;
-      bottom: -6px; left: 0; right: 0;
-      height: 8px;
-      background: radial-gradient(circle at 4px 0, transparent 3px, #e8d5ad 3px) 0 0 / 8px 8px;
     }
     .receipt-header-line {
       text-align: center;
@@ -1577,12 +1677,13 @@
     .ct-step::before {
       content: '';
       position: absolute;
-      left: -23px;
+      left: -25px;
       top: 11px;
       width: 12px; height: 12px;
       background: #2a1f15;
       border: 2px solid var(--line);
       border-radius: 50%;
+      box-sizing: content-box;
     }
     .ct-step.achieved::before {
       background: var(--amber);
@@ -1775,127 +1876,275 @@
     .backroom-scene {
       position: relative;
       width: 100%;
-      aspect-ratio: 16 / 11;
-      max-height: 360px;
+      aspect-ratio: 16 / 10;
+      max-height: 380px;
       background:
-        radial-gradient(ellipse 60% 40% at 50% 18%, rgba(255,224,130,0.18) 0%, rgba(0,0,0,0) 70%),
-        linear-gradient(180deg, #1a1208 0%, #0a0805 50%, #050302 100%);
+        /* warm light pool from the bulb at top */
+        radial-gradient(ellipse 55% 35% at 50% 14%, rgba(255,210,120,0.28) 0%, rgba(255,180,80,0.10) 30%, rgba(0,0,0,0) 65%),
+        /* wall — warm dirty plaster */
+        linear-gradient(180deg, #2a1a0e 0%, #1a1208 55%, #100a05 100%);
       border: 2px solid #2a1f15;
       border-radius: 12px;
       overflow: hidden;
       margin: 12px 0 16px;
-      box-shadow: inset 0 0 50px rgba(0,0,0,0.7);
+      box-shadow: inset 0 0 70px rgba(0,0,0,0.75);
     }
-    /* Peeling wallpaper texture */
+    /* Peeling-paint streaks (organic, no grid) */
     .backroom-scene::before {
       content: '';
-      position: absolute; inset: 0;
+      position: absolute;
+      inset: 0 0 28% 0;       /* wall only — leaves room for the floor */
       background-image:
-        repeating-linear-gradient(90deg, transparent 0 18px, rgba(80,50,30,0.06) 18px 19px),
-        repeating-linear-gradient(0deg,  transparent 0 22px, rgba(40,30,20,0.10) 22px 23px);
+        /* vertical peeling streaks at irregular intervals */
+        linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.22) 100%),
+        radial-gradient(ellipse 2% 18% at 12% 60%, rgba(60,40,25,0.45) 0%, transparent 60%),
+        radial-gradient(ellipse 1.5% 22% at 28% 40%, rgba(80,55,30,0.35) 0%, transparent 70%),
+        radial-gradient(ellipse 2% 15% at 44% 70%, rgba(50,35,20,0.40) 0%, transparent 60%),
+        radial-gradient(ellipse 1.8% 25% at 62% 30%, rgba(70,50,30,0.30) 0%, transparent 70%),
+        radial-gradient(ellipse 2.5% 12% at 78% 55%, rgba(55,40,25,0.40) 0%, transparent 60%),
+        radial-gradient(ellipse 1.5% 20% at 90% 75%, rgba(65,45,28,0.35) 0%, transparent 70%);
       pointer-events: none;
+      mix-blend-mode: multiply;
     }
-    /* Hanging lightbulb */
+    /* Floor — perspective wooden planks */
+    .backroom-floor {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 28%;
+      background:
+        /* dark plank lines */
+        repeating-linear-gradient(90deg,
+          transparent 0,
+          transparent 38px,
+          rgba(0,0,0,0.45) 38px,
+          rgba(0,0,0,0.45) 39px),
+        /* base wood gradient */
+        linear-gradient(180deg, #3a2818 0%, #1a0f08 100%);
+      box-shadow: inset 0 6px 12px rgba(0,0,0,0.6);
+      z-index: 1;
+    }
+    /* Top edge of floor — slight bevel where wall meets floor */
+    .backroom-floor::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.7), transparent);
+    }
+    /* Hanging cord + lightbulb (pear-shaped, with filament) */
     .backroom-bulb {
       position: absolute;
       top: 0;
       left: 50%;
-      width: 2px;
-      height: 38px;
-      background: #2a1f15;
+      width: 1.5px;
+      height: 44px;
+      background: #1a0f08;
       transform-origin: top center;
-      animation: bulbSway 6s ease-in-out infinite;
-      z-index: 2;
+      animation: bulbSway 5s ease-in-out infinite;
+      z-index: 3;
+      margin-left: -0.75px;
     }
+    /* Bulb body — pear shape (wider at bottom, narrower at top) */
     .backroom-bulb::after {
       content: '';
       position: absolute;
-      bottom: -10px;
+      bottom: -22px;
       left: 50%;
       transform: translateX(-50%);
-      width: 18px;
-      height: 22px;
-      background: radial-gradient(ellipse at 50% 30%, #fff8d4 0%, #ffd54f 40%, #b87010 100%);
-      border-radius: 50% 50% 45% 45%;
+      width: 22px;
+      height: 28px;
+      background:
+        radial-gradient(circle at 50% 35%, #ffffff 0%, #fff4c4 25%, #ffd54f 55%, #c08020 100%);
+      border-radius: 50% 50% 48% 48% / 60% 60% 40% 40%;
       box-shadow:
-        0 0 24px rgba(255, 213, 79, 0.8),
-        0 0 50px rgba(255, 167, 38, 0.4);
+        0 0 22px rgba(255, 213, 79, 0.9),
+        0 0 48px rgba(255, 180, 80, 0.45),
+        inset 2px -3px 6px rgba(180,100,30,0.4);
     }
-    @keyframes bulbSway {
-      0%, 100% { transform: rotate(-1.2deg); }
-      50%      { transform: rotate(1.2deg); }
-    }
-    /* Cracked window with neon */
-    .backroom-window {
-      position: absolute;
-      top: 22%;
-      right: 6%;
-      width: 22%;
-      height: 30%;
-      background: linear-gradient(135deg, #ff4081 0%, #6a1b9a 60%, #1a0840 100%);
-      border: 3px solid #1a1208;
-      border-radius: 2px;
-      box-shadow: 0 0 20px rgba(255, 64, 129, 0.4), inset 0 0 12px rgba(0,0,0,0.5);
-      opacity: 0.55;
-    }
-    .backroom-window::before, .backroom-window::after {
+    /* Bulb base / screw socket */
+    .backroom-bulb::before {
       content: '';
       position: absolute;
-      background: rgba(0,0,0,0.5);
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 6px;
+      background: linear-gradient(180deg, #888 0%, #444 100%);
+      border-radius: 1px 1px 0 0;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.4);
+      z-index: 1;
     }
-    .backroom-window::before { top: 0; bottom: 0; left: 50%; width: 2px; }
-    .backroom-window::after  { left: 0; right: 0; top: 50%; height: 2px; }
+    @keyframes bulbSway {
+      0%, 100% { transform: rotate(-1.4deg); }
+      50%      { transform: rotate(1.4deg); }
+    }
+    /* Cracked window with mullions and brick frame */
+    .backroom-window {
+      position: absolute;
+      top: 18%;
+      right: 6%;
+      width: 22%;
+      height: 32%;
+      /* brick frame */
+      background: linear-gradient(135deg, #2a1a10 0%, #1a0f08 100%);
+      border: 3px solid #1a0a05;
+      border-radius: 2px;
+      padding: 3px;
+      box-shadow: 0 0 16px rgba(255, 64, 129, 0.25);
+      z-index: 2;
+    }
+    /* Inner glass with neon city light */
+    .backroom-window::before {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      background:
+        linear-gradient(135deg, #ff4081 0%, #6a1b9a 55%, #1a0840 100%);
+      opacity: 0.7;
+      box-shadow: inset 0 0 14px rgba(0,0,0,0.55);
+    }
+    /* Mullions (cross-bars) — drawn as a grid using a gradient */
+    .backroom-window::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      background:
+        linear-gradient(90deg, transparent 49%, rgba(0,0,0,0.65) 49% 51%, transparent 51%),
+        linear-gradient(0deg,  transparent 49%, rgba(0,0,0,0.65) 49% 51%, transparent 51%);
+      pointer-events: none;
+    }
+    /* Crack in the glass */
+    .backroom-window-crack {
+      position: absolute;
+      top: 38%; left: 32%;
+      width: 50%; height: 1.2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+      transform: rotate(-22deg);
+      z-index: 3;
+    }
+    /* Wooden door */
+    .backroom-door {
+      position: absolute;
+      left: 5%;
+      bottom: 26%;        /* sits on the floor */
+      width: 18%;
+      height: 56%;
+      background:
+        linear-gradient(180deg, #4a2a14 0%, #2a1808 100%);
+      border: 3px solid #1a0a02;
+      border-radius: 4px 4px 0 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.6), inset 0 0 14px rgba(0,0,0,0.45);
+      z-index: 2;
+    }
+    /* Door panels (raised look via inset shadows) */
+    .backroom-door::before {
+      content: '';
+      position: absolute;
+      top: 8%; left: 10%; right: 10%;
+      height: 38%;
+      border: 2px solid rgba(0,0,0,0.5);
+      box-shadow: inset 0 2px 4px rgba(255,180,80,0.08);
+      border-radius: 2px;
+    }
+    .backroom-door::after {
+      content: '';
+      position: absolute;
+      bottom: 8%; left: 10%; right: 10%;
+      height: 38%;
+      border: 2px solid rgba(0,0,0,0.5);
+      box-shadow: inset 0 2px 4px rgba(255,180,80,0.08);
+      border-radius: 2px;
+    }
+    /* Door handle */
+    .backroom-door-handle {
+      position: absolute;
+      right: 14%;
+      top: 50%;
+      width: 6px;
+      height: 6px;
+      background: radial-gradient(circle at 30% 30%, #ffd700, #b87010);
+      border-radius: 50%;
+      box-shadow: 0 0 4px rgba(255, 213, 79, 0.5);
+      z-index: 3;
+    }
+    /* Peephole */
+    .backroom-door-peephole {
+      position: absolute;
+      left: 50%; top: 22%;
+      width: 5px; height: 5px;
+      background: radial-gradient(circle, #ffd54f 0%, #8a5a00 80%);
+      border-radius: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 6px rgba(255,180,80,0.6);
+      z-index: 3;
+    }
     /* Ray's pinned note */
     .backroom-note {
       position: absolute;
-      top: 24%;
-      left: 5%;
-      width: 70px;
-      padding: 6px 8px;
-      background: #e8d5a8;
+      top: 16%;
+      left: 28%;
+      width: 76px;
+      padding: 7px 8px;
+      background: linear-gradient(180deg, #f0dca6 0%, #d6c08a 100%);
       color: #2a1f15;
       font-family: 'Permanent Marker', cursive;
-      font-size: 8px;
+      font-size: 9px;
       line-height: 1.2;
-      transform: rotate(-3deg);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      text-align: center;
+      transform: rotate(-4deg);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.6), inset 0 0 8px rgba(0,0,0,0.08);
       cursor: pointer;
       z-index: 3;
+      transition: transform 160ms ease;
     }
     .backroom-note::before {
       content: '📌';
       position: absolute;
-      top: -8px; left: 50%;
+      top: -9px; left: 50%;
       transform: translateX(-50%);
-      font-size: 11px;
+      font-size: 12px;
     }
-    .backroom-note:hover { transform: rotate(-3deg) scale(1.08); }
-    /* Game object — tappable */
+    .backroom-note:hover { transform: rotate(-4deg) scale(1.10); }
+    /* Game object — tappable, popping 3D outline */
     .br-game {
       position: absolute;
       cursor: pointer;
-      transition: transform 160ms ease, filter 160ms ease;
+      transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 200ms ease;
       z-index: 4;
+      /* Default state: soft warm rim glow */
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7)) drop-shadow(0 0 0 rgba(255,213,79,0));
     }
-    .br-game:hover { transform: scale(1.05); filter: brightness(1.15) drop-shadow(0 0 14px rgba(255,167,38,0.5)); }
-    .br-game:active { transform: scale(0.96); }
+    .br-game:hover {
+      transform: scale(1.08) translateY(-3px);
+      filter:
+        drop-shadow(0 8px 12px rgba(0,0,0,0.7))
+        drop-shadow(0 0 0 2px rgba(255,213,79,1))         /* hard outline */
+        drop-shadow(0 0 14px rgba(255,167,38,0.9))         /* bright outer glow */
+        drop-shadow(0 0 26px rgba(255,167,38,0.5));
+    }
+    .br-game:active { transform: scale(0.96) translateY(0); }
     .br-game .br-label {
       position: absolute;
-      bottom: -18px; left: 50%;
+      bottom: -20px; left: 50%;
       transform: translateX(-50%);
       font-family: 'Permanent Marker', cursive;
-      font-size: 10px;
+      font-size: 11px;
       color: #ffe082;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
       white-space: nowrap;
-      text-shadow: 0 0 4px rgba(0,0,0,0.9);
+      text-shadow: 0 0 4px rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.7);
+      pointer-events: none;
+      opacity: 0.85;
+      transition: opacity 160ms ease;
     }
+    .br-game:hover .br-label { opacity: 1; }
     /* Slot machine */
     .br-slot {
-      bottom: 22%;
-      left: 8%;
-      width: 60px;
-      height: 88px;
+      bottom: 28%;        /* sits on the floor */
+      left: 32%;
+      width: 64px;
+      height: 92px;
     }
     .br-slot-cab {
       position: absolute; inset: 0;
@@ -1937,8 +2186,8 @@
     }
     /* Card table */
     .br-table {
-      bottom: 14%;
-      left: 38%;
+      bottom: 28%;
+      left: 50%;
       width: 90px;
       height: 70px;
     }
@@ -1974,10 +2223,10 @@
     .br-table-cards > div:nth-child(3) { transform: rotate(8deg); }
     /* Dice on felt */
     .br-dice {
-      bottom: 18%;
-      right: 32%;
-      width: 50px;
-      height: 36px;
+      bottom: 28%;
+      right: 26%;
+      width: 56px;
+      height: 40px;
     }
     .br-dice-mat {
       position: absolute;
@@ -1989,22 +2238,59 @@
     }
     .br-die {
       position: absolute;
-      width: 14px; height: 14px;
-      background: linear-gradient(135deg, #fff, #ccc);
-      border: 1px solid #444;
-      border-radius: 3px;
-      box-shadow: 0 2px 3px rgba(0,0,0,0.5);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 8px; color: #222; font-weight: 700;
+      width: 18px; height: 18px;
+      background: linear-gradient(135deg, #fff 0%, #e6e6e6 60%, #c8c8c8 100%);
+      border-radius: 4px;
+      box-shadow:
+        0 2px 4px rgba(0,0,0,0.55),
+        inset -1px -1px 2px rgba(0,0,0,0.10),
+        inset 1px 1px 1px rgba(255,255,255,0.6);
     }
-    .br-die:first-child { left: 10px; bottom: 8px; transform: rotate(-12deg); }
-    .br-die:last-child  { right: 8px; bottom: 14px; transform: rotate(8deg); }
+    .br-die::before, .br-die::after {
+      content: '';
+      position: absolute;
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #555, #1a1a1a 70%);
+    }
+    /* Left die — shows "5" (corners + center) using ::before, ::after, and a few box-shadows */
+    .br-die:first-child {
+      left: 8px; bottom: 8px;
+      transform: rotate(-12deg);
+    }
+    .br-die:first-child::before {
+      top: 3px; left: 3px;
+      box-shadow:
+        9px 0 0 radial-gradient(circle, #1a1a1a, #1a1a1a),
+        0 9px 0 radial-gradient(circle, #1a1a1a, #1a1a1a),
+        9px 9px 0 radial-gradient(circle, #1a1a1a, #1a1a1a);
+      box-shadow:
+        9px 0   0 0 #1a1a1a,
+        0   9px 0 0 #1a1a1a,
+        9px 9px 0 0 #1a1a1a;
+    }
+    .br-die:first-child::after {
+      top: 7.5px; left: 7.5px;     /* center pip */
+    }
+    /* Right die — shows "4" (corners only) */
+    .br-die:last-child {
+      right: 6px; bottom: 14px;
+      transform: rotate(8deg);
+    }
+    .br-die:last-child::before {
+      top: 3px; left: 3px;
+      box-shadow:
+        9px 0   0 0 #1a1a1a,
+        0   9px 0 0 #1a1a1a,
+        9px 9px 0 0 #1a1a1a;
+    }
+    .br-die:last-child::after { display: none; }
     /* Coin on stool */
     .br-coin {
-      bottom: 10%;
-      right: 8%;
-      width: 36px;
-      height: 50px;
+      bottom: 28%;
+      right: 4%;
+      width: 38px;
+      height: 54px;
     }
     .br-stool {
       position: absolute;
@@ -2212,7 +2498,8 @@
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 6px;
-      margin-bottom: 14px;
+      margin: 0 auto 14px;
+      max-width: 240px;       /* smaller on screen, like the user asked */
     }
     .br-scratch-cell {
       aspect-ratio: 1 / 1;
@@ -2250,26 +2537,67 @@
 
     /* Dice game */
     .br-dice-stage {
-      height: 140px;
+      height: 160px;
+      position: relative;
       display: flex; align-items: center; justify-content: center;
-      gap: 24px;
-      background: radial-gradient(ellipse at 50% 60%, rgba(74,16,16,0.4), transparent 60%);
+      gap: 28px;
+      background: radial-gradient(ellipse at 50% 70%, rgba(60,15,15,0.7) 0%, rgba(40,10,10,0.4) 40%, transparent 70%);
       margin-bottom: 12px;
       border-radius: 10px;
+      perspective: 800px;
     }
+    /* Felt shadow under dice */
+    .br-dice-stage::before {
+      content: '';
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 260px;
+      max-width: 80%;
+      height: 14px;
+      background: radial-gradient(ellipse, rgba(0,0,0,0.5) 0%, transparent 70%);
+    }
+    /* 3D pip-pattern die */
     .br-dice-big {
-      width: 70px; height: 70px;
-      background: linear-gradient(135deg, #fff, #ddd);
-      border: 3px solid #2a2a2a;
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 38px; font-weight: 900; color: #2a1f15;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+      position: relative;
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #ffffff 0%, #f2f2f2 55%, #d8d8d8 100%);
+      border-radius: 14px;
+      box-shadow:
+        0 8px 14px rgba(0,0,0,0.55),
+        inset -3px -4px 6px rgba(0,0,0,0.10),
+        inset 3px 4px 6px rgba(255,255,255,0.6);
+      transform-style: preserve-3d;
     }
-    .br-dice-big.rolling { animation: diceRoll 0.8s linear; }
-    @keyframes diceRoll {
-      0%   { transform: rotate(0); }
-      100% { transform: rotate(720deg); }
+    /* Pip dots arranged on a 3x3 grid */
+    .br-dice-big .pip-grid {
+      position: absolute; inset: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows:    1fr 1fr 1fr;
+      gap: 0;
+    }
+    .br-dice-big .pip {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #555 0%, #1a1a1a 70%);
+      box-shadow: inset 1px 1px 2px rgba(0,0,0,0.7);
+      align-self: center;
+      justify-self: center;
+      opacity: 0;
+    }
+    .br-dice-big .pip.show { opacity: 1; }
+    /* Tumbling animation — multi-axis rotation, more dice-like than flat spin */
+    .br-dice-big.rolling {
+      animation: diceTumble 0.95s cubic-bezier(0.45, 0, 0.55, 1);
+    }
+    @keyframes diceTumble {
+      0%   { transform: rotateX(0deg)    rotateY(0deg)    rotateZ(0deg)   translateY(0); }
+      25%  { transform: rotateX(360deg)  rotateY(180deg)  rotateZ(90deg)  translateY(-30px); }
+      50%  { transform: rotateX(720deg)  rotateY(540deg)  rotateZ(180deg) translateY(-15px); }
+      75%  { transform: rotateX(1080deg) rotateY(720deg)  rotateZ(270deg) translateY(-5px); }
+      100% { transform: rotateX(1440deg) rotateY(1080deg) rotateZ(360deg) translateY(0); }
     }
 
     /* Chalkboard frame for "side menus" — Settings, Friends, Back Room, Achievements, Update Log */
@@ -2608,9 +2936,9 @@
       /* News header titles slightly larger on desktop */
       .screen-title { font-size: 36px; }
       .screen-subtitle { font-size: 14px; }
-      /* Workplace card on Home — taller so the truck reads bigger */
-      .home-workplace { max-width: 640px; margin-left: auto; margin-right: auto; }
-      .home-workplace-scene { height: 150px; }
+      /* Workplace card on Home — kept compact on desktop so users don't have to scroll past it */
+      .home-workplace { max-width: 520px; margin-left: auto; margin-right: auto; }
+      .home-workplace-scene { height: 110px; }
       /* Auth modal stays centered, no change needed */
     }
     @media (min-width: 1100px) {
@@ -2644,7 +2972,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.2.5';
+    const VERSION = '1.2.6';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -2868,6 +3196,7 @@
           ambience: false,             // background street noise (off by default — subtle but not for everyone)
           voices: false,               // customer TTS voices (off by default — experimental, varies per device)
           vibration: true,
+          boldNews: false,             // bold the Update Log text for readability
           notifications: false // PLACEHOLDER — Coming Soon, foundation only in v1.0.0
         },
         account: {
@@ -3102,24 +3431,26 @@
       '<svg viewBox="0 0 36 80" xmlns="http://www.w3.org/2000/svg">' +
         // ---- BACK leg (drawn first, behind body) ----
         '<g class="wf-leg-back" style="transform-origin: 18px 48px;">' +
-          '<rect x="15" y="48" width="6" height="22" rx="2.5" fill="#1a1a2a"/>' +  // pant leg
-          '<rect x="13" y="68" width="10" height="5" rx="1.5" fill="#2a1a0a"/>' + // shoe
+          '<rect x="15" y="48" width="6" height="22" rx="2.5" fill="#3a4a6a" stroke="#0a0a14" stroke-width="0.4"/>' +  // pant leg (brighter blue jeans)
+          '<rect x="13" y="68" width="10" height="5" rx="1.5" fill="#6a4a2a" stroke="#1a1208" stroke-width="0.4"/>' +  // shoe (warm brown)
         '</g>' +
         // ---- BACK arm (drawn behind body) ----
         '<g class="wf-arm-back" style="transform-origin: 18px 32px;">' +
-          '<rect x="15.5" y="32" width="5" height="16" rx="2" fill="#d65a1a"/>' +  // sleeve
-          '<circle cx="18" cy="50" r="2.5" fill="#c98664"/>' +                       // hand
+          '<rect x="15.5" y="32" width="5" height="16" rx="2" fill="#a84418" stroke="#1a0805" stroke-width="0.4"/>' +  // sleeve (shaded orange)
+          '<circle cx="18" cy="50" r="2.5" fill="#a86044" stroke="#1a0805" stroke-width="0.4"/>' +                       // hand
         '</g>' +
         // ---- Body (torso, hoodie) ----
-        '<path d="M 11 32 Q 11 30 13 30 L 23 30 Q 25 30 25 32 L 25 48 Q 25 50 23 50 L 13 50 Q 11 50 11 48 Z" fill="#e96a1f"/>' +
-        // Hoodie shading
-        '<path d="M 11 32 Q 11 30 13 30 L 16 30 L 16 50 L 13 50 Q 11 50 11 48 Z" fill="rgba(0,0,0,0.15)"/>' +
+        '<path d="M 11 32 Q 11 30 13 30 L 23 30 Q 25 30 25 32 L 25 48 Q 25 50 23 50 L 13 50 Q 11 50 11 48 Z" fill="#e96a1f" stroke="#1a0805" stroke-width="0.5"/>' +
+        // Hoodie shading (back-facing side)
+        '<path d="M 11 32 Q 11 30 13 30 L 16 30 L 16 50 L 13 50 Q 11 50 11 48 Z" fill="rgba(0,0,0,0.18)"/>' +
         // Belt
         '<rect x="11" y="46" width="14" height="2" fill="#2a1a0a"/>' +
         // ---- Head ----
-        '<circle cx="18" cy="20" r="9" fill="#c98664"/>' +
+        '<circle cx="18" cy="20" r="9" fill="#c98664" stroke="#1a0805" stroke-width="0.5"/>' +
         // Hair (side view — fringe under cap brim)
         '<path d="M 10 16 Q 10 11 18 11 Q 26 11 26 16 L 22 17 Q 18 14 14 17 Z" fill="#2a1a0a"/>' +
+        // Ear (side view)
+        '<ellipse cx="11.5" cy="20" rx="1" ry="1.6" fill="#b8775a"/>' +
         // Eye (side view — one eye visible, looking forward)
         '<circle cx="23" cy="20" r="1.1" fill="#1a1a1a"/>' +
         '<circle cx="23.3" cy="19.7" r="0.4" fill="#fff"/>' +
@@ -3130,20 +3461,20 @@
         // Mouth
         '<path d="M 24 24 Q 25 25 26 24" stroke="#5a2a1a" stroke-width="0.7" fill="none"/>' +
         // ---- Baseball cap (side view) ----
-        '<path d="M 9 13 Q 9 9 18 9 Q 27 9 27 13 L 27 15 L 9 15 Z" fill="#1a1a1a"/>' +
+        '<path d="M 9 13 Q 9 9 18 9 Q 27 9 27 13 L 27 15 L 9 15 Z" fill="#1a1a1a" stroke="#000" stroke-width="0.3"/>' +
         // Cap brim pointing forward (right side)
-        '<path d="M 27 13 Q 33 13 33 15 L 27 15 Z" fill="#0a0a0a"/>' +
+        '<path d="M 27 13 Q 33 13 33 15 L 27 15 Z" fill="#0a0a0a" stroke="#000" stroke-width="0.3"/>' +
         // HustleBox amber dot on cap
         '<circle cx="20" cy="12" r="1.4" fill="#ffa726"/>' +
         // ---- FRONT arm (drawn on top of body) ----
         '<g class="wf-arm-front" style="transform-origin: 18px 32px;">' +
-          '<rect x="15.5" y="32" width="5" height="16" rx="2" fill="#e96a1f"/>' +  // sleeve (full brightness)
-          '<circle cx="18" cy="50" r="2.5" fill="#c98664"/>' +                       // hand
+          '<rect x="15.5" y="32" width="5" height="16" rx="2" fill="#e96a1f" stroke="#1a0805" stroke-width="0.4"/>' +  // sleeve (full brightness)
+          '<circle cx="18" cy="50" r="2.5" fill="#c98664" stroke="#1a0805" stroke-width="0.4"/>' +                       // hand
         '</g>' +
         // ---- FRONT leg (drawn on top) ----
         '<g class="wf-leg-front" style="transform-origin: 18px 48px;">' +
-          '<rect x="15" y="48" width="6" height="22" rx="2.5" fill="#22223a"/>' +  // pant leg (lighter for front)
-          '<rect x="13" y="68" width="10" height="5" rx="1.5" fill="#3a2a1a"/>' + // shoe
+          '<rect x="15" y="48" width="6" height="22" rx="2.5" fill="#4a5a7a" stroke="#0a0a14" stroke-width="0.4"/>' +  // pant leg (slightly brighter for front)
+          '<rect x="13" y="68" width="10" height="5" rx="1.5" fill="#8a5a3a" stroke="#1a1208" stroke-width="0.4"/>' +  // shoe
         '</g>' +
       '</svg>';
 
@@ -4325,80 +4656,41 @@
               )
             : null
         ),
-        // Marcus story card on first launch
+        // Marcus story card on first launch only
         state.customersServed === 0
-          ? e('div', { className: 'card', style: { marginBottom: 16, borderColor: 'var(--line-strong)' } },
+          ? e('div', { className: 'card', style: { marginBottom: 12, borderColor: 'var(--line-strong)' } },
               e('div', { style: { fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.6 } },
                 e('strong', { style: { color: 'var(--amber)' } }, "Ray: "),
                 "“Work the truck. Don't mess up my orders. And whatever you do — stay out the back room.”"
               )
             )
           : null,
-        // Rank progress card
+        // Combined Rank + Rep card (compact)
         e('div', { className: 'card', style: { marginBottom: 12 } },
           e('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: 8 } },
             e('div', null,
-              e('div', { style: { fontSize: 11, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: 1 } }, 'Rank'),
-              e('div', { className: 'display-font', style: { fontSize: 22, color: 'var(--amber)' } }, rank.name)
+              e('div', { style: { fontSize: 10, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: 1 } }, 'Rank'),
+              e('div', { className: 'display-font', style: { fontSize: 18, color: 'var(--amber)' } }, rank.name)
             ),
-            nextRank
-              ? e('div', { style: { textAlign: 'right' } },
-                  e('div', { style: { fontSize: 11, color: 'var(--text-faint)' } }, 'Next: ' + nextRank.name),
-                  e('div', { style: { fontSize: 13, color: 'var(--text-dim)' } },
-                    fmtStacks(nextRank.threshold - state.totalEarned) + ' to go')
-                )
-              : e('div', { style: { color: 'var(--gold)' } }, '🏆 MAX')
+            e('div', { style: { textAlign: 'right' } },
+              e('div', { style: { fontSize: 10, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: 1 } }, 'Rep'),
+              e('div', { className: 'display-font', style: { fontSize: 18, color: 'var(--amber)' } }, tier.name)
+            )
           ),
           e('div', { className: 'rep-bar-track' },
             e('div', { className: 'rep-bar-fill', style: { width: progress + '%', background: 'linear-gradient(90deg, var(--amber-deep), var(--amber))' } })
-          )
+          ),
+          nextRank
+            ? e('div', { style: { fontSize: 11, color: 'var(--text-faint)', marginTop: 6, textAlign: 'right' } },
+                fmtStacks(nextRank.threshold - state.totalEarned) + ' to ' + nextRank.name)
+            : e('div', { style: { fontSize: 11, color: 'var(--gold)', marginTop: 6, textAlign: 'right' } }, '🏆 Top rank')
         ),
-        // Reputation card
-        e('div', { className: 'card', style: { marginBottom: 12 } },
-          e('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } },
-            e('div', null,
-              e('div', { style: { fontSize: 11, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: 1 } }, 'Reputation'),
-              e('div', { className: 'display-font', style: { fontSize: 20, color: 'var(--amber)' } }, tier.name)
-            ),
-            e('div', { style: { fontSize: 22, fontWeight: 800, color: 'var(--amber)' } }, Math.floor(state.reputation))
-          ),
-          e('div', { className: 'rep-bar-track' },
-            e('div', { className: 'rep-bar-fill', style: { width: state.reputation + '%' } })
-          ),
-          e('div', { style: { fontSize: 12, color: 'var(--text-faint)', marginTop: 8 } }, tier.desc)
-        ),
-        // Stats
-        e('div', { className: 'stats-grid', style: { marginBottom: 16 } },
-          e('div', { className: 'stat-block' },
-            e('div', { className: 'stat-label' }, 'Customers'),
-            e('div', { className: 'stat-value' }, state.customersServed)
-          ),
-          e('div', { className: 'stat-block' },
-            e('div', { className: 'stat-label' }, 'Perfect'),
-            e('div', { className: 'stat-value' }, state.perfectOrders)
-          ),
-          e('div', { className: 'stat-block' },
-            e('div', { className: 'stat-label' }, 'Total Earned'),
-            e('div', { className: 'stat-value' }, fmtStacks(state.totalEarned))
-          ),
-          e('div', { className: 'stat-block' },
-            e('div', { className: 'stat-label' }, 'Wages/sec'),
-            e('div', { className: 'stat-value' }, '+' + rank.wagePerSec.toFixed(2))
-          )
-        ),
-        // CTA buttons
+        // Single primary CTA — Back Room is in the bottom nav, no need for a redundant button here
         e('button', {
           className: 'btn btn-primary',
-          style: { width: '100%', fontSize: 16, padding: '14px 18px', marginBottom: 10 },
+          style: { width: '100%', fontSize: 16, padding: '14px 18px' },
           onClick: () => onGoTo('work')
-        }, '🍔 Work the Food Truck'),
-        e('button', {
-          className: 'btn btn-ghost',
-          style: { width: '100%', marginBottom: 10 },
-          onClick: () => onGoTo('arcade'),
-          disabled: true,
-          title: 'The back room — coming soon'
-        }, '🎰 Back Room (Coming Soon)')
+        }, '🍔 Go to Work')
       );
     }
 
@@ -5010,16 +5302,35 @@
           .catch(() => { setLoading(false); });
       }, [markRead]);
 
-      const renderEntry = (entry, isCurrent) =>
-        e('div', { className: 'receipt-card', key: entry.version },
-          e('div', { className: 'receipt-header-line' }, isCurrent ? "★ LATEST RELEASE ★" : "★ RAY'S RECEIPT ★"),
-          e('div', { className: 'receipt-version' }, 'v' + entry.version),
-          e('div', { className: 'receipt-title' }, entry.title || ''),
-          e('ul', { className: 'receipt-list' },
-            (entry.highlights || []).map((h, j) => e('li', { key: j }, h))
-          ),
-          entry.date ? e('div', { className: 'receipt-date' }, entry.date) : null
-        );
+      // Build a flat list of entries: latest version first (with full message), then older entries
+      const buildEntries = (newsData) => {
+        if (!newsData) return [];
+        const entries = [];
+        // Latest entry always has the full prose message
+        entries.push({
+          version: newsData.version,
+          title: newsData.title || '',
+          date: newsData.date || '',
+          message: newsData.message || '',
+          highlights: [],
+          isLatest: true
+        });
+        // Older entries
+        (newsData.entries || []).forEach(en => {
+          if (en.version === newsData.version) return; // skip duplicate of latest
+          entries.push({
+            version: en.version,
+            title: en.title || '',
+            date: en.date || '',
+            message: '',
+            highlights: en.highlights || [],
+            isLatest: false
+          });
+        });
+        return entries;
+      };
+
+      const entries = buildEntries(news);
 
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header' },
@@ -5032,18 +5343,27 @@
         loading
           ? e('div', { style: { color: 'var(--text-faint)', padding: 16 } }, 'Loading...')
           : news
-            ? e('div', { className: 'side-menu-frame' },
-                e('div', { className: 'smf-title' }, 'UPDATE LOG'),
-                // Latest version with full message
-                e('div', { className: 'receipt-card' },
-                  e('div', { className: 'receipt-header-line' }, '★ LATEST RELEASE ★'),
-                  e('div', { className: 'receipt-version' }, 'v' + news.version),
-                  e('div', { className: 'receipt-title' }, news.title || ''),
-                  e('div', { style: { fontSize: 12, lineHeight: 1.6, whiteSpace: 'pre-line', marginTop: 6 } }, news.message),
-                  news.date ? e('div', { className: 'receipt-date' }, news.date) : null
-                ),
-                // Earlier entries as receipts
-                (news.entries || []).filter(en => en.version !== news.version).map(en => renderEntry(en, false))
+            ? e('div', { className: 'news-notebook' },
+                entries.map(en =>
+                  e('div', { key: en.version, className: 'news-entry' },
+                    e('div', { className: 'news-entry-header' },
+                      e('div', { className: 'news-version-tag' },
+                        'v' + en.version,
+                        en.isLatest ? e('span', { className: 'latest-badge' }, 'NEW') : null
+                      ),
+                      en.date ? e('div', { className: 'news-entry-date' }, en.date) : null
+                    ),
+                    en.title ? e('div', { className: 'news-entry-title' }, en.title) : null,
+                    en.message
+                      ? e('div', { className: 'news-entry-message' }, en.message)
+                      : null,
+                    en.highlights && en.highlights.length > 0
+                      ? e('ul', { className: 'news-entry-list' },
+                          en.highlights.map((h, j) => e('li', { key: j }, h))
+                        )
+                      : null
+                  )
+                )
               )
             : e('div', { style: { color: 'var(--text-faint)' } }, 'Could not load update log.')
       );
@@ -5261,6 +5581,14 @@
           ),
           e('div', { className: 'toggle' + (s.vibration ? ' on' : '') })
         ),
+        // Bold Update Log
+        e('div', { className: 'row', onClick: () => updateSettings({ boldNews: !s.boldNews }) },
+          e('div', null,
+            e('div', { className: 'row-label' }, '📰 Bold Update Log'),
+            e('div', { className: 'row-sub' }, 'Make the Update Log text bolder for readability')
+          ),
+          e('div', { className: 'toggle' + (s.boldNews ? ' on' : '') })
+        ),
         // Notifications — disabled, Coming Soon
         e('div', { className: 'row disabled' },
           e('div', null,
@@ -5272,6 +5600,22 @@
 
         e('div', { style: { marginTop: 24 } },
           e('h2', { className: 'display-font', style: { fontSize: 20, color: 'var(--amber)', margin: '0 0 12px' } }, 'Account'),
+          // Explainer — why sign in
+          e('div', {
+            style: {
+              padding: '10px 12px',
+              background: 'rgba(255,167,38,0.05)',
+              border: '1px solid var(--line-strong)',
+              borderLeft: '3px solid var(--amber)',
+              borderRadius: 6,
+              marginBottom: 12,
+              fontSize: 12,
+              lineHeight: 1.55,
+              color: 'var(--text-dim)'
+            }
+          },
+            "Sign in to keep your save and friends across devices and browsers. Without an account, your data only lives in this browser — if you clear cache or switch devices, it's gone."
+          ),
           e('div', { className: 'row' },
             e('div', null,
               e('div', { className: 'row-label' }, 'Friend Code'),
@@ -5431,9 +5775,12 @@
       const [showQR, setShowQR] = useState(false);
 
       const myCode = state.account.friendCode;
-      const qrSvg = (myCode && HustleFire.ready()) ? HustleFire.generateQRSvg(myCode) : '';
       const inviteLink = (typeof window !== 'undefined') ?
         (window.location.origin + window.location.pathname + '?friend=' + encodeURIComponent(myCode)) : '';
+      // Encode the invite LINK in the QR — scanning with a phone camera offers "Open in browser",
+      // which loads HustleBox with ?friend=CODE and the auto-add prompt fires.
+      // If the recipient has the PWA/APK installed, the OS prefers the installed app via deep link.
+      const qrSvg = (myCode && HustleFire.ready() && inviteLink) ? HustleFire.generateQRSvg(inviteLink) : '';
 
       const refreshFriends = async () => {
         if (!currentUser) return;
@@ -5666,14 +6013,44 @@
           e('h1', { className: 'screen-title display-font' }, 'The Back Room'),
           e('p', { className: 'screen-subtitle' }, "Ray told you to stay out. You didn't listen.")
         ),
+
+        // Story intro: how can a food truck have a back room?
+        e('div', {
+          style: {
+            padding: '10px 14px',
+            background: 'rgba(0,0,0,0.5)',
+            border: '1px solid var(--line-strong)',
+            borderRadius: 8,
+            marginBottom: 10,
+            fontSize: 12,
+            lineHeight: 1.55,
+            color: 'var(--text-dim)',
+            fontStyle: 'italic'
+          }
+        },
+          "Ray's truck parks behind Sal's Hardware on 5th and Main. The basement door is in the alley, half-hidden behind a dumpster. Sal's been letting Ray's guys use the room since the '90s. You knock the rhythm — ",
+          e('strong', { style: { color: 'var(--amber)', fontStyle: 'normal' } }, 'three, pause, two'),
+          ". The door cracks open. You go down."
+        ),
+
         e('div', { style: { fontSize: 12, color: 'var(--text-dim)', textAlign: 'center', marginBottom: 6 } },
           'Tap a game to play. Bet your Stacks. House always wins — eventually.'
         ),
 
         // The room
         e('div', { className: 'backroom-scene' },
+          // Hanging bulb (with cord + socket + pear-shaped glass)
           e('div', { className: 'backroom-bulb' }),
-          e('div', { className: 'backroom-window' }),
+          // Cracked window with neon glow
+          e('div', { className: 'backroom-window' },
+            e('div', { className: 'backroom-window-crack' })
+          ),
+          // Wooden door (the way you came in)
+          e('div', { className: 'backroom-door' },
+            e('div', { className: 'backroom-door-peephole' }),
+            e('div', { className: 'backroom-door-handle' })
+          ),
+          // Ray's note pinned to the wall
           e('div', { className: 'backroom-note', onClick: () => toast && toast("Ray's note: \"I told you not to come down here. — Ray\"", 'amber') },
             'STAY OUT', e('br'), '— RAY'
           ),
@@ -5698,8 +6075,8 @@
           // Dice
           e('div', { className: 'br-game br-dice', onClick: () => setGame('dice') },
             e('div', { className: 'br-dice-mat' }),
-            e('div', { className: 'br-die' }, '⚀'),
-            e('div', { className: 'br-die' }, '⚄'),
+            e('div', { className: 'br-die' }),
+            e('div', { className: 'br-die' }),
             e('div', { className: 'br-label' }, 'DICE')
           ),
           // Coin on stool
@@ -5707,7 +6084,9 @@
             e('div', { className: 'br-stool' }),
             e('div', { className: 'br-coin-disc' }, '$'),
             e('div', { className: 'br-label' }, 'COIN FLIP')
-          )
+          ),
+          // Floor (drawn LAST so it sits in front of the objects' shadows but is positioned at bottom)
+          e('div', { className: 'backroom-floor' })
         ),
 
         e('div', { style: { padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--line-strong)', borderRadius: 8, textAlign: 'center', fontSize: 13 } },
@@ -6084,13 +6463,41 @@
         }, 900);
       };
 
+      // Pip patterns: which of 9 grid cells light up for each face value
+      // Grid indices:
+      //   0 1 2
+      //   3 4 5
+      //   6 7 8
+      const PIP_PATTERNS = {
+        1: [4],
+        2: [0, 8],
+        3: [0, 4, 8],
+        4: [0, 2, 6, 8],
+        5: [0, 2, 4, 6, 8],
+        6: [0, 2, 3, 5, 6, 8]
+      };
+      const renderDie = (val, isRolling, idx) => {
+        const pips = PIP_PATTERNS[val] || [];
+        const cells = [];
+        for (let i = 0; i < 9; i++) {
+          cells.push(e('div', {
+            key: i,
+            className: 'pip' + (pips.indexOf(i) >= 0 ? ' show' : '')
+          }));
+        }
+        return e('div', {
+          key: idx,
+          className: 'br-dice-big' + (isRolling ? ' rolling' : '')
+        }, e('div', { className: 'pip-grid' }, cells));
+      };
+
       return e('div', { className: 'main has-bottomnav' },
         brHeader(onBack, 'Dice', 'Two dice. Bet on the sum. Over/under pays 2x. Lucky 7 pays 5x.'),
         e('div', { className: 'br-game-screen' },
           brBalanceBar(stacks, bet),
           e('div', { className: 'br-dice-stage' },
-            e('div', { className: 'br-dice-big' + (rolling ? ' rolling' : '') }, dice[0]),
-            e('div', { className: 'br-dice-big' + (rolling ? ' rolling' : '') }, dice[1])
+            renderDie(dice[0], rolling, 'a'),
+            renderDie(dice[1], rolling, 'b')
           ),
           result && !rolling
             ? e('div', { className: 'br-result ' + (result.won ? 'win' : 'lose') },
@@ -6255,9 +6662,6 @@
             e('span', { className: 'profile-rank-badge' }, '★ ' + (graduated ? 'Graduated' : rank.name)),
             ' ',
             e('span', { className: 'profile-rank-badge', style: { marginLeft: 4 } }, tier.name)
-          ),
-          e('div', null,
-            e('span', { className: 'profile-fc' }, state.account.friendCode)
           )
         ),
 
@@ -6530,6 +6934,12 @@
         });
         setShowEnding(false);
       };
+
+      // ---- Body class: bold-news for the Update Log readability toggle ----
+      useEffect(() => {
+        document.body.classList.toggle('bold-news', !!(game.state.settings && game.state.settings.boldNews));
+        return () => document.body.classList.remove('bold-news');
+      }, [game.state.settings && game.state.settings.boldNews]);
 
       // ---- Achievement unlock toasts ----
       // First render: mark all currently-unlocked as already-seen so we don't toast on load.

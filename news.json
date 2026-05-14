@@ -1,24 +1,41 @@
 {
-  "version": "1.2.5",
-  "title": "HustleBox v1.2.5 — The Back Room Opens",
-  "date": "2026-05-12",
-  "message": "Ray told you to stay out. You're going anyway.\n\nTHE BACK ROOM\nThe Arcade tab is now called the Back Room — single name everywhere. It's a CSS-rendered scene of a dingy basement: hanging lightbulb that sways overhead, peeling wallpaper texture, cracked window with neon leaking in, Ray's note pinned to the wall warning you off. Four tappable objects in the room:\n• 🪙 Coin Flip — pick heads or tails, double or nothing\n• 🎰 Slot Machine — three reels, pair = 2x, jackpot (three matching) = 10x\n• 🃏 Scratch Card — buy a card, reveal 9 squares, three matching icons win (diamonds pay 10x)\n• 🎲 Dice — bet over/under 7 for 2x, or exact 7 for 5x\n\nAll four are playable. Bets start at 10 Stacks. Tap Ray's note for a special message.\n\nNEW ACHIEVEMENTS\n• 5 Back Room achievements (Ray Said Don't, House Bleeds, Jackpot, Lucky Seven, Three Diamonds)\n• 2 secret achievements (Whale: win 1000+ in one play, Ray Was Right: lose everything)\n\nCUSTOMER VOICES — 35+ NEW PHRASINGS\nThe voice lines are way more varied now. Polite customers, gruff customers, in-a-rush customers, hungry customers, indecisive customers. Plus item-specific commentary — burger fans, pizza fans, Tuesday taco people, salad eaters trying to eat clean.\n\nQR CODE IS A POP-UP NOW\nFriends → Show QR now opens a centered modal with the QR code big, easy to scan with a phone camera. Tap outside or the X to close.\n\nWALKING MARCUS REDESIGN\nThe end-of-shift cinematic now shows a full side-profile Marcus with animated arms and legs — proper walking cycle, opposing limb swing, head bob. Not just a floating head with a cap anymore.\n\nPROFILE → RESUME LAYOUT\nProfile is now structured like a resume: hero card up top, career timeline as the main section (dots connecting Dishwasher → Owner with 'YOU ARE HERE' marker on your current rank), story quote, stats grid, trophy count footer.\n\nDESKTOP LAYOUT FIXES\n• Mouse scroll wheel now works on desktop. The bug was scroll-lock being applied during gameplay regardless of platform — on desktop with a fixed sidebar, that blocked all page scroll. Now scroll-lock is mobile-only.\n• Content has a max width on desktop so text doesn't stretch across a 4K monitor. Cards are contained, achievements display in 2 columns, profile hero is bigger.\n\nNo save data wiped.",
+  "version": "1.2.6",
+  "title": "HustleBox v1.2.6 — Back Room, Inhabited",
+  "date": "2026-05-14",
+  "message": "Big polish pass on everything you've been seeing wrong.\n\nTHE BACK ROOM, REBUILT\nThe room actually feels like a room now. Proper pear-shaped lightbulb on a hanging cord with a screw socket and a glow — not a line with an egg on it. The cracked window has brick framing, mullion bars, and a real glass crack. There's a wooden floor with plank lines. There's a wooden door on the left with a peephole and a brass handle — that's the way you came in. The wallpaper now uses organic peeling-paint streaks instead of the grid pattern that was making those weird yellow squares appear under the bulb's light.\n\nWHERE IS THE BACK ROOM, EXACTLY?\nRay's truck parks behind Sal's Hardware on 5th and Main. The basement door is in the alley, half-hidden behind a dumpster. Sal's been letting Ray's guys use the room since the '90s. You knock the rhythm — three, pause, two — and the door cracks open. Story intro added at the top of the Back Room screen.\n\nTAPPABLE OBJECTS POP HARDER\nThe yellow outline on tappable games is now a bright drop-shadow stack: hard golden rim + bright outer glow + soft falloff. They lift up slightly on hover. Label gets brighter too.\n\nREAL 3D DICE\n7-pip grid (so a 4 looks like a 4). Roll animation tumbles on three axes and bounces up off the felt. Mini scene dice match the same look.\n\nSCRATCH CARD SMALLER\nCapped at 240px wide, centered.\n\nHOME SCREEN, COMPACT\n'Go to Work' label. No dead Back Room button. Single rank/rep card. No stats grid duplication. Fits without scrolling.\n\nWORKPLACE CARD SMALLER ON PC\n520×110 on desktop. No more scrolling past it.\n\nCAREER TIMELINE DOTS, FIXED\nDots now exactly centered on the vertical line (2px border was offsetting them right).\n\nUPDATE LOG, RESTYLED\nSingle continuous notebook page — red margin line, three-ring binder holes, ruled lines. Each version is a section divided by a thin solid border. Latest gets a 'NEW' badge.\n\nBOLD UPDATE LOG TOGGLE\nNew setting: 📰 Bold Update Log for heavier text.\n\nWALKING MARCUS, ACTUALLY FULL-BODY\nPant/shoe colors were nearly black against the night bg — only the orange hoodie and skin were visible. Brightened to denim blue + warm brown, added thin dark outlines, added an ear, bumped container to 50×110.\n\nFRIEND CODE OFF PROFILE\nOnly in Settings → Account now.\n\nQR ENCODES THE INVITE LINK\nScanning offers 'Open in browser' → opens HustleBox → auto-prompts add-friend. If PWA/APK is installed, the OS prefers the installed app via deep link.\n\nSETTINGS EXPLAINER\nNote in Settings → Account: 'Sign in to keep your save and friends across devices and browsers. Without an account, your data only lives in this browser — if you clear cache or switch devices, it's gone.'\n\nDESKTOP SCROLL, EXPLICIT\nBody/html overflow tightened so long pages always scroll.\n\nNo save data wiped.",
   "entries": [
+    {
+      "version": "1.2.6",
+      "date": "2026-05-14",
+      "title": "Back Room, Inhabited",
+      "highlights": [
+        "Back Room scene rebuilt — proper pear-shaped lightbulb, brick-framed cracked window, wooden floor with planks, wooden door with handle and peephole, organic peeling-paint wallpaper (no more weird yellow squares)",
+        "Story intro: back room is in Sal's Hardware basement, knock three-pause-two",
+        "Tappable objects pop 3D with bright drop-shadow stack and hover lift",
+        "Real 7-pip dice with 3-axis tumble animation",
+        "Scratch card capped at 240px wide",
+        "Home compacted: 'Go to Work' label, single rank/rep card, fits without scrolling",
+        "Workplace card 520×110 on desktop",
+        "Career timeline dots centered on the line (2px border offset fixed)",
+        "Update Log = continuous notebook page (binder holes, ruled lines, NEW badge)",
+        "📰 Bold Update Log setting toggle",
+        "Walking Marcus full-body now visible (brightened pants/shoes, added outlines)",
+        "Friend code only in Settings, removed from Profile",
+        "QR encodes invite URL — scanning offers 'Open in browser'",
+        "Settings → Account explainer about why sign-in matters",
+        "Explicit body overflow rules — long pages always scroll on desktop"
+      ]
+    },
     {
       "version": "1.2.5",
       "date": "2026-05-12",
       "title": "The Back Room Opens",
       "highlights": [
         "Arcade renamed Back Room everywhere",
-        "CSS-rendered Back Room scene with hanging lightbulb, neon window, Ray's note",
-        "Coin Flip, Slot Machine, Scratch Card, Dice — all four games playable",
-        "7 new Back Room achievements (including secrets)",
-        "35+ new customer voice phrasings with item-specific lines",
-        "QR code is now a centered pop-up modal, not inline",
-        "Walking-home figure redesigned: full body with animated legs and arms",
-        "Profile redesigned as a resume — career timeline as the headline",
-        "Fixed: desktop mouse-wheel scroll was broken because scroll-lock applied on desktop",
-        "Desktop layout polish: max-width containers, 2-column achievements, bigger hero"
+        "CSS-rendered Back Room scene + 4 playable games (Coin Flip, Slots, Scratch, Dice)",
+        "7 new achievements, 35+ new customer voice phrasings",
+        "QR pop-up modal, full-body walking figure, resume-style Profile",
+        "Desktop scroll-wheel fix, max-width content polish"
       ]
     },
     {
@@ -28,7 +45,7 @@
       "highlights": [
         "Auth UI redesigned with method-picker modal",
         "Bell ding, sizzle, coin drop SFX",
-        "Background Ambience toggle, Customer Voices toggle"
+        "Background Ambience and Customer Voices toggles"
       ]
     },
     {
@@ -36,7 +53,7 @@
       "date": "2026-05-11",
       "title": "Trophy Case Opens",
       "highlights": [
-        "22 achievements live across 5 categories",
+        "22 achievements across 5 categories",
         "Fixed Loyal Regular and Supplier Deal events"
       ]
     },
