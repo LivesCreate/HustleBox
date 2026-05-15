@@ -1,29 +1,39 @@
 {
-  "version": "1.2.6",
-  "title": "HustleBox v1.2.6 — Back Room, Inhabited",
+  "version": "1.3.0",
+  "title": "HustleBox v1.3.0 — Dynamics",
   "date": "2026-05-14",
-  "message": "Big polish pass on everything you've been seeing wrong.\n\nTHE BACK ROOM, REBUILT\nThe room actually feels like a room now. Proper pear-shaped lightbulb on a hanging cord with a screw socket and a glow — not a line with an egg on it. The cracked window has brick framing, mullion bars, and a real glass crack. There's a wooden floor with plank lines. There's a wooden door on the left with a peephole and a brass handle — that's the way you came in. The wallpaper now uses organic peeling-paint streaks instead of the grid pattern that was making those weird yellow squares appear under the bulb's light.\n\nWHERE IS THE BACK ROOM, EXACTLY?\nRay's truck parks behind Sal's Hardware on 5th and Main. The basement door is in the alley, half-hidden behind a dumpster. Sal's been letting Ray's guys use the room since the '90s. You knock the rhythm — three, pause, two — and the door cracks open. Story intro added at the top of the Back Room screen.\n\nTAPPABLE OBJECTS POP HARDER\nThe yellow outline on tappable games is now a bright drop-shadow stack: hard golden rim + bright outer glow + soft falloff. They lift up slightly on hover. Label gets brighter too.\n\nREAL 3D DICE\n7-pip grid (so a 4 looks like a 4). Roll animation tumbles on three axes and bounces up off the felt. Mini scene dice match the same look.\n\nSCRATCH CARD SMALLER\nCapped at 240px wide, centered.\n\nHOME SCREEN, COMPACT\n'Go to Work' label. No dead Back Room button. Single rank/rep card. No stats grid duplication. Fits without scrolling.\n\nWORKPLACE CARD SMALLER ON PC\n520×110 on desktop. No more scrolling past it.\n\nCAREER TIMELINE DOTS, FIXED\nDots now exactly centered on the vertical line (2px border was offsetting them right).\n\nUPDATE LOG, RESTYLED\nSingle continuous notebook page — red margin line, three-ring binder holes, ruled lines. Each version is a section divided by a thin solid border. Latest gets a 'NEW' badge.\n\nBOLD UPDATE LOG TOGGLE\nNew setting: 📰 Bold Update Log for heavier text.\n\nWALKING MARCUS, ACTUALLY FULL-BODY\nPant/shoe colors were nearly black against the night bg — only the orange hoodie and skin were visible. Brightened to denim blue + warm brown, added thin dark outlines, added an ear, bumped container to 50×110.\n\nFRIEND CODE OFF PROFILE\nOnly in Settings → Account now.\n\nQR ENCODES THE INVITE LINK\nScanning offers 'Open in browser' → opens HustleBox → auto-prompts add-friend. If PWA/APK is installed, the OS prefers the installed app via deep link.\n\nSETTINGS EXPLAINER\nNote in Settings → Account: 'Sign in to keep your save and friends across devices and browsers. Without an account, your data only lives in this browser — if you clear cache or switch devices, it's gone.'\n\nDESKTOP SCROLL, EXPLICIT\nBody/html overflow tightened so long pages always scroll.\n\nNo save data wiped.",
+  "message": "The block starts to feel alive.\n\nCUSTOMER PERSONALITIES\nEvery customer now has a personality. 8 types: Talkative, In a hurry, Foodie, Regular, Tourist, Drunk, Skeptic, Quiet. Each one affects:\n• Patience — talkers and tourists wait longer, rushers cut you 25%\n• Tips — tourists and talkers tip well, skeptics never tip, drunks tip randomly\n• Reputation — skeptics dock you extra rep if the order isn't perfect\n• Chatter — talkers actually say multiple things while you assemble (\"Long day at the truck, huh?\", \"You new?\", \"Smells good in here\")\n\nThe personality label shows under each customer's face during the shift, so you know who you're dealing with.\n\nMENU TRENDS\nThe game now tracks every item you serve. Lifetime counts plus a rolling window of the last 100 orders. Items get classified as trending up (>18% share), trending down (<8% share), or your overall bestseller. Eventually this drives in-game events; for now you can see your top seller right on the Home screen.\n\nNEW MENU ITEMS\nThree additions:\n• 🌯 Burrito — $7, bigger portion than tacos\n• ☕ Coffee — $3, fast item, pairs with donuts for combos\n• 🥪 Sandwich — $6, mid-tier lunch staple\n\nThe menu is now 11 items strong.\n\nSIDE HUSTLE\nNew Home screen widget. Between shifts, Marcus can take on small errands that run passively in the background. Walk a dog, run groceries, deliver a package, wash a car, help someone move. 8–25 minutes real time, 30–240 Stacks payout. Only one runs at a time. Tap Claim when the bar fills.\n\nRAY'S BACK ROOM LOCKOUT\nGet too greedy down there and Ray catches you. If you lose 500+ Stacks net in the back room, or drop below 50 Stacks with significant losses, Ray locks the door. 4-hour real-time cooldown. Tapping the Back Room tab during a lockout shows a red \"BACK ROOM LOCKED\" screen with a countdown and one of Ray's threats.\n\nTHROUGH THE WALL — Eavesdrop scene\nNew More menu entry that appears after you've served 30+ customers. You stand outside Ray's office. A thin strip of light glows under the door. You hear voices: Ray, Sal (the hardware store owner), and Marcus himself listening. They discuss your menu performance in real time — \"Look at the numbers. Burger. That's our thing now.\" \"The salad isn't moving. We should cut it.\" The conversation content is generated from your live trend data, so it actually means something. TTS plays each line if you have Customer Voices on; subtitles render either way. No characters drawn — just a wall, a door, a glowing crack, and a pulsing audio indicator. The mystery is the point.\n\nTOP SELLER BADGE\nHome screen now shows a small badge with your current bestseller and how many items are trending up or down. Appears once you have 20+ recent orders.\n\nNo save data wiped. Existing saves auto-migrate to add the new fields.",
   "entries": [
+    {
+      "version": "1.3.0",
+      "date": "2026-05-14",
+      "title": "Dynamics",
+      "highlights": [
+        "8 customer personalities affecting patience, tips, rep, and chatter — visible label under each customer",
+        "Menu trend tracking — lifetime counts + rolling 100-order window with trending up/down/top classifications",
+        "3 new menu items: 🌯 Burrito ($7), ☕ Coffee ($3), 🥪 Sandwich ($6)",
+        "Side Hustle widget on Home — 5 passive errands, run between shifts, 30–240 Stacks payout",
+        "Back Room lockout — Ray catches you after heavy losses, 4-hour real-time cooldown",
+        "Through the Wall — audio-only eavesdrop scene with Ray, Sal, and Marcus discussing your menu performance, content driven by your live trend data",
+        "Top Seller badge on Home screen showing your current bestseller and trend counts",
+        "Talkers actually speak multiple lines during order assembly"
+      ]
+    },
     {
       "version": "1.2.6",
       "date": "2026-05-14",
       "title": "Back Room, Inhabited",
       "highlights": [
-        "Back Room scene rebuilt — proper pear-shaped lightbulb, brick-framed cracked window, wooden floor with planks, wooden door with handle and peephole, organic peeling-paint wallpaper (no more weird yellow squares)",
+        "Back Room scene rebuilt — proper pear-shaped lightbulb, brick-framed cracked window, wooden floor with planks, wooden door with handle and peephole",
         "Story intro: back room is in Sal's Hardware basement, knock three-pause-two",
         "Tappable objects pop 3D with bright drop-shadow stack and hover lift",
         "Real 7-pip dice with 3-axis tumble animation",
-        "Scratch card capped at 240px wide",
         "Home compacted: 'Go to Work' label, single rank/rep card, fits without scrolling",
-        "Workplace card 520×110 on desktop",
-        "Career timeline dots centered on the line (2px border offset fixed)",
-        "Update Log = continuous notebook page (binder holes, ruled lines, NEW badge)",
+        "Update Log restyled as continuous notebook page",
         "📰 Bold Update Log setting toggle",
-        "Walking Marcus full-body now visible (brightened pants/shoes, added outlines)",
-        "Friend code only in Settings, removed from Profile",
+        "Walking Marcus full-body now visible (brightened pants/shoes)",
         "QR encodes invite URL — scanning offers 'Open in browser'",
-        "Settings → Account explainer about why sign-in matters",
-        "Explicit body overflow rules — long pages always scroll on desktop"
+        "Settings → Account explainer about sign-in"
       ]
     },
     {
@@ -35,7 +45,7 @@
         "CSS-rendered Back Room scene + 4 playable games (Coin Flip, Slots, Scratch, Dice)",
         "7 new achievements, 35+ new customer voice phrasings",
         "QR pop-up modal, full-body walking figure, resume-style Profile",
-        "Desktop scroll-wheel fix, max-width content polish"
+        "Desktop scroll-wheel fix"
       ]
     },
     {
@@ -53,8 +63,7 @@
       "date": "2026-05-11",
       "title": "Trophy Case Opens",
       "highlights": [
-        "22 achievements across 5 categories",
-        "Fixed Loyal Regular and Supplier Deal events"
+        "22 achievements across 5 categories"
       ]
     },
     {

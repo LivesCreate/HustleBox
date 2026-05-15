@@ -1872,6 +1872,102 @@
     }
     .ach-card.locked .ach-status { color: #4a3a2a; }
 
+    /* ===== EAVESDROP / THROUGH THE WALL SCENE (v1.3.0) ===== */
+    .eavesdrop-scene {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 11;
+      max-height: 320px;
+      background: linear-gradient(180deg, #1a1208 0%, #0a0805 100%);
+      border: 2px solid #2a1f15;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.7);
+    }
+    .eavesdrop-wall {
+      position: absolute; inset: 0;
+      background:
+        /* faint wall texture */
+        radial-gradient(ellipse 50% 80% at 40% 50%, rgba(70,50,30,0.18), transparent 80%),
+        radial-gradient(ellipse 40% 60% at 70% 30%, rgba(60,40,25,0.12), transparent 75%);
+    }
+    /* Door — a darker rectangle outline */
+    .eavesdrop-wall::after {
+      content: '';
+      position: absolute;
+      left: 25%;
+      right: 25%;
+      top: 18%;
+      bottom: 14%;
+      border: 2px solid rgba(0,0,0,0.65);
+      border-radius: 3px 3px 0 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.50) 100%);
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.7);
+    }
+    /* Thin strip of light at the bottom of the door */
+    .eavesdrop-door-strip {
+      position: absolute;
+      left: 25%;
+      right: 25%;
+      bottom: 13%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, #ffd54f 15%, #fff4c4 50%, #ffd54f 85%, transparent 100%);
+      box-shadow: 0 0 14px rgba(255, 213, 79, 0.85), 0 0 30px rgba(255, 167, 38, 0.4);
+      z-index: 3;
+    }
+    .eavesdrop-door-strip.listening {
+      animation: doorStripFlicker 3s ease-in-out infinite;
+    }
+    @keyframes doorStripFlicker {
+      0%, 100% { opacity: 1; }
+      40%      { opacity: 0.85; }
+      55%      { opacity: 1; }
+      70%      { opacity: 0.9; }
+    }
+    /* Pulsing dot showing audio is active */
+    .eavesdrop-pulse {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 12px;
+      height: 12px;
+      background: var(--good);
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(76,175,80,0.6);
+      animation: eavesdropPulse 1.4s ease-out infinite;
+      z-index: 4;
+    }
+    @keyframes eavesdropPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(76,175,80,0.7); transform: scale(1); }
+      70%  { box-shadow: 0 0 0 14px rgba(76,175,80,0); transform: scale(1.1); }
+      100% { box-shadow: 0 0 0 0 rgba(76,175,80,0); transform: scale(1); }
+    }
+    /* Subtitle area at the bottom of the scene */
+    .eavesdrop-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 14px 18px;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.85) 70%);
+      min-height: 32%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      z-index: 5;
+    }
+    .eavesdrop-speaker {
+      font-family: 'Permanent Marker', cursive;
+      font-size: 13px;
+      color: var(--amber);
+      letter-spacing: 1.5px;
+      margin-bottom: 4px;
+    }
+    .eavesdrop-line {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.5;
+      font-style: italic;
+    }
+
     /* ===== BACK ROOM SCENE ===== */
     .backroom-scene {
       position: relative;
@@ -2972,7 +3068,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.2.6';
+    const VERSION = '1.3.0';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -3059,10 +3155,180 @@
       { emoji: '🌭', name: 'Hot Dog',  price: 4 },
       { emoji: '🥗', name: 'Salad',    price: 7 },
       { emoji: '🍕', name: 'Pizza',    price: 5 },
-      { emoji: '🍩', name: 'Donut',    price: 2 }
+      { emoji: '🍩', name: 'Donut',    price: 2 },
+      // v1.3.0 additions — three new menu items
+      { emoji: '🌯', name: 'Burrito',   price: 7 },   // higher than taco — bigger portion
+      { emoji: '☕', name: 'Coffee',    price: 3 },   // pairs well with donut
+      { emoji: '🥪', name: 'Sandwich',  price: 6 }    // mid-tier lunch staple
     ];
     const INGREDIENTS = MENU_ITEMS.map(i => i.emoji);
     const CUSTOMER_FACES = ['😀', '🧐', '😎', '🥸', '🤓', '😏', '🙃', '😤', '👴', '👵', '👨', '👩', '🧑‍🎤', '👮', '👷', '🧑‍🔧'];
+
+    // ============================================================
+    // v1.3.0 — Customer Personalities
+    // Each customer rolls a personality on arrival. The personality
+    // affects voice line phrasing, patience (timer multiplier), tip
+    // behavior, and whether they speak a SECOND chatter line during
+    // order assembly.
+    // ============================================================
+    const PERSONALITIES = [
+      {
+        id: 'talker',
+        weight: 14,
+        label: 'Talkative',
+        patienceMult: 1.15,           // +15% time to assemble
+        tipMult: 1.25,                // +25% tips
+        chatterLines: [               // said WHILE you're assembling, after the initial order
+          "Long day at the truck, huh?",
+          "Smells real good in here.",
+          "You new? I haven't seen you before.",
+          "I tell everyone about this spot.",
+          "Ray still letting you run the show?",
+          "Hey, take your time, no rush.",
+          "Beautiful night out, right?",
+          "I'm telling you — best stop on the block."
+        ]
+      },
+      {
+        id: 'rusher',
+        weight: 18,
+        label: 'In a hurry',
+        patienceMult: 0.75,           // -25% time
+        tipMult: 0.5,                 // half tips
+        chatterLines: ["Come on come on.", "Almost there yet?", "Let's go."]
+      },
+      {
+        id: 'foodie',
+        weight: 12,
+        label: 'Foodie',
+        patienceMult: 1.0,
+        tipMult: 1.4,                 // big tips on perfect
+        perfectOnlyTip: true,         // only tips when order is perfect
+        chatterLines: [
+          "I really hope the ratio is right on this.",
+          "It's all about the construction.",
+          "Texture matters here.",
+          "Quality over speed any day."
+        ]
+      },
+      {
+        id: 'regular',
+        weight: 18,
+        label: 'Regular',
+        patienceMult: 1.10,
+        tipMult: 1.15,
+        chatterLines: [
+          "Same as always.",
+          "How's the rep doing?",
+          "Ray treating you right?",
+          "Saw you out here last week too."
+        ]
+      },
+      {
+        id: 'tourist',
+        weight: 10,
+        label: 'Tourist',
+        patienceMult: 1.25,
+        tipMult: 1.5,                 // tourists tip well — they don't know any better
+        chatterLines: [
+          "First time on this block!",
+          "Is this place on TikTok?",
+          "Should I post about this?",
+          "My friends said come here.",
+          "Wait, what neighborhood is this?"
+        ]
+      },
+      {
+        id: 'drunk',
+        weight: 10,
+        label: 'Drunk',
+        patienceMult: 1.3,            // they don't notice the wait
+        tipMult: 0.8,
+        randomTip: true,              // tip is random (0x or 2x)
+        chatterLines: [
+          "Brooo... this place is the best.",
+          "I love you, man.",
+          "Hey... hey, what time is it?",
+          "Wait, what did I order again?",
+          "You're a real one for this."
+        ]
+      },
+      {
+        id: 'skeptic',
+        weight: 12,
+        label: 'Skeptic',
+        patienceMult: 0.95,
+        tipMult: 0,                   // never tips
+        repPenaltyIfImperfect: 1,     // -1 extra rep if not perfect
+        chatterLines: [
+          "Hmm.",
+          "We'll see how this turns out.",
+          "Looks... fine.",
+          "That doesn't look right yet."
+        ]
+      },
+      {
+        id: 'neutral',
+        weight: 6,                    // small chance — generic, no personality flavor
+        label: 'Quiet',
+        patienceMult: 1.0,
+        tipMult: 1.0,
+        chatterLines: []              // no chatter
+      }
+    ];
+
+    function pickPersonality() {
+      const total = PERSONALITIES.reduce((s, p) => s + p.weight, 0);
+      let r = Math.random() * total;
+      for (let i = 0; i < PERSONALITIES.length; i++) {
+        r -= PERSONALITIES[i].weight;
+        if (r <= 0) return PERSONALITIES[i];
+      }
+      return PERSONALITIES[PERSONALITIES.length - 1];
+    }
+
+    // ============================================================
+    // v1.3.0 — Menu Trend Tracking
+    // Calculates which items are trending up / down based on the last
+    // N customers' orders. Anything <8% share in the recent window is
+    // "trending down"; anything >18% is "trending up". The top item
+    // overall is the "signature item".
+    // ============================================================
+    const TREND_WINDOW = 100;
+    const TREND_DOWN_THRESHOLD = 0.08;
+    const TREND_UP_THRESHOLD = 0.18;
+    function getMenuTrends(state) {
+      const recent = Array.isArray(state.recentItemsServed) ? state.recentItemsServed : [];
+      if (recent.length < 20) return { trendingUp: [], trendingDown: [], topSeller: null, recentCount: recent.length };
+      const counts = {};
+      recent.forEach(e => { counts[e] = (counts[e] || 0) + 1; });
+      const total = recent.length;
+      const trendingUp = [];
+      const trendingDown = [];
+      let topSeller = null;
+      let topCount = 0;
+      MENU_ITEMS.forEach(item => {
+        const c = counts[item.emoji] || 0;
+        const share = c / total;
+        if (share >= TREND_UP_THRESHOLD)   trendingUp.push({ emoji: item.emoji, name: item.name, share: share });
+        if (share <= TREND_DOWN_THRESHOLD) trendingDown.push({ emoji: item.emoji, name: item.name, share: share });
+        if (c > topCount) { topCount = c; topSeller = item; }
+      });
+      return { trendingUp: trendingUp, trendingDown: trendingDown, topSeller: topSeller, recentCount: total };
+    }
+
+    // ============================================================
+    // v1.3.0 — Side Hustle Catalog
+    // Short-duration passive errands that pay small Stacks. Marcus
+    // runs these between shifts. Only one can be active at a time.
+    // ============================================================
+    const SIDE_HUSTLES = [
+      { id: 'dog_walk',     name: 'Walk a dog',           emoji: '🐕', durationMin: 8,  payoutMin: 30,  payoutMax: 60  },
+      { id: 'grocery_run',  name: 'Grocery run for Ms. T', emoji: '🛒', durationMin: 12, payoutMin: 50,  payoutMax: 90  },
+      { id: 'delivery',     name: 'Deliver a package',    emoji: '📦', durationMin: 15, payoutMin: 75,  payoutMax: 120 },
+      { id: 'wash_car',     name: 'Wash a car',           emoji: '🚗', durationMin: 18, payoutMin: 90,  payoutMax: 150 },
+      { id: 'help_move',    name: 'Help someone move',    emoji: '📥', durationMin: 25, payoutMin: 150, payoutMax: 240 }
+    ];
 
     const RESULT_TYPES = {
       perfect: { label: 'PERFECT!',   emoji: '⭐⭐⭐', color: 'var(--good)',  baseStacks: 25, repDelta: 2  },
@@ -3214,7 +3480,20 @@
         achievements: {},
         unlockedAchievements: [],
         eventLog: [],
-        newsLastReadVersion: null
+        newsLastReadVersion: null,
+        // v1.3.0 — Menu trend tracking
+        itemsServed: {},                  // { '🍔': 247, '🌮': 89, ... } — lifetime count per item
+        recentItemsServed: [],            // rolling window of last 100 emojis (FIFO) — used for trending up/down
+        // v1.3.0 — Back Room lockout (Ray catches you)
+        backRoomLockedUntil: 0,           // ms timestamp; 0 = unlocked
+        backRoomLockReason: null,         // string shown on the door when locked
+        backRoomVisits: 0,                // counter for triggering lockout
+        backRoomNetWinnings: 0,           // lifetime net (positive = winning, negative = losing). Threshold checks fire on this.
+        // v1.3.0 — Side hustle (passive)
+        sideHustle: {
+          active: null,                   // null OR { id, name, startedAt, durationMs, payoutStacks }
+          completed: 0                    // count of finished side hustles
+        }
       };
     }
 
@@ -3229,6 +3508,16 @@
       merged.achievements = saved.achievements || {};
       merged.unlockedAchievements = Array.isArray(saved.unlockedAchievements) ? saved.unlockedAchievements : [];
       merged.eventLog = Array.isArray(saved.eventLog) ? saved.eventLog : [];
+      // v1.3.0 hydrations
+      merged.itemsServed = (saved.itemsServed && typeof saved.itemsServed === 'object') ? saved.itemsServed : {};
+      merged.recentItemsServed = Array.isArray(saved.recentItemsServed) ? saved.recentItemsServed : [];
+      merged.backRoomLockedUntil = typeof saved.backRoomLockedUntil === 'number' ? saved.backRoomLockedUntil : 0;
+      merged.backRoomLockReason = typeof saved.backRoomLockReason === 'string' ? saved.backRoomLockReason : null;
+      merged.backRoomVisits = typeof saved.backRoomVisits === 'number' ? saved.backRoomVisits : 0;
+      merged.backRoomNetWinnings = typeof saved.backRoomNetWinnings === 'number' ? saved.backRoomNetWinnings : 0;
+      merged.sideHustle = (saved.sideHustle && typeof saved.sideHustle === 'object')
+        ? { ...def.sideHustle, ...saved.sideHustle }
+        : def.sideHustle;
       if (!merged.account.friendCode) merged.account.friendCode = generateFriendCode();
       return merged;
     }
@@ -4422,13 +4711,81 @@
         setState(s => ({ ...s, reputation: Math.max(0, Math.min(100, s.reputation + delta)) }));
       }, []);
 
-      const recordOrder = useCallback((result) => {
-        setState(s => ({
-          ...s,
-          customersServed: s.customersServed + 1,
-          perfectOrders: result === 'perfect' ? s.perfectOrders + 1 : s.perfectOrders,
-          failedOrders: result === 'failed' ? s.failedOrders + 1 : s.failedOrders
-        }));
+      const recordOrder = useCallback((result, itemEmojis) => {
+        setState(s => {
+          const items = Array.isArray(itemEmojis) ? itemEmojis : [];
+          // Update lifetime counters
+          const newItemsServed = { ...(s.itemsServed || {}) };
+          items.forEach(e => { newItemsServed[e] = (newItemsServed[e] || 0) + 1; });
+          // Update rolling window — keep last TREND_WINDOW items
+          const window = (Array.isArray(s.recentItemsServed) ? s.recentItemsServed : []).concat(items);
+          const trimmed = window.length > TREND_WINDOW ? window.slice(window.length - TREND_WINDOW) : window;
+          return {
+            ...s,
+            customersServed: s.customersServed + 1,
+            perfectOrders: result === 'perfect' ? s.perfectOrders + 1 : s.perfectOrders,
+            failedOrders: result === 'failed' ? s.failedOrders + 1 : s.failedOrders,
+            itemsServed: newItemsServed,
+            recentItemsServed: trimmed
+          };
+        });
+      }, []);
+
+      // ---- v1.3.0: Side hustle (passive errand between shifts) ----
+      const startSideHustle = useCallback((hustleId) => {
+        const h = SIDE_HUSTLES.find(x => x.id === hustleId);
+        if (!h) return;
+        setState(s => {
+          if (s.sideHustle && s.sideHustle.active) return s; // already running one
+          const payout = h.payoutMin + Math.floor(Math.random() * (h.payoutMax - h.payoutMin + 1));
+          return {
+            ...s,
+            sideHustle: {
+              ...s.sideHustle,
+              active: {
+                id: h.id,
+                name: h.name,
+                emoji: h.emoji,
+                startedAt: Date.now(),
+                durationMs: h.durationMin * 60 * 1000,
+                payoutStacks: payout
+              }
+            }
+          };
+        });
+      }, []);
+
+      const claimSideHustle = useCallback(() => {
+        setState(s => {
+          const a = s.sideHustle && s.sideHustle.active;
+          if (!a) return s;
+          const done = Date.now() >= a.startedAt + a.durationMs;
+          if (!done) return s;
+          return {
+            ...s,
+            stacks: s.stacks + a.payoutStacks,
+            totalEarned: s.totalEarned + a.payoutStacks,
+            sideHustle: {
+              ...s.sideHustle,
+              active: null,
+              completed: (s.sideHustle.completed || 0) + 1
+            }
+          };
+        });
+      }, []);
+
+      // ---- v1.3.0: Back Room lockout ----
+      const lockBackRoom = useCallback((hours, reason) => {
+        const until = Date.now() + hours * 60 * 60 * 1000;
+        setState(s => ({ ...s, backRoomLockedUntil: until, backRoomLockReason: reason || null }));
+      }, []);
+
+      const incrementBackRoomVisit = useCallback(() => {
+        setState(s => ({ ...s, backRoomVisits: (s.backRoomVisits || 0) + 1 }));
+      }, []);
+
+      const addBackRoomWinnings = useCallback((delta) => {
+        setState(s => ({ ...s, backRoomNetWinnings: (s.backRoomNetWinnings || 0) + delta }));
       }, []);
 
       const updateSettings = useCallback((patch) => {
@@ -4490,7 +4847,10 @@
         state, setState,
         addStacks, addReputation, recordOrder,
         updateSettings, markNewsRead, updateAccount,
-        logEvent, completeJob, unlockAchievement
+        logEvent, completeJob, unlockAchievement,
+        // v1.3.0
+        startSideHustle, claimSideHustle,
+        lockBackRoom, incrementBackRoomVisit, addBackRoomWinnings
       };
     }
 
@@ -4614,13 +4974,35 @@
     // ============================================================
     // Home Screen
     // ============================================================
-    function HomeScreen({ state, onGoTo }) {
+    function HomeScreen({ state, onGoTo, addStacks, startSideHustle, claimSideHustle, toast }) {
       const rank = getRank(state.totalEarned);
       const nextRank = getNextRank(state.totalEarned);
       const tier = getRepTier(state.reputation);
       const progress = nextRank
         ? Math.min(100, ((state.totalEarned - rank.threshold) / (nextRank.threshold - rank.threshold)) * 100)
         : 100;
+      // v1.3.0 — Top seller + side hustle
+      const trends = getMenuTrends(state);
+      const active = state.sideHustle && state.sideHustle.active;
+      // Force re-render every second when a side hustle is running so the timer ticks
+      const [, setTick] = useState(0);
+      useEffect(() => {
+        if (!active) return;
+        const id = setInterval(() => setTick(t => t + 1), 1000);
+        return () => clearInterval(id);
+      }, [active && active.startedAt]);
+      const sideHustleProgress = active
+        ? Math.min(1, (Date.now() - active.startedAt) / active.durationMs)
+        : 0;
+      const sideHustleRemainingMs = active
+        ? Math.max(0, active.startedAt + active.durationMs - Date.now())
+        : 0;
+      const fmtRemaining = (ms) => {
+        const sec = Math.ceil(ms / 1000);
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+      };
 
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header' },
@@ -4685,6 +5067,83 @@
                 fmtStacks(nextRank.threshold - state.totalEarned) + ' to ' + nextRank.name)
             : e('div', { style: { fontSize: 11, color: 'var(--gold)', marginTop: 6, textAlign: 'right' } }, '🏆 Top rank')
         ),
+        // v1.3.0 — Top Seller badge (visible when we have enough trend data)
+        trends.topSeller && trends.recentCount >= 20
+          ? e('div', {
+              style: {
+                padding: '8px 12px',
+                background: 'rgba(255,167,38,0.08)',
+                border: '1px solid var(--line-strong)',
+                borderLeft: '3px solid var(--amber)',
+                borderRadius: 6,
+                marginBottom: 12,
+                fontSize: 12,
+                color: 'var(--text-dim)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }
+            },
+              e('span', null,
+                e('span', { style: { fontSize: 11, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: 1, marginRight: 6 } }, 'Top Seller'),
+                e('strong', { style: { color: 'var(--amber)' } }, trends.topSeller.emoji + ' ' + trends.topSeller.name)
+              ),
+              trends.trendingUp.length > 0
+                ? e('span', { style: { fontSize: 11, color: 'var(--good)' } }, '↑ ' + trends.trendingUp.length + ' trending')
+                : trends.trendingDown.length > 0
+                  ? e('span', { style: { fontSize: 11, color: 'var(--warn)' } }, '↓ ' + trends.trendingDown.length + ' fading')
+                  : null
+            )
+          : null,
+        // v1.3.0 — Side Hustle widget
+        e('div', { className: 'card', style: { marginBottom: 12 } },
+          e('div', { style: { fontSize: 11, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 } }, 'Side Hustle'),
+          active
+            ? e('div', null,
+                e('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } },
+                  e('div', null,
+                    e('span', { style: { fontSize: 20, marginRight: 8 } }, active.emoji),
+                    e('strong', { style: { color: 'var(--amber)' } }, active.name)
+                  ),
+                  e('span', { style: { fontSize: 12, color: 'var(--text-dim)' } },
+                    sideHustleRemainingMs > 0 ? fmtRemaining(sideHustleRemainingMs) : 'Ready!'
+                  )
+                ),
+                e('div', { className: 'rep-bar-track' },
+                  e('div', { className: 'rep-bar-fill', style: { width: (sideHustleProgress * 100) + '%', background: 'linear-gradient(90deg, var(--good), var(--amber))' } })
+                ),
+                sideHustleRemainingMs <= 0
+                  ? e('button', {
+                      className: 'btn btn-primary',
+                      style: { width: '100%', marginTop: 10 },
+                      onClick: () => {
+                        claimSideHustle();
+                        toast && toast('+' + fmtStacks(active.payoutStacks) + ' Stacks earned.', 'good');
+                      }
+                    }, '💰 Claim ' + fmtStacks(active.payoutStacks) + ' Stacks')
+                  : null
+              )
+            : e('div', null,
+                e('div', { style: { fontSize: 12, color: 'var(--text-dim)', marginBottom: 8 } },
+                  'Run errands between shifts for a small payout. Runs in the background.'
+                ),
+                e('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 } },
+                  SIDE_HUSTLES.map(h =>
+                    e('button', {
+                      key: h.id,
+                      className: 'btn btn-ghost',
+                      style: { padding: '8px 10px', fontSize: 12, textAlign: 'left', lineHeight: 1.3 },
+                      onClick: () => startSideHustle(h.id)
+                    },
+                      e('div', { style: { fontSize: 16 } }, h.emoji + ' ' + h.name),
+                      e('div', { style: { fontSize: 10, color: 'var(--text-faint)', marginTop: 2 } },
+                        h.durationMin + 'm · ' + fmtStacks(h.payoutMin) + '-' + fmtStacks(h.payoutMax) + ' Stacks'
+                      )
+                    )
+                  )
+                )
+              )
+        ),
         // Single primary CTA — Back Room is in the bottom nav, no need for a redundant button here
         e('button', {
           className: 'btn btn-primary',
@@ -4708,6 +5167,8 @@
       const [event, setEvent] = useState(null);
       const [activeBuffs, setActiveBuffs] = useState({});
       const [customerFace, setCustomerFace] = useState('😀');
+      const [customerPersonality, setCustomerPersonality] = useState(null);  // v1.3.0
+      const chatterTimeoutsRef = useRef([]);                                  // v1.3.0 — for cleanup
       const [shiftActive, setShiftActive] = useState(false);
       const [shiftEndSummary, setShiftEndSummary] = useState(null);
       const [shiftStartSnapshot, setShiftStartSnapshot] = useState(null);
@@ -4758,13 +5219,20 @@
         const newOrder = generateOrder();
         // More time per item since now you have to assemble (not just tap)
         const baseTime = 12 + (newOrder.length - 2) * 3;
-        const time = baseTime + (activeBuffs.timerPenalty || 0);
+        // v1.3.0 — Pick a customer personality; it influences timer, tip, and chatter
+        const personality = pickPersonality();
+        const time = Math.round((baseTime + (activeBuffs.timerPenalty || 0)) * personality.patienceMult);
         setOrder(newOrder);
         setPlate([]);
         setTimeLeft(time);
         setMaxTime(time);
         setCustomerFace(CUSTOMER_FACES[Math.floor(Math.random() * CUSTOMER_FACES.length)]);
+        setCustomerPersonality(personality);
         setResult(null);
+
+        // Cancel any chatter timeouts from a previous customer
+        chatterTimeoutsRef.current.forEach(id => clearTimeout(id));
+        chatterTimeoutsRef.current = [];
 
         // SFX: sizzle on customer arrival
         AudioFX.sizzle(!!state.settings.sound);
@@ -4779,65 +5247,100 @@
           // Build "a X and a Y and a Z" string (article tweaked for vowel starts)
           const article = (word) => /^[aeiou]/i.test(word) ? 'an ' : 'a ';
           const itemPhrase = itemNames.map(n => article(n) + n).join(' and ');
-          // Plural-only version for single-item lines: "two burgers" feel
           const firstItem = itemNames[0];
           const lastItem = itemNames[itemNames.length - 1];
 
-          // 35+ scenario lines — picked at random per customer
-          const phrasings = [
-            // Polite
-            "Could I get " + itemPhrase + ", please?",
-            "Hi, I'll have " + itemPhrase + ".",
-            "Excuse me — " + itemPhrase + " when you have a moment.",
-            "Hey there. " + itemPhrase + ", thanks.",
-            "Good afternoon. " + itemPhrase + ", please.",
-            // Casual / regular
-            "Yo, lemme get " + itemPhrase + ".",
-            "Just " + itemPhrase + " today.",
-            "Hit me with " + itemPhrase + ".",
-            "Gimme " + itemPhrase + ".",
-            "Same as always — " + itemPhrase + ".",
-            "Yeah, " + itemPhrase + " — that's it.",
-            "I'll take " + itemPhrase + ".",
-            // In-a-rush
-            "Quick — " + itemPhrase + ", I'm late.",
-            itemPhrase + ", fast as you can.",
-            "Make it quick — " + itemPhrase + ".",
-            "Running late. " + itemPhrase + ".",
-            // Hungry / craving
-            "I am starving. " + itemPhrase + ", let's go.",
-            "Been thinking about " + (firstItem || 'food') + " all day. " + itemPhrase + ".",
-            "I need " + itemPhrase + " in my life right now.",
-            "Smelled this from the corner. " + itemPhrase + ".",
-            // Gruff / impatient
-            itemPhrase + ".",
-            "One " + (firstItem || 'order') + (itemNames.length > 1 ? ", and " + article(itemNames[1]) + itemNames[1] : '') + ".",
-            "Look — " + itemPhrase + ".",
-            "Just give me " + itemPhrase + ".",
-            // Indecisive / friendly
-            "Hmm... yeah, " + itemPhrase + ".",
-            "You know what, " + itemPhrase + ".",
-            "Let's do " + itemPhrase + ".",
-            "Surprise me. Kidding — " + itemPhrase + ".",
-            // Item-specific commentary (chosen if order is short)
-            firstItem === 'burger'  ? "Heard the burgers here are no joke. " + itemPhrase + "." : null,
-            firstItem === 'pizza'   ? "Pizza guy! " + itemPhrase + "." : null,
-            firstItem === 'taco'    ? "Tuesday calls for tacos. " + itemPhrase + "." : null,
-            firstItem === 'fries'   ? "Mostly here for the fries. " + itemPhrase + "." : null,
-            firstItem === 'hot dog' ? "Classic. " + itemPhrase + "." : null,
-            firstItem === 'salad'   ? "Trying to eat clean. " + itemPhrase + "." : null,
-            firstItem === 'donut'   ? "It's a donut kind of day. " + itemPhrase + "." : null,
-            firstItem === 'drink'   ? "Thirsty. " + itemPhrase + "." : null,
-            // Reputation flavor — only if last item is a drink
-            lastItem === 'drink' && itemNames.length > 1 ? itemPhrase + ". Cold one, please." : null,
-            // Generic closers
-            "Yeah, " + itemPhrase + " sounds good.",
-            "Alright, " + itemPhrase + " it is."
+          // v1.3.0 — Personality-flavored opening lines (first picks reflect the personality)
+          let openings = [];
+          if (personality.id === 'talker') {
+            openings = [
+              "Hey there! Could I get " + itemPhrase + ", please?",
+              "Hi! I'll have " + itemPhrase + ". Beautiful night, right?",
+              "Hello — " + itemPhrase + ", and how's your shift going?"
+            ];
+          } else if (personality.id === 'rusher') {
+            openings = [
+              "Quick — " + itemPhrase + ".",
+              itemPhrase + ", fast as you can.",
+              "Running late. " + itemPhrase + ".",
+              "Just give me " + itemPhrase + "."
+            ];
+          } else if (personality.id === 'foodie') {
+            openings = [
+              "I'd like " + itemPhrase + ". Get the proportions right.",
+              "Could I get " + itemPhrase + "? Quality matters.",
+              "I'll have " + itemPhrase + ". Take your time."
+            ];
+          } else if (personality.id === 'regular') {
+            openings = [
+              "Same as always — " + itemPhrase + ".",
+              "Yo, lemme get " + itemPhrase + ".",
+              "Hey. " + itemPhrase + ", you know the drill.",
+              "Hit me with " + itemPhrase + "."
+            ];
+          } else if (personality.id === 'tourist') {
+            openings = [
+              "Hi! Could I try " + itemPhrase + "? My friends said come here.",
+              "First time! " + itemPhrase + ", please.",
+              "Hello! " + itemPhrase + ", I heard great things."
+            ];
+          } else if (personality.id === 'drunk') {
+            openings = [
+              "Yo, lemme get... " + itemPhrase + "... yeah.",
+              "Brooo, " + itemPhrase + ", you're the best.",
+              "Hey hey hey. " + itemPhrase + ". Trust me."
+            ];
+          } else if (personality.id === 'skeptic') {
+            openings = [
+              itemPhrase + ".",
+              "Look — " + itemPhrase + ".",
+              "Just " + itemPhrase + "."
+            ];
+          } else {
+            // neutral / quiet
+            openings = [
+              itemPhrase + ", please.",
+              "I'll take " + itemPhrase + "."
+            ];
+          }
+
+          // Item-specific flavor mixed in
+          const itemFlavor = [
+            firstItem === 'burger'   ? "Heard the burgers here are no joke. " + itemPhrase + "." : null,
+            firstItem === 'pizza'    ? "Pizza guy! " + itemPhrase + "." : null,
+            firstItem === 'taco'     ? "Tuesday calls for tacos. " + itemPhrase + "." : null,
+            firstItem === 'fries'    ? "Mostly here for the fries. " + itemPhrase + "." : null,
+            firstItem === 'hot dog'  ? "Classic. " + itemPhrase + "." : null,
+            firstItem === 'salad'    ? "Trying to eat clean. " + itemPhrase + "." : null,
+            firstItem === 'donut'    ? "It's a donut kind of day. " + itemPhrase + "." : null,
+            firstItem === 'drink'    ? "Thirsty. " + itemPhrase + "." : null,
+            firstItem === 'burrito'  ? "Big burrito energy today. " + itemPhrase + "." : null,
+            firstItem === 'coffee'   ? "I run on coffee. " + itemPhrase + "." : null,
+            firstItem === 'sandwich' ? "Quick lunch — " + itemPhrase + "." : null,
+            lastItem === 'drink' && itemNames.length > 1 ? itemPhrase + ". Cold one, please." : null
           ].filter(Boolean);
 
+          // 60% chance to use personality opening, 40% item flavor (or fall back to personality if no flavor)
+          const useFlavor = itemFlavor.length > 0 && Math.random() < 0.4;
+          const phrasings = useFlavor ? itemFlavor : openings;
           const phrase = phrasings[Math.floor(Math.random() * phrasings.length)];
           // Small delay so sizzle is heard first
-          setTimeout(() => AudioFX.speak(phrase, true), 350);
+          chatterTimeoutsRef.current.push(setTimeout(() => AudioFX.speak(phrase, true), 350));
+
+          // v1.3.0 — Schedule 1-2 chatter lines if personality has them
+          if (personality.chatterLines && personality.chatterLines.length > 0) {
+            const lines = personality.chatterLines.slice();
+            // Shuffle, pick up to 2
+            lines.sort(() => Math.random() - 0.5);
+            const pickCount = personality.id === 'talker' ? 2 : 1;
+            for (let i = 0; i < Math.min(pickCount, lines.length); i++) {
+              const delay = 3500 + i * 4500 + Math.random() * 800;
+              const lineText = lines[i];
+              chatterTimeoutsRef.current.push(setTimeout(() => {
+                AudioFX.speak(lineText, true);
+              }, delay));
+            }
+          }
         }
       }, [event, activeBuffs, state.eventLog, state.settings.sound, state.settings.voices]);
 
@@ -4906,13 +5409,36 @@
 
       const finishOrder = (resultKey) => {
         const r = RESULT_TYPES[resultKey];
-        const tipMult = (activeBuffs.tipMult || 1) * tier.tip;
+
+        // v1.3.0 — Personality affects tip + reputation behavior
+        const persona = customerPersonality || {};
+        let personaTipMult = persona.tipMult != null ? persona.tipMult : 1;
+        // Foodies only tip on perfect
+        if (persona.perfectOnlyTip && resultKey !== 'perfect') personaTipMult = 0;
+        // Drunks have random tip
+        if (persona.randomTip) personaTipMult = Math.random() < 0.5 ? 0 : 2;
+
+        const tipMult = (activeBuffs.tipMult || 1) * tier.tip * personaTipMult;
         const stacksEarned = Math.floor(r.baseStacks * tipMult);
         if (stacksEarned !== 0) addStacks(stacksEarned);
-        if (r.repDelta !== 0) addReputation(r.repDelta);
-        recordOrder(resultKey);
-        setResult({ key: resultKey, stacks: stacksEarned });
+
+        // Extra rep penalty if skeptic gets less than perfect
+        let repDelta = r.repDelta;
+        if (persona.repPenaltyIfImperfect && resultKey !== 'perfect') {
+          repDelta -= persona.repPenaltyIfImperfect;
+        }
+        if (repDelta !== 0) addReputation(repDelta);
+
+        // v1.3.0 — Pass items to trend tracker (only count if order was actually filled)
+        const itemsToCount = (resultKey === 'failed') ? [] : (order || []);
+        recordOrder(resultKey, itemsToCount);
+
+        setResult({ key: resultKey, stacks: stacksEarned, persona: persona });
         vibrate(state, resultKey === 'perfect' ? [40, 40, 80] : resultKey === 'failed' ? [200] : [60]);
+
+        // Cancel any pending chatter timeouts — order is done, no more chitchat
+        chatterTimeoutsRef.current.forEach(id => clearTimeout(id));
+        chatterTimeoutsRef.current = [];
 
         // SFX: stop any currently-speaking customer voice (order is done)
         AudioFX.cancelSpeech();
@@ -5033,7 +5559,10 @@
           const bonus = Math.round(25 * tipMult);
           addStacks(bonus);
           addReputation(2);
-          recordOrder('perfect');
+          // Loyal regulars order their "usual" — count it as the current bestseller so trends reinforce themselves
+          const trends = getMenuTrends(state);
+          const fav = (trends.topSeller && trends.topSeller.emoji) ? [trends.topSeller.emoji] : [];
+          recordOrder('perfect', fav);
           summary += '+' + bonus + ' Stacks (perfect). +2 rep. ';
         }
         // Free stock: supplier deal — flat bonus.
@@ -5185,6 +5714,9 @@
           e('div', { className: 'customer-row' },
             e('div', { className: 'customer-card' + (timeLeft / maxTime < 0.3 ? ' impatient' : '') },
               e('div', { className: 'face' }, customerFace),
+              customerPersonality
+                ? e('div', { style: { fontSize: 10, color: 'var(--amber)', textAlign: 'center', marginTop: 4, letterSpacing: 0.5, opacity: 0.9 } }, customerPersonality.label)
+                : null,
               e('div', { className: 'patience-bar' },
                 e('div', { className: 'patience-bar-fill', style: { width: (timeLeft / maxTime * 100) + '%' } })
               )
@@ -5998,14 +6530,59 @@
     // Renders a CSS room scene with tappable game objects.
     // Each game is a self-contained sub-screen.
     // ============================================================
-    function BackRoomScreen({ state, addStacks, toast, unlockAchievement }) {
+    function BackRoomScreen({ state, addStacks, toast, unlockAchievement, addBackRoomWinnings, incrementBackRoomVisit, lockBackRoom }) {
       const [game, setGame] = useState(null); // null | 'flip' | 'slots' | 'scratch' | 'dice'
       const stacks = Math.floor(state.stacks || 0);
 
-      if (game === 'flip')    return e(CoinFlipGame,   { state, addStacks, toast, unlockAchievement, onBack: () => setGame(null) });
-      if (game === 'slots')   return e(SlotsGame,      { state, addStacks, toast, unlockAchievement, onBack: () => setGame(null) });
-      if (game === 'scratch') return e(ScratchGame,    { state, addStacks, toast, unlockAchievement, onBack: () => setGame(null) });
-      if (game === 'dice')    return e(DiceGame,       { state, addStacks, toast, unlockAchievement, onBack: () => setGame(null) });
+      // v1.3.0 — Force re-render every minute so the countdown ticks
+      const [, setTick] = useState(0);
+      useEffect(() => {
+        if (!state.backRoomLockedUntil || state.backRoomLockedUntil <= Date.now()) return;
+        const id = setInterval(() => setTick(t => t + 1), 30000);
+        return () => clearInterval(id);
+      }, [state.backRoomLockedUntil]);
+
+      // ---- Lockout check ----
+      const lockedMsLeft = (state.backRoomLockedUntil || 0) - Date.now();
+      if (lockedMsLeft > 0) {
+        const hours = Math.floor(lockedMsLeft / (60 * 60 * 1000));
+        const minutes = Math.floor((lockedMsLeft % (60 * 60 * 1000)) / (60 * 1000));
+        return e('div', { className: 'main has-bottomnav' },
+          e('div', { className: 'screen-header' },
+            e('h1', { className: 'screen-title display-font' }, 'Locked Out'),
+            e('p', { className: 'screen-subtitle' }, "Ray's got the door. Come back later.")
+          ),
+          e('div', {
+            style: {
+              padding: '30px 20px',
+              background: 'rgba(0,0,0,0.55)',
+              border: '2px solid var(--bad)',
+              borderRadius: 12,
+              textAlign: 'center'
+            }
+          },
+            e('div', { style: { fontSize: 56, marginBottom: 12 } }, '🔒'),
+            e('div', { style: { fontFamily: "'Permanent Marker', cursive", color: 'var(--bad)', fontSize: 22, marginBottom: 10, letterSpacing: 2 } }, 'BACK ROOM LOCKED'),
+            state.backRoomLockReason
+              ? e('div', { style: { fontSize: 13, color: 'var(--text-dim)', fontStyle: 'italic', marginBottom: 14, lineHeight: 1.55 } }, state.backRoomLockReason)
+              : null,
+            e('div', { style: { fontSize: 14, color: 'var(--text-dim)', marginBottom: 6 } }, 'You knock the rhythm. No one answers.'),
+            e('div', { style: { fontSize: 16, color: 'var(--gold)', fontWeight: 800, marginTop: 12 } },
+              hours > 0 ? hours + 'h ' + minutes + 'm remaining' : minutes + ' minutes remaining'
+            )
+          )
+        );
+      }
+
+      // Increment visit count once per "session" of viewing the room
+      useEffect(() => {
+        if (incrementBackRoomVisit) incrementBackRoomVisit();
+      }, []);
+
+      if (game === 'flip')    return e(CoinFlipGame,   { state, addStacks, toast, unlockAchievement, addBackRoomWinnings, lockBackRoom, onBack: () => setGame(null) });
+      if (game === 'slots')   return e(SlotsGame,      { state, addStacks, toast, unlockAchievement, addBackRoomWinnings, lockBackRoom, onBack: () => setGame(null) });
+      if (game === 'scratch') return e(ScratchGame,    { state, addStacks, toast, unlockAchievement, addBackRoomWinnings, lockBackRoom, onBack: () => setGame(null) });
+      if (game === 'dice')    return e(DiceGame,       { state, addStacks, toast, unlockAchievement, addBackRoomWinnings, lockBackRoom, onBack: () => setGame(null) });
 
       // Room scene
       return e('div', { className: 'main has-bottomnav' },
@@ -6125,10 +6702,33 @@
       );
     }
 
+    // v1.3.0 — Lockout trigger. Called by each game after a play.
+    // If the player has been bleeding (net winnings < -500) OR they just
+    // dropped below 50 Stacks after losing a big bet, Ray catches them.
+    function brCheckLockout(state, lockBackRoom, toast) {
+      if (!lockBackRoom) return false;
+      // Two trigger conditions
+      const heavyLosses = (state.backRoomNetWinnings || 0) <= -500;
+      const nearBroke = (state.stacks || 0) < 50 && (state.backRoomNetWinnings || 0) <= -200;
+      if (heavyLosses || nearBroke) {
+        const reasons = [
+          "Ray heard you down here. He's not happy.",
+          "Ray showed up. He grabbed you by the collar and threw you out. \"I told you.\"",
+          "You owe too much. Sal locked the door behind you.",
+          "Ray's note on the door: \"Stay out. Two days. I mean it.\""
+        ];
+        const reason = reasons[Math.floor(Math.random() * reasons.length)];
+        lockBackRoom(4, reason);  // 4 hours
+        if (toast) toast("Ray locked the back room. 4 hours.", 'bad');
+        return true;
+      }
+      return false;
+    }
+
     // ============================================================
     // COIN FLIP — pick heads or tails, 2x payout on win
     // ============================================================
-    function CoinFlipGame({ state, addStacks, toast, unlockAchievement, onBack }) {
+    function CoinFlipGame({ state, addStacks, toast, unlockAchievement, addBackRoomWinnings, lockBackRoom, onBack }) {
       const stacks = Math.floor(state.stacks || 0);
       const [bet, setBet] = useState(10);
       const [side, setSide] = useState('H');
@@ -6147,6 +6747,8 @@
           const landed = Math.random() < 0.5 ? 'H' : 'T';
           const won = landed === side;
           const payout = won ? bet * 2 : 0;
+          const net = won ? payout - bet : -bet;  // v1.3.0: net for this play
+          if (addBackRoomWinnings) addBackRoomWinnings(net);
           if (won) {
             addStacks(payout);
             AudioFX.bellDing(!!state.settings.sound);
@@ -6159,6 +6761,13 @@
           }
           setResult({ won, side: landed, payout });
           setFlipping(false);
+          // v1.3.0: did Ray catch you?
+          setTimeout(() => {
+            const nextState = { ...state, stacks: stacks + (won ? payout - bet : -bet), backRoomNetWinnings: (state.backRoomNetWinnings || 0) + net };
+            if (brCheckLockout(nextState, lockBackRoom, toast)) {
+              setTimeout(() => onBack && onBack(), 1200);
+            }
+          }, 400);
         }, 1600);
       };
 
@@ -6207,7 +6816,7 @@
     // 3 identical = jackpot (10x bet); 2 identical = 2x; otherwise lose
     // ============================================================
     const SLOT_SYMBOLS = ['🍒', '🍋', '🔔', '⭐', '💎', '7️⃣'];
-    function SlotsGame({ state, addStacks, toast, unlockAchievement, onBack }) {
+    function SlotsGame({ state, addStacks, toast, unlockAchievement, addBackRoomWinnings, lockBackRoom, onBack }) {
       const stacks = Math.floor(state.stacks || 0);
       const [bet, setBet] = useState(10);
       const [reels, setReels] = useState(['🍒', '🍋', '🔔']);
@@ -6258,8 +6867,18 @@
           } else if (unlockAchievement && (stacks - bet) <= 0) {
             unlockAchievement('br_broke');
           }
+          // v1.3.0: net for this spin
+          const net = payout - bet;
+          if (addBackRoomWinnings) addBackRoomWinnings(net);
           setResult({ won: payout > 0, payout, label });
           setSpinning(false);
+          // v1.3.0: lockout check
+          setTimeout(() => {
+            const nextState = { ...state, stacks: stacks + net, backRoomNetWinnings: (state.backRoomNetWinnings || 0) + net };
+            if (brCheckLockout(nextState, lockBackRoom, toast)) {
+              setTimeout(() => onBack && onBack(), 1200);
+            }
+          }, 400);
         }, 1800);
       };
 
@@ -6316,7 +6935,7 @@
       }
       return SCRATCH_ICONS[SCRATCH_ICONS.length - 1];
     }
-    function ScratchGame({ state, addStacks, toast, unlockAchievement, onBack }) {
+    function ScratchGame({ state, addStacks, toast, unlockAchievement, addBackRoomWinnings, lockBackRoom, onBack }) {
       const stacks = Math.floor(state.stacks || 0);
       const [bet, setBet] = useState(10);
       const [card, setCard] = useState(null); // array of 9 icon objects
@@ -6368,7 +6987,17 @@
           } else if (unlockAchievement && stacks <= 0) {
             unlockAchievement('br_broke');
           }
+          // v1.3.0: net (payout - the bet that was already deducted on buy)
+          const net = bestPayout - bet;
+          if (addBackRoomWinnings) addBackRoomWinnings(net);
           setResult({ won: bestPayout > 0, payout: bestPayout, label: bestLabel });
+          // v1.3.0: lockout check after the reveal
+          setTimeout(() => {
+            const nextState = { ...state, stacks: stacks + net, backRoomNetWinnings: (state.backRoomNetWinnings || 0) + net };
+            if (brCheckLockout(nextState, lockBackRoom, toast)) {
+              setTimeout(() => onBack && onBack(), 1200);
+            }
+          }, 400);
         }
       };
 
@@ -6413,7 +7042,7 @@
     // DICE — over/under 7 (sum of 2 dice)
     // Pick over, under, or exactly 7. Over/under pays 2x, exactly-7 pays 5x
     // ============================================================
-    function DiceGame({ state, addStacks, toast, unlockAchievement, onBack }) {
+    function DiceGame({ state, addStacks, toast, unlockAchievement, addBackRoomWinnings, lockBackRoom, onBack }) {
       const stacks = Math.floor(state.stacks || 0);
       const [bet, setBet] = useState(10);
       const [choice, setChoice] = useState('under'); // 'under' | 'seven' | 'over'
@@ -6458,8 +7087,18 @@
           } else if (unlockAchievement && (stacks - bet) <= 0) {
             unlockAchievement('br_broke');
           }
+          // v1.3.0: net
+          const net = won ? payout - bet : -bet;
+          if (addBackRoomWinnings) addBackRoomWinnings(net);
           setResult({ won, payout, sum });
           setRolling(false);
+          // v1.3.0: lockout check
+          setTimeout(() => {
+            const nextState = { ...state, stacks: stacks + net, backRoomNetWinnings: (state.backRoomNetWinnings || 0) + net };
+            if (brCheckLockout(nextState, lockBackRoom, toast)) {
+              setTimeout(() => onBack && onBack(), 1200);
+            }
+          }, 400);
         }, 900);
       };
 
@@ -6527,12 +7166,16 @@
     // More menu (mobile) — leads to settings, achievements, etc.
     // ============================================================
     function MoreScreen({ onGoTo, state }) {
+      // v1.3.0 — Show eavesdrop entry once you have enough trend data to make it interesting
+      const trends = getMenuTrends(state);
+      const showEavesdrop = trends.recentCount >= 30;
       const items = [
+        showEavesdrop ? { id: 'eavesdrop', label: 'Through the Wall', icon: '📻', go: 'eavesdrop' } : null,
         { id: 'settings',     label: 'Settings',     icon: '⚙️',  go: 'settings' },
         { id: 'news',         label: 'Update Log',   icon: '📰',  go: 'news' },
-        { id: 'achievements', label: 'Achievements', icon: '🏆',  go: 'achievements', soon: true },
+        { id: 'achievements', label: 'Achievements', icon: '🏆',  go: 'achievements' },
         { id: 'profile',      label: 'Profile',      icon: '👤',  go: 'profile' }
-      ];
+      ].filter(Boolean);
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header' },
           e('h1', { className: 'screen-title display-font' }, 'More'),
@@ -6548,11 +7191,179 @@
             e('div', { style: { display: 'flex', alignItems: 'center', gap: 12 } },
               e('span', { style: { fontSize: 22 } }, it.icon),
               e('div', null,
-                e('div', { className: 'row-label' }, it.label, it.soon ? e('span', { className: 'pill', style: { fontSize: 9, marginLeft: 6 } }, 'SOON') : null)
+                e('div', { className: 'row-label' },
+                  it.label,
+                  it.soon ? e('span', { className: 'pill', style: { fontSize: 9, marginLeft: 6 } }, 'SOON') : null,
+                  it.id === 'eavesdrop' ? e('span', { className: 'pill', style: { fontSize: 9, marginLeft: 6, background: 'var(--amber)' } }, 'NEW') : null
+                ),
+                it.id === 'eavesdrop' ? e('div', { className: 'row-sub' }, 'Voices from Ray\'s office.') : null
               )
             ),
             e('span', { style: { color: 'var(--text-faint)' } }, '›')
           )
+        )
+      );
+    }
+
+    // ============================================================
+    // v1.3.0 — Eavesdrop / "Through The Wall"
+    // Audio-only scene. You stand outside Ray's office door, hear
+    // voices behind it discussing the menu. The conversation content
+    // is driven by your live trend data (top seller, trending down,
+    // recent items). No characters shown — just a wall, a strip of
+    // light under the door, and TTS voices.
+    // ============================================================
+    function EavesdropScreen({ state, onBack }) {
+      const [listening, setListening] = useState(false);
+      const [currentLine, setCurrentLine] = useState('');
+      const [currentSpeaker, setCurrentSpeaker] = useState('');
+      const timeoutsRef = useRef([]);
+
+      // Cancel everything when leaving
+      useEffect(() => {
+        return () => {
+          timeoutsRef.current.forEach(id => clearTimeout(id));
+          timeoutsRef.current = [];
+          if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+          }
+        };
+      }, []);
+
+      const trends = getMenuTrends(state);
+
+      // Build the conversation script from trends
+      const buildScript = () => {
+        const lines = [];
+        const top = trends.topSeller;
+        const down = trends.trendingDown.length > 0 ? trends.trendingDown[Math.floor(Math.random() * trends.trendingDown.length)] : null;
+        const up = trends.trendingUp.length > 0 ? trends.trendingUp[Math.floor(Math.random() * trends.trendingUp.length)] : null;
+
+        // Speaker keys for TTS variety (uses your AudioFX.speak which picks voice indices)
+        // We'll set a "speaker" label so the player can see who's "talking"
+        lines.push({ s: 'Ray', t: "So what're we even doing with the menu?", pause: 600 });
+        lines.push({ s: 'Sal', t: "I been thinking the same thing.", pause: 500 });
+
+        if (top) {
+          lines.push({ s: 'Ray', t: "Look at the numbers. " + top.name + ". That's our thing now.", pause: 700 });
+          lines.push({ s: 'Sal', t: "People come from the next block for it.", pause: 500 });
+        } else {
+          lines.push({ s: 'Ray', t: "Nothing's really popping. Mix of everything.", pause: 700 });
+        }
+
+        if (down) {
+          lines.push({ s: 'Sal', t: "The " + down.name + " though. Nobody's buying it.", pause: 600 });
+          lines.push({ s: 'Ray', t: "I been saying that. We should cut it.", pause: 500 });
+          lines.push({ s: 'Marcus', t: "(Marcus, listening): They're gonna cut the " + down.name + "...", pause: 700 });
+        } else if (up) {
+          lines.push({ s: 'Sal', t: "And " + up.name + " is climbing fast.", pause: 600 });
+          lines.push({ s: 'Ray', t: "Yeah. Maybe push it harder. Make it the special.", pause: 500 });
+        } else {
+          lines.push({ s: 'Sal', t: "Maybe we add something new. Shake it up.", pause: 600 });
+          lines.push({ s: 'Ray', t: "We'll see. Don't tell the kid yet.", pause: 600 });
+        }
+
+        // Closing
+        lines.push({ s: 'Ray', t: "Anyway. Pour me another.", pause: 400 });
+        return lines;
+      };
+
+      const startListening = () => {
+        if (listening) return;
+        setListening(true);
+        const script = buildScript();
+        let delay = 200;
+        script.forEach((line, idx) => {
+          timeoutsRef.current.push(setTimeout(() => {
+            setCurrentSpeaker(line.s);
+            setCurrentLine(line.t);
+            if (state.settings && state.settings.voices) {
+              AudioFX.speak(line.t, true);
+            }
+          }, delay));
+          // Estimate read time: ~80ms per char + the pause + some buffer
+          const readMs = Math.max(2200, line.t.length * 70) + (line.pause || 500);
+          delay += readMs;
+        });
+        // Reset at end
+        timeoutsRef.current.push(setTimeout(() => {
+          setCurrentSpeaker('');
+          setCurrentLine('You stop listening and step back.');
+          setListening(false);
+        }, delay + 500));
+      };
+
+      const stopListening = () => {
+        timeoutsRef.current.forEach(id => clearTimeout(id));
+        timeoutsRef.current = [];
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
+        setListening(false);
+        setCurrentLine('');
+        setCurrentSpeaker('');
+      };
+
+      return e('div', { className: 'main has-bottomnav' },
+        e('div', { className: 'screen-header' },
+          onBack ? e('button', { className: 'back-btn', onClick: onBack },
+            e('span', { className: 'arrow' }, '‹'), 'Back'
+          ) : null,
+          e('h1', { className: 'screen-title display-font' }, 'Through the Wall'),
+          e('p', { className: 'screen-subtitle' }, "You hear voices from Ray's office.")
+        ),
+        // The muted scene — wall with a thin strip of light under the door
+        e('div', { className: 'eavesdrop-scene' },
+          e('div', { className: 'eavesdrop-wall' }),
+          e('div', { className: 'eavesdrop-door-strip' + (listening ? ' listening' : '') }),
+          // Audio "speaker indicator" — pulsing dot when audio is active
+          listening ? e('div', { className: 'eavesdrop-pulse' }) : null,
+          e('div', { className: 'eavesdrop-caption' },
+            currentSpeaker
+              ? e('div', null,
+                  e('div', { className: 'eavesdrop-speaker' }, currentSpeaker + ':'),
+                  e('div', { className: 'eavesdrop-line' }, '"' + currentLine + '"')
+                )
+              : listening
+                ? e('div', { className: 'eavesdrop-line', style: { color: 'var(--text-faint)', fontStyle: 'italic' } }, 'Listening...')
+                : e('div', { className: 'eavesdrop-line', style: { color: 'var(--text-faint)', fontStyle: 'italic' } }, 'Press your ear against the wall.')
+          )
+        ),
+        // Controls
+        !listening
+          ? e('button', {
+              className: 'btn btn-primary',
+              style: { width: '100%', fontSize: 15, padding: '12px 18px', marginTop: 14 },
+              onClick: startListening
+            }, '👂 Listen in')
+          : e('button', {
+              className: 'btn btn-ghost',
+              style: { width: '100%', fontSize: 14, padding: '12px 18px', marginTop: 14 },
+              onClick: stopListening
+            }, 'Stop listening'),
+        // Voice toggle note
+        !state.settings || !state.settings.voices
+          ? e('div', { style: { fontSize: 11, color: 'var(--text-faint)', textAlign: 'center', marginTop: 12, fontStyle: 'italic' } },
+              'Turn on Customer Voices in Settings to actually hear them.')
+          : null,
+        // Hint about content
+        e('div', {
+          style: {
+            marginTop: 16,
+            padding: '10px 12px',
+            background: 'rgba(255,167,38,0.05)',
+            borderLeft: '3px solid var(--amber)',
+            borderRadius: 4,
+            fontSize: 12,
+            lineHeight: 1.55,
+            color: 'var(--text-dim)'
+          }
+        },
+          "What they say depends on what you've been serving. ",
+          trends.recentCount >= 30
+            ? "They've noticed " + (trends.topSeller ? trends.topSeller.name + " is your bestseller" : "nothing's standing out") +
+              (trends.trendingDown.length > 0 ? "; the " + trends.trendingDown[0].name + " isn't moving" : "") + "."
+            : "Serve more customers and the conversation will get more specific."
         )
       );
     }
@@ -6968,7 +7779,7 @@
         if (target === 'home')   { setTab('home');   setSubscreen(null); return; }
         if (target === 'friends'){ setTab('friends');setSubscreen(null); return; }
         // Subscreens (reached via More)
-        if (['settings', 'news', 'achievements', 'profile'].includes(target)) {
+        if (['settings', 'news', 'achievements', 'profile', 'eavesdrop'].includes(target)) {
           setTab('more');
           setSubscreen(target);
           return;
@@ -6984,10 +7795,11 @@
           if (subscreen === 'news')         return e(NewsScreen,         { markRead: game.markNewsRead, onBack: backToMore });
           if (subscreen === 'achievements') return e(AchievementsScreen, { onBack: backToMore, state: game.state });
           if (subscreen === 'profile')      return e(ProfileScreen,      { state: game.state, onBack: backToMore });
+          if (subscreen === 'eavesdrop')    return e(EavesdropScreen,    { state: game.state, onBack: backToMore });
         }
-        if (tab === 'home')    return e(HomeScreen,     { state: game.state, onGoTo: goTo });
+        if (tab === 'home')    return e(HomeScreen,     { state: game.state, onGoTo: goTo, addStacks: game.addStacks, startSideHustle: game.startSideHustle, claimSideHustle: game.claimSideHustle, toast: pushToast });
         if (tab === 'work')    return e(FoodTruckScreen,{ state: game.state, addStacks: game.addStacks, addReputation: game.addReputation, recordOrder: game.recordOrder, logEvent: game.logEvent, completeJob: game.completeJob, toast: pushToast });
-        if (tab === 'arcade')  return e(BackRoomScreen, { state: game.state, addStacks: game.addStacks, toast: pushToast, unlockAchievement: game.unlockAchievement });
+        if (tab === 'arcade')  return e(BackRoomScreen, { state: game.state, addStacks: game.addStacks, toast: pushToast, unlockAchievement: game.unlockAchievement, addBackRoomWinnings: game.addBackRoomWinnings, incrementBackRoomVisit: game.incrementBackRoomVisit, lockBackRoom: game.lockBackRoom });
         if (tab === 'friends') return e(FriendsScreen,  { state: game.state, currentUser, onGoTo: goTo, pendingFriendCode, clearPendingFriendCode: () => setPendingFriendCode(null), toast: pushToast, unlockAchievement: game.unlockAchievement });
         if (tab === 'more')    return e(MoreScreen,     { onGoTo: goTo, state: game.state });
         return null;
