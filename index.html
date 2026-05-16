@@ -2175,6 +2175,27 @@
       box-shadow: 0 0 6px rgba(255,180,80,0.6);
       z-index: 3;
     }
+    /* v1.3.1 — Door clickable affordance + EXIT label */
+    .backroom-door { transition: filter 200ms ease, transform 200ms ease; }
+    .backroom-door:hover {
+      filter: drop-shadow(0 0 8px rgba(255, 213, 79, 0.6)) brightness(1.10);
+    }
+    .backroom-door:active { transform: scale(0.97); }
+    .backroom-door-exit-label {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Permanent Marker', cursive;
+      font-size: 11px;
+      color: #ffe082;
+      letter-spacing: 2px;
+      white-space: nowrap;
+      text-shadow: 0 0 4px rgba(0,0,0,0.95), 0 0 10px rgba(0,0,0,0.7);
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    .backroom-door:hover .backroom-door-exit-label { opacity: 1; }
     /* Ray's pinned note */
     .backroom-note {
       position: absolute;
@@ -3068,7 +3089,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.3.0';
+    const VERSION = '1.3.1';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -3162,7 +3183,25 @@
       { emoji: '🥪', name: 'Sandwich',  price: 6 }    // mid-tier lunch staple
     ];
     const INGREDIENTS = MENU_ITEMS.map(i => i.emoji);
-    const CUSTOMER_FACES = ['😀', '🧐', '😎', '🥸', '🤓', '😏', '🙃', '😤', '👴', '👵', '👨', '👩', '🧑‍🎤', '👮', '👷', '🧑‍🔧'];
+    // v1.3.1 — Faces grouped by gender so the visual matches the voice.
+    // Neutral pool stays available for emoji that read either way.
+    const CUSTOMER_FACES_MALE    = ['👨', '👴', '🧑‍🦰', '🧔', '👷', '👨‍💼', '👨‍🎓', '🤴', '🧑‍🔧', '👨‍🍳'];
+    const CUSTOMER_FACES_FEMALE  = ['👩', '👵', '👩‍🦰', '👸', '👩‍💼', '👩‍🎓', '🧕', '👩‍🍳', '💁‍♀️', '🙋‍♀️'];
+    const CUSTOMER_FACES_NEUTRAL = ['😀', '🧐', '😎', '🥸', '🤓', '😏', '🙃', '😤', '🧑‍🎤', '👮', '🧑‍🔧'];
+    function pickCustomerFace(gender) {
+      let pool;
+      if (gender === 'male')        pool = CUSTOMER_FACES_MALE;
+      else if (gender === 'female') pool = CUSTOMER_FACES_FEMALE;
+      else                          pool = CUSTOMER_FACES_NEUTRAL;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+    function pickCustomerGender() {
+      // 45% male, 45% female, 10% neutral (so the visuals stay mostly gendered)
+      const r = Math.random();
+      if (r < 0.45) return 'male';
+      if (r < 0.90) return 'female';
+      return 'neutral';
+    }
 
     // ============================================================
     // v1.3.0 — Customer Personalities
@@ -4038,32 +4077,98 @@
       }
 
       // ---- Customer voice (SpeechSynthesis TTS) ----
-      // Picks a random available voice each call so different customers sound different.
+      // v1.3.1 — gender-aware voice pools so male/female customers sound different.
+      // Voices are categorized by detecting common male/female name hints in the
+      // browser-provided voice name (works on Chrome/Edge/Android; iOS voices are
+      // generally already gendered in name; fallback is "neutral" pool).
       let cachedVoices = null;
+      let voicePools = null;
+      const MALE_HINTS   = ['male', 'man', 'david', 'mark', 'george', 'james', 'thomas', 'daniel', 'fred', 'alex', 'arthur', 'oliver', 'ralph', 'aaron', 'eddy', 'reed', 'rishi', 'rocko', 'flo'];
+      const FEMALE_HINTS = ['female', 'woman', 'samantha', 'victoria', 'karen', 'susan', 'fiona', 'tessa', 'kate', 'serena', 'allison', 'ava', 'zoe', 'nora', 'paulina', 'moira', 'sandy'];
+      function classifyVoice(v) {
+        const n = (v && v.name ? v.name : '').toLowerCase();
+        if (!n) return 'neutral';
+        for (let i = 0; i < FEMALE_HINTS.length; i++) if (n.indexOf(FEMALE_HINTS[i]) >= 0) return 'female';
+        for (let i = 0; i < MALE_HINTS.length; i++)   if (n.indexOf(MALE_HINTS[i])   >= 0) return 'male';
+        return 'neutral';
+      }
+      function buildVoicePools() {
+        const all = (typeof speechSynthesis !== 'undefined') ? (speechSynthesis.getVoices() || []) : [];
+        const male = [], female = [], neutral = [];
+        all.forEach(v => {
+          const g = classifyVoice(v);
+          if (g === 'male')   male.push(v);
+          else if (g === 'female') female.push(v);
+          else                neutral.push(v);
+        });
+        // English voices preferred — bubble en-* to the front of each pool
+        const enFirst = (a, b) => {
+          const aEn = (a.lang || '').toLowerCase().indexOf('en') === 0 ? 0 : 1;
+          const bEn = (b.lang || '').toLowerCase().indexOf('en') === 0 ? 0 : 1;
+          return aEn - bEn;
+        };
+        male.sort(enFirst); female.sort(enFirst); neutral.sort(enFirst);
+        return { male, female, neutral, all };
+      }
       function getVoices() {
         if (typeof speechSynthesis === 'undefined') return [];
         if (cachedVoices && cachedVoices.length) return cachedVoices;
         const list = speechSynthesis.getVoices();
-        if (list && list.length) cachedVoices = list;
+        if (list && list.length) { cachedVoices = list; voicePools = buildVoicePools(); }
         return list || [];
       }
       // Some browsers load voices asynchronously
       if (typeof speechSynthesis !== 'undefined') {
-        try { speechSynthesis.onvoiceschanged = () => { cachedVoices = speechSynthesis.getVoices(); }; } catch (e) {}
+        try { speechSynthesis.onvoiceschanged = () => {
+          cachedVoices = speechSynthesis.getVoices();
+          voicePools = buildVoicePools();
+        }; } catch (e) {}
       }
-      function speak(text, voicesOn) {
+      function pickVoiceForGender(gender) {
+        getVoices();                              // ensures pools are built
+        if (!voicePools) return null;
+        const pool = (gender === 'male')   ? voicePools.male
+                   : (gender === 'female') ? voicePools.female
+                   : voicePools.neutral;
+        // Fall back to any pool if the requested one is empty
+        const fallback = pool.length > 0 ? pool
+                        : voicePools.neutral.length > 0 ? voicePools.neutral
+                        : voicePools.all;
+        if (!fallback || fallback.length === 0) return null;
+        return fallback[Math.floor(Math.random() * fallback.length)];
+      }
+      // Map of voiceKey -> { voice, rate, pitch } so the same customer keeps the same voice across multiple lines.
+      const voiceProfileCache = {};
+      function getOrCreateVoiceProfile(voiceKey, gender) {
+        if (voiceKey && voiceProfileCache[voiceKey]) return voiceProfileCache[voiceKey];
+        const profile = {
+          voice: pickVoiceForGender(gender || 'neutral'),
+          rate:  0.95 + Math.random() * 0.2,                                    // 0.95–1.15
+          // Gender-biased pitch so the same voice sounds masculine/feminine even on fallbacks
+          pitch: gender === 'female' ? (1.1 + Math.random() * 0.25)             // 1.10–1.35 — higher
+                 : gender === 'male'  ? (0.75 + Math.random() * 0.20)           // 0.75–0.95 — lower
+                 :                       (0.95 + Math.random() * 0.25)          // 0.95–1.20 — neutral
+        };
+        if (voiceKey) voiceProfileCache[voiceKey] = profile;
+        // Keep cache from growing unbounded — trim after 50 entries
+        const keys = Object.keys(voiceProfileCache);
+        if (keys.length > 50) delete voiceProfileCache[keys[0]];
+        return profile;
+      }
+      // v1.3.1 — speak now accepts an options object: { gender, voiceKey, cancelPrevious }
+      // Defaults preserve old call-site behavior: speak(text, true) still works.
+      function speak(text, voicesOn, opts) {
         if (!voicesOn || !text) return;
         if (typeof speechSynthesis === 'undefined' || typeof SpeechSynthesisUtterance === 'undefined') return;
         try {
-          // Cancel anything currently speaking so customer voices don't pile up
-          speechSynthesis.cancel();
+          const o = opts || {};
+          const cancelPrev = o.cancelPrevious !== false; // default true
+          if (cancelPrev) speechSynthesis.cancel();
           const utt = new SpeechSynthesisUtterance(text);
-          const voices = getVoices();
-          if (voices.length > 0) {
-            utt.voice = voices[Math.floor(Math.random() * voices.length)];
-          }
-          utt.rate = 0.95 + Math.random() * 0.2;   // 0.95–1.15 — slight variation per customer
-          utt.pitch = 0.8 + Math.random() * 0.5;   // 0.8–1.3
+          const profile = getOrCreateVoiceProfile(o.voiceKey || null, o.gender || 'neutral');
+          if (profile.voice) utt.voice = profile.voice;
+          utt.rate = profile.rate;
+          utt.pitch = profile.pitch;
           utt.volume = 0.85;
           speechSynthesis.speak(utt);
         } catch (e) { /* ignore */ }
@@ -4073,12 +4178,28 @@
           try { speechSynthesis.cancel(); } catch (e) {}
         }
       }
+      // v1.3.1 — Graceful fade. Web Speech API doesn't allow mid-utterance volume
+      // control, so we pause first (softer feeling), then cancel after a short delay.
+      // For ambience and SFX audio (real Web Audio nodes), we use real gain envelopes.
+      function fadeOutSpeech(ms) {
+        if (typeof speechSynthesis === 'undefined') return;
+        try {
+          speechSynthesis.pause();
+          setTimeout(() => { try { speechSynthesis.cancel(); } catch (e) {} }, ms || 350);
+        } catch (e) {
+          try { speechSynthesis.cancel(); } catch (e2) {}
+        }
+      }
+      // v1.3.1 — release voice profile when a customer leaves (keeps cache lean)
+      function releaseVoiceProfile(voiceKey) {
+        if (voiceKey && voiceProfileCache[voiceKey]) delete voiceProfileCache[voiceKey];
+      }
 
       return {
         engineRumble, doorClose, footsteps, snore,
         bellDing, sizzle, coinDrop,
         startAmbience, stopAmbience,
-        speak, cancelSpeech
+        speak, cancelSpeech, fadeOutSpeech, releaseVoiceProfile
       };
     })();
 
@@ -5168,7 +5289,11 @@
       const [activeBuffs, setActiveBuffs] = useState({});
       const [customerFace, setCustomerFace] = useState('😀');
       const [customerPersonality, setCustomerPersonality] = useState(null);  // v1.3.0
+      const [customerGender, setCustomerGender] = useState('neutral');       // v1.3.1
+      const customerVoiceKeyRef = useRef(null);                              // v1.3.1 — consistent voice across one customer's lines
       const chatterTimeoutsRef = useRef([]);                                  // v1.3.0 — for cleanup
+      const shiftStartTimeRef = useRef(0);                                   // v1.3.1 — anti-cheat: shift duration
+      const shiftCustomersRef = useRef(0);                                   // v1.3.1 — anti-cheat: customers served this shift
       const [shiftActive, setShiftActive] = useState(false);
       const [shiftEndSummary, setShiftEndSummary] = useState(null);
       const [shiftStartSnapshot, setShiftStartSnapshot] = useState(null);
@@ -5221,13 +5346,20 @@
         const baseTime = 12 + (newOrder.length - 2) * 3;
         // v1.3.0 — Pick a customer personality; it influences timer, tip, and chatter
         const personality = pickPersonality();
+        // v1.3.1 — Pick gender, matching face emoji, and a fresh voice key for this customer
+        const gender = pickCustomerGender();
+        const voiceKey = 'cust-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+        // Release any previous customer's voice profile so the cache stays small
+        if (customerVoiceKeyRef.current) AudioFX.releaseVoiceProfile(customerVoiceKeyRef.current);
+        customerVoiceKeyRef.current = voiceKey;
         const time = Math.round((baseTime + (activeBuffs.timerPenalty || 0)) * personality.patienceMult);
         setOrder(newOrder);
         setPlate([]);
         setTimeLeft(time);
         setMaxTime(time);
-        setCustomerFace(CUSTOMER_FACES[Math.floor(Math.random() * CUSTOMER_FACES.length)]);
+        setCustomerFace(pickCustomerFace(gender));
         setCustomerPersonality(personality);
+        setCustomerGender(gender);
         setResult(null);
 
         // Cancel any chatter timeouts from a previous customer
@@ -5324,8 +5456,8 @@
           const useFlavor = itemFlavor.length > 0 && Math.random() < 0.4;
           const phrasings = useFlavor ? itemFlavor : openings;
           const phrase = phrasings[Math.floor(Math.random() * phrasings.length)];
-          // Small delay so sizzle is heard first
-          chatterTimeoutsRef.current.push(setTimeout(() => AudioFX.speak(phrase, true), 350));
+          // Small delay so sizzle is heard first. v1.3.1: gendered voice, keyed by customer.
+          chatterTimeoutsRef.current.push(setTimeout(() => AudioFX.speak(phrase, true, { gender: gender, voiceKey: voiceKey }), 350));
 
           // v1.3.0 — Schedule 1-2 chatter lines if personality has them
           if (personality.chatterLines && personality.chatterLines.length > 0) {
@@ -5337,7 +5469,9 @@
               const delay = 3500 + i * 4500 + Math.random() * 800;
               const lineText = lines[i];
               chatterTimeoutsRef.current.push(setTimeout(() => {
-                AudioFX.speak(lineText, true);
+                // v1.3.1 — Same gender + voiceKey, no cancelPrevious so the order line
+                // gets a chance to finish naturally if it's still going.
+                AudioFX.speak(lineText, true, { gender: gender, voiceKey: voiceKey, cancelPrevious: false });
               }, delay));
             }
           }
@@ -5350,11 +5484,51 @@
           earned: state.totalEarned,
           rep: state.reputation
         });
+        // v1.3.1 — Anti-cheat: track shift start time + customers served this shift
+        shiftStartTimeRef.current = Date.now();
+        shiftCustomersRef.current = 0;
         setShiftActive(true);
         startNewCustomer();
       };
 
+      // v1.3.1 — Anti-cheat thresholds
+      const MIN_SHIFT_CUSTOMERS = 3;
+      const MIN_SHIFT_MS = 90 * 1000;
+      const canEndShift = () => {
+        if (!shiftActive) return true;
+        const elapsed = Date.now() - shiftStartTimeRef.current;
+        return shiftCustomersRef.current >= MIN_SHIFT_CUSTOMERS || elapsed >= MIN_SHIFT_MS;
+      };
+      const shiftRemainingForEnd = () => {
+        const customersLeft = Math.max(0, MIN_SHIFT_CUSTOMERS - shiftCustomersRef.current);
+        const msLeft = Math.max(0, MIN_SHIFT_MS - (Date.now() - shiftStartTimeRef.current));
+        return { customersLeft, secondsLeft: Math.ceil(msLeft / 1000) };
+      };
+
       const endShift = () => {
+        // v1.3.1 — Anti-cheat: block premature end-shift
+        if (!canEndShift()) {
+          const r = shiftRemainingForEnd();
+          toast && toast(
+            'Ray expects more work. ' +
+            (r.customersLeft > 0 ? r.customersLeft + ' more customer' + (r.customersLeft === 1 ? '' : 's') : '') +
+            (r.customersLeft > 0 && r.secondsLeft > 0 ? ' or ' : '') +
+            (r.secondsLeft > 0 ? r.secondsLeft + 's' : '') + ' more.',
+            'warn'
+          );
+          return;
+        }
+        // v1.3.1 — Graceful voice fade so it doesn't cut off mid-syllable
+        AudioFX.fadeOutSpeech(500);
+        // Release the in-flight customer's voice profile
+        if (customerVoiceKeyRef.current) {
+          AudioFX.releaseVoiceProfile(customerVoiceKeyRef.current);
+          customerVoiceKeyRef.current = null;
+        }
+        // Cancel pending chatter timeouts so no future lines fire post-shift
+        chatterTimeoutsRef.current.forEach(id => clearTimeout(id));
+        chatterTimeoutsRef.current = [];
+
         setShiftActive(false);
         setOrder(null);
         setPlate([]);
@@ -5432,6 +5606,7 @@
         // v1.3.0 — Pass items to trend tracker (only count if order was actually filled)
         const itemsToCount = (resultKey === 'failed') ? [] : (order || []);
         recordOrder(resultKey, itemsToCount);
+        shiftCustomersRef.current += 1;          // v1.3.1 anti-cheat counter
 
         setResult({ key: resultKey, stacks: stacksEarned, persona: persona });
         vibrate(state, resultKey === 'perfect' ? [40, 40, 80] : resultKey === 'failed' ? [200] : [60]);
@@ -5679,11 +5854,40 @@
         return { lines, total };
       })() : null;
 
+      // v1.3.1 — Force re-render every second during a shift so the anti-cheat timer ticks the button label
+      const [shiftTick, setShiftTick] = useState(0);
+      useEffect(() => {
+        if (!shiftActive) return;
+        const id = setInterval(() => setShiftTick(t => t + 1), 1000);
+        return () => clearInterval(id);
+      }, [shiftActive]);
+      const endShiftAllowed = canEndShift();
+      const _ = shiftTick; // referenced so React knows we want re-renders
+
       // Active shift
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
           e('h1', { className: 'screen-title display-font', style: { fontSize: 24 } }, 'On Shift'),
-          e('button', { className: 'btn btn-ghost', style: { padding: '8px 14px', fontSize: 13 }, onClick: endShift }, 'End Shift')
+          e('button', {
+            className: 'btn btn-ghost',
+            style: {
+              padding: '8px 14px',
+              fontSize: 13,
+              opacity: endShiftAllowed ? 1 : 0.4,
+              cursor: endShiftAllowed ? 'pointer' : 'not-allowed'
+            },
+            onClick: endShift,
+            title: endShiftAllowed ? 'End your shift' : 'Ray expects more work — serve a few more, or stay open longer.'
+          },
+            endShiftAllowed
+              ? 'End Shift'
+              : (function () {
+                  const r = shiftRemainingForEnd();
+                  if (r.customersLeft > 0 && r.secondsLeft > 0) return 'End Shift (' + r.customersLeft + ' or ' + r.secondsLeft + 's)';
+                  if (r.customersLeft > 0) return 'End Shift (' + r.customersLeft + ' more)';
+                  return 'End Shift (' + r.secondsLeft + 's)';
+                })()
+          )
         ),
 
         // Random event card
@@ -6530,7 +6734,7 @@
     // Renders a CSS room scene with tappable game objects.
     // Each game is a self-contained sub-screen.
     // ============================================================
-    function BackRoomScreen({ state, addStacks, toast, unlockAchievement, addBackRoomWinnings, incrementBackRoomVisit, lockBackRoom }) {
+    function BackRoomScreen({ state, addStacks, toast, unlockAchievement, addBackRoomWinnings, incrementBackRoomVisit, lockBackRoom, onGoTo }) {
       const [game, setGame] = useState(null); // null | 'flip' | 'slots' | 'scratch' | 'dice'
       const stacks = Math.floor(state.stacks || 0);
 
@@ -6622,10 +6826,20 @@
           e('div', { className: 'backroom-window' },
             e('div', { className: 'backroom-window-crack' })
           ),
-          // Wooden door (the way you came in)
-          e('div', { className: 'backroom-door' },
+          // Wooden door — tap to leave the back room and walk back to the truck
+          e('div', {
+            className: 'backroom-door',
+            onClick: () => {
+              if (toast) toast('Back to the truck.', 'amber');
+              if (onGoTo) onGoTo('work');
+            },
+            role: 'button',
+            'aria-label': 'Leave the back room',
+            style: { cursor: 'pointer' }
+          },
             e('div', { className: 'backroom-door-peephole' }),
-            e('div', { className: 'backroom-door-handle' })
+            e('div', { className: 'backroom-door-handle' }),
+            e('div', { className: 'backroom-door-exit-label' }, 'EXIT')
           ),
           // Ray's note pinned to the wall
           e('div', { className: 'backroom-note', onClick: () => toast && toast("Ray's note: \"I told you not to come down here. — Ray\"", 'amber') },
@@ -7278,7 +7492,10 @@
             setCurrentSpeaker(line.s);
             setCurrentLine(line.t);
             if (state.settings && state.settings.voices) {
-              AudioFX.speak(line.t, true);
+              // v1.3.1 — keep each character's voice consistent across the conversation.
+              // Ray, Sal, Marcus all read as male. The voiceKey makes the same voice
+              // get re-used for every line from that character.
+              AudioFX.speak(line.t, true, { gender: 'male', voiceKey: 'eavesdrop-' + line.s });
             }
           }, delay));
           // Estimate read time: ~80ms per char + the pause + some buffer
@@ -7799,7 +8016,7 @@
         }
         if (tab === 'home')    return e(HomeScreen,     { state: game.state, onGoTo: goTo, addStacks: game.addStacks, startSideHustle: game.startSideHustle, claimSideHustle: game.claimSideHustle, toast: pushToast });
         if (tab === 'work')    return e(FoodTruckScreen,{ state: game.state, addStacks: game.addStacks, addReputation: game.addReputation, recordOrder: game.recordOrder, logEvent: game.logEvent, completeJob: game.completeJob, toast: pushToast });
-        if (tab === 'arcade')  return e(BackRoomScreen, { state: game.state, addStacks: game.addStacks, toast: pushToast, unlockAchievement: game.unlockAchievement, addBackRoomWinnings: game.addBackRoomWinnings, incrementBackRoomVisit: game.incrementBackRoomVisit, lockBackRoom: game.lockBackRoom });
+        if (tab === 'arcade')  return e(BackRoomScreen, { state: game.state, addStacks: game.addStacks, toast: pushToast, unlockAchievement: game.unlockAchievement, addBackRoomWinnings: game.addBackRoomWinnings, incrementBackRoomVisit: game.incrementBackRoomVisit, lockBackRoom: game.lockBackRoom, onGoTo: goTo });
         if (tab === 'friends') return e(FriendsScreen,  { state: game.state, currentUser, onGoTo: goTo, pendingFriendCode, clearPendingFriendCode: () => setPendingFriendCode(null), toast: pushToast, unlockAchievement: game.unlockAchievement });
         if (tab === 'more')    return e(MoreScreen,     { onGoTo: goTo, state: game.state });
         return null;

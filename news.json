@@ -1,22 +1,36 @@
 {
-  "version": "1.3.0",
-  "title": "HustleBox v1.3.0 — Dynamics",
-  "date": "2026-05-14",
-  "message": "The block starts to feel alive.\n\nCUSTOMER PERSONALITIES\nEvery customer now has a personality. 8 types: Talkative, In a hurry, Foodie, Regular, Tourist, Drunk, Skeptic, Quiet. Each one affects:\n• Patience — talkers and tourists wait longer, rushers cut you 25%\n• Tips — tourists and talkers tip well, skeptics never tip, drunks tip randomly\n• Reputation — skeptics dock you extra rep if the order isn't perfect\n• Chatter — talkers actually say multiple things while you assemble (\"Long day at the truck, huh?\", \"You new?\", \"Smells good in here\")\n\nThe personality label shows under each customer's face during the shift, so you know who you're dealing with.\n\nMENU TRENDS\nThe game now tracks every item you serve. Lifetime counts plus a rolling window of the last 100 orders. Items get classified as trending up (>18% share), trending down (<8% share), or your overall bestseller. Eventually this drives in-game events; for now you can see your top seller right on the Home screen.\n\nNEW MENU ITEMS\nThree additions:\n• 🌯 Burrito — $7, bigger portion than tacos\n• ☕ Coffee — $3, fast item, pairs with donuts for combos\n• 🥪 Sandwich — $6, mid-tier lunch staple\n\nThe menu is now 11 items strong.\n\nSIDE HUSTLE\nNew Home screen widget. Between shifts, Marcus can take on small errands that run passively in the background. Walk a dog, run groceries, deliver a package, wash a car, help someone move. 8–25 minutes real time, 30–240 Stacks payout. Only one runs at a time. Tap Claim when the bar fills.\n\nRAY'S BACK ROOM LOCKOUT\nGet too greedy down there and Ray catches you. If you lose 500+ Stacks net in the back room, or drop below 50 Stacks with significant losses, Ray locks the door. 4-hour real-time cooldown. Tapping the Back Room tab during a lockout shows a red \"BACK ROOM LOCKED\" screen with a countdown and one of Ray's threats.\n\nTHROUGH THE WALL — Eavesdrop scene\nNew More menu entry that appears after you've served 30+ customers. You stand outside Ray's office. A thin strip of light glows under the door. You hear voices: Ray, Sal (the hardware store owner), and Marcus himself listening. They discuss your menu performance in real time — \"Look at the numbers. Burger. That's our thing now.\" \"The salad isn't moving. We should cut it.\" The conversation content is generated from your live trend data, so it actually means something. TTS plays each line if you have Customer Voices on; subtitles render either way. No characters drawn — just a wall, a door, a glowing crack, and a pulsing audio indicator. The mystery is the point.\n\nTOP SELLER BADGE\nHome screen now shows a small badge with your current bestseller and how many items are trending up or down. Appears once you have 20+ recent orders.\n\nNo save data wiped. Existing saves auto-migrate to add the new fields.",
+  "version": "1.3.1",
+  "title": "HustleBox v1.3.1 — Voices & Polish",
+  "date": "2026-05-15",
+  "message": "Polish pass on v1.3.0's dynamics.\n\nMALE / FEMALE VOICES\nCustomers now have a gender and the TTS voice matches. The browser's voices are auto-classified into male / female / neutral pools by name detection. If the device doesn't have many gendered voices, a pitch bias kicks in so the same fallback voice still reads as masculine or feminine. The customer's face emoji also matches now — men get 👨/👴/🧔, women get 👩/👵/🧕, with a small neutral pool for everyone else.\n\nVOICE CONSISTENCY ACROSS LINES\nThe same customer keeps the same voice across their order line AND their personality chatter lines. Talkers no longer sound like three different people while you assemble their order. Same goes for the eavesdrop scene — Ray, Sal, and Marcus each have a stable voice every time you listen.\n\nGRACEFUL VOICE FADE ON SHIFT END\nEnding a shift used to hard-cancel the customer's voice mid-syllable. Now it pauses then cancels with a short delay — softer, less jarring. Honest note: the Web Speech API doesn't allow mid-utterance volume fades, so this is the best the browser permits. SFX and ambience use real audio gain fades.\n\nANTI-CHEAT ON END SHIFT\nYou can't just serve one customer and immediately end your shift for a quick payday. End Shift now requires at least 3 customers OR 90 seconds of shift time, whichever comes first. The button visually dims and shows a countdown like \"End Shift (2 more)\" or \"End Shift (45s)\" until you've earned it. Tapping it early shows a toast: \"Ray expects more work.\"\n\nBACK ROOM DOOR → WORK\nThe wooden door in the Back Room scene is now tappable. Click it to leave the basement and return to the food truck. Hovering shows an EXIT label and a warm glow on the door so you can see it's interactive.\n\nNo save data wiped.",
   "entries": [
+    {
+      "version": "1.3.1",
+      "date": "2026-05-15",
+      "title": "Voices & Polish",
+      "highlights": [
+        "Male / female / neutral voice pools auto-detected from browser TTS voices",
+        "Each customer gets a gender; the face emoji matches (👨/👴 for male, 👩/👵 for female)",
+        "Same customer keeps the same voice across order line and chatter lines",
+        "Eavesdrop characters (Ray/Sal/Marcus) each have a consistent voice",
+        "Pitch bias on fallback voices so male/female still sounds male/female if the OS lacks gendered voices",
+        "Graceful voice pause-then-cancel on End Shift instead of abrupt cutoff",
+        "Anti-cheat: End Shift requires 3+ customers OR 90+ seconds (button dims + counter until ready)",
+        "Back Room wooden door is tappable — exits to the Work tab with hover glow + EXIT label"
+      ]
+    },
     {
       "version": "1.3.0",
       "date": "2026-05-14",
       "title": "Dynamics",
       "highlights": [
-        "8 customer personalities affecting patience, tips, rep, and chatter — visible label under each customer",
-        "Menu trend tracking — lifetime counts + rolling 100-order window with trending up/down/top classifications",
-        "3 new menu items: 🌯 Burrito ($7), ☕ Coffee ($3), 🥪 Sandwich ($6)",
-        "Side Hustle widget on Home — 5 passive errands, run between shifts, 30–240 Stacks payout",
-        "Back Room lockout — Ray catches you after heavy losses, 4-hour real-time cooldown",
-        "Through the Wall — audio-only eavesdrop scene with Ray, Sal, and Marcus discussing your menu performance, content driven by your live trend data",
-        "Top Seller badge on Home screen showing your current bestseller and trend counts",
-        "Talkers actually speak multiple lines during order assembly"
+        "8 customer personalities affecting patience, tips, rep, chatter",
+        "Menu trend tracking (rolling 100-order window)",
+        "3 new menu items: 🌯 Burrito, ☕ Coffee, 🥪 Sandwich",
+        "Side Hustle widget on Home — 5 passive errands",
+        "Back Room lockout — Ray catches you after heavy losses, 4-hour cooldown",
+        "Through the Wall — audio-only eavesdrop scene driven by your trend data",
+        "Top Seller badge on Home"
       ]
     },
     {
@@ -24,16 +38,11 @@
       "date": "2026-05-14",
       "title": "Back Room, Inhabited",
       "highlights": [
-        "Back Room scene rebuilt — proper pear-shaped lightbulb, brick-framed cracked window, wooden floor with planks, wooden door with handle and peephole",
-        "Story intro: back room is in Sal's Hardware basement, knock three-pause-two",
-        "Tappable objects pop 3D with bright drop-shadow stack and hover lift",
+        "Back Room scene rebuilt — proper lightbulb, door, floor, brick-framed window",
+        "Story intro: basement under Sal's Hardware, knock three-pause-two",
         "Real 7-pip dice with 3-axis tumble animation",
-        "Home compacted: 'Go to Work' label, single rank/rep card, fits without scrolling",
-        "Update Log restyled as continuous notebook page",
-        "📰 Bold Update Log setting toggle",
-        "Walking Marcus full-body now visible (brightened pants/shoes)",
-        "QR encodes invite URL — scanning offers 'Open in browser'",
-        "Settings → Account explainer about sign-in"
+        "Home compacted, Update Log as continuous notebook, Bold Update Log toggle",
+        "Walking Marcus full-body visible, QR encodes invite URL"
       ]
     },
     {
@@ -41,11 +50,9 @@
       "date": "2026-05-12",
       "title": "The Back Room Opens",
       "highlights": [
-        "Arcade renamed Back Room everywhere",
-        "CSS-rendered Back Room scene + 4 playable games (Coin Flip, Slots, Scratch, Dice)",
-        "7 new achievements, 35+ new customer voice phrasings",
-        "QR pop-up modal, full-body walking figure, resume-style Profile",
-        "Desktop scroll-wheel fix"
+        "Back Room scene + 4 playable games",
+        "7 new achievements, 35+ voice phrasings",
+        "Resume-style Profile, desktop scroll fix"
       ]
     },
     {
@@ -53,35 +60,26 @@
       "date": "2026-05-12",
       "title": "Sound, Voices, and a Real Sign-In",
       "highlights": [
-        "Auth UI redesigned with method-picker modal",
-        "Bell ding, sizzle, coin drop SFX",
-        "Background Ambience and Customer Voices toggles"
+        "Auth UI redesigned, SFX added, Customer Voices toggle"
       ]
     },
     {
       "version": "1.2.3",
       "date": "2026-05-11",
       "title": "Trophy Case Opens",
-      "highlights": [
-        "22 achievements across 5 categories"
-      ]
+      "highlights": ["22 achievements across 5 categories"]
     },
     {
       "version": "1.2.2",
       "date": "2026-05-11",
       "title": "The Climb (and the Exit)",
-      "highlights": [
-        "Career ranks: Dishwasher → Owner",
-        "Graduation ending letter at the Owner threshold"
-      ]
+      "highlights": ["Career ranks Dishwasher → Owner", "Graduation ending"]
     },
     {
       "version": "1.2.0",
       "date": "2026-05-10",
       "title": "Friends and the Cloud",
-      "highlights": [
-        "Firebase auth + cloud save + friend system"
-      ]
+      "highlights": ["Firebase auth + cloud save + friend system"]
     },
     {
       "version": "1.0.0",
