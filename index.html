@@ -141,7 +141,10 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--line);
-      padding-top: var(--sat);
+      /* v1.3.2 — ensure clearance from camera notch / status bar across Android variants
+         where env(safe-area-inset-top) may report 0 even when the WebView overlaps the
+         cutout. 36px is enough for a Pixel-class punch hole plus status bar. */
+      padding-top: max(var(--sat), 36px);
     }
     .topbar-inner {
       display: flex;
@@ -1872,6 +1875,220 @@
     }
     .ach-card.locked .ach-status { color: #4a3a2a; }
 
+    /* ===== BACK ROOM ENTRY CUTSCENE (v1.3.2) ===== */
+    .br-cutscene {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: linear-gradient(180deg, #0a0805 0%, #1a1208 100%);
+      overflow: hidden;
+      animation: brCutsceneFadeIn 400ms ease-out;
+    }
+    @keyframes brCutsceneFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* POV — concrete alley floor angled into perspective */
+    .br-cutscene-floor {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 60%;
+      background:
+        /* darker streaks */
+        repeating-linear-gradient(90deg, transparent 0 16%, rgba(0,0,0,0.18) 16% 16.5%, transparent 16.5% 25%),
+        radial-gradient(ellipse at 50% 100%, #3a2818 0%, #1a1008 60%, #0a0500 100%);
+      transform: perspective(400px) rotateX(55deg);
+      transform-origin: bottom center;
+    }
+    /* Dim vignette over the whole scene */
+    .br-cutscene::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 55%, transparent 30%, rgba(0,0,0,0.55) 80%);
+      pointer-events: none;
+    }
+
+    /* POV feet — two shoes shuffling forward as if walking */
+    .br-cutscene-feet {
+      position: absolute;
+      bottom: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      height: 90px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 3;
+    }
+    .br-cutscene-foot {
+      width: 70px;
+      height: 36px;
+      background: linear-gradient(180deg, #4a2a14 0%, #2a1808 100%);
+      border: 2px solid #1a0a02;
+      border-radius: 35px 35px 8px 8px / 22px 22px 6px 6px;
+      box-shadow: 0 6px 10px rgba(0,0,0,0.7);
+      position: relative;
+    }
+    /* Sole shading */
+    .br-cutscene-foot::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 4px; right: 4px;
+      height: 4px;
+      background: #0a0500;
+      border-radius: 0 0 4px 4px;
+    }
+    .br-cutscene-foot.left  { animation: shuffleLeft  1.1s ease-in-out infinite; }
+    .br-cutscene-foot.right { animation: shuffleRight 1.1s ease-in-out infinite; }
+    @keyframes shuffleLeft {
+      0%, 100% { transform: translateY(0) translateZ(0); }
+      25%      { transform: translateY(-8px); }
+      50%      { transform: translateY(0); }
+    }
+    @keyframes shuffleRight {
+      0%, 100% { transform: translateY(0); }
+      75%      { transform: translateY(-8px); }
+    }
+
+    /* Wooden door appearing in front of you — grows in size as you walk closer */
+    .br-cutscene-door {
+      position: absolute;
+      top: 8%;
+      left: 50%;
+      width: 140px;
+      height: 240px;
+      background: linear-gradient(180deg, #4a2a14 0%, #2a1808 100%);
+      border: 3px solid #1a0a02;
+      border-radius: 6px 6px 0 0;
+      transform: translateX(-50%) scale(0.7);
+      transform-origin: center bottom;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5);
+      animation: doorApproach 3.4s ease-in forwards;
+      z-index: 2;
+    }
+    @keyframes doorApproach {
+      0%   { transform: translateX(-50%) scale(0.6); top: 14%; }
+      100% { transform: translateX(-50%) scale(1.4); top: 2%; }
+    }
+    /* Door panels via inset */
+    .br-cutscene-door::before {
+      content: '';
+      position: absolute;
+      top: 8%; left: 10%; right: 10%;
+      height: 40%;
+      border: 3px solid rgba(0,0,0,0.55);
+      border-radius: 3px;
+    }
+    .br-cutscene-door::after {
+      content: '';
+      position: absolute;
+      bottom: 8%; left: 10%; right: 10%;
+      height: 40%;
+      border: 3px solid rgba(0,0,0,0.55);
+      border-radius: 3px;
+    }
+    /* Doorknob (brass, shines as you approach) */
+    .br-cutscene-knob {
+      position: absolute;
+      right: 14%;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      background: radial-gradient(circle at 30% 30%, #ffeb99 0%, #c8a040 60%, #604010 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(255, 213, 79, 0.7), 0 2px 4px rgba(0,0,0,0.6);
+      z-index: 3;
+      animation: knobPulse 1.4s ease-in-out infinite;
+    }
+    @keyframes knobPulse {
+      0%, 100% { box-shadow: 0 0 12px rgba(255, 213, 79, 0.6), 0 2px 4px rgba(0,0,0,0.6); }
+      50%      { box-shadow: 0 0 22px rgba(255, 213, 79, 0.95), 0 2px 4px rgba(0,0,0,0.6); }
+    }
+
+    /* Marcus's arm reaching out to the doorknob — appears at the end of the walk */
+    .br-cutscene-arm {
+      position: absolute;
+      bottom: 30%;
+      left: 50%;
+      width: 36px;
+      height: 130px;
+      background: linear-gradient(180deg, transparent 0%, #d65a1a 18%, #e96a1f 100%);
+      border-radius: 18px 18px 0 0;
+      transform: translateX(-50%) translateY(50px);
+      opacity: 0;
+      animation: armReach 1.2s ease-out 2.2s forwards;
+      z-index: 4;
+    }
+    @keyframes armReach {
+      0%   { opacity: 0; transform: translateX(-50%) translateY(70px); }
+      100% { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+    }
+    /* Hand at the end of the arm */
+    .br-cutscene-arm::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 28px;
+      height: 24px;
+      background: #c98664;
+      border: 1.5px solid #1a0805;
+      border-radius: 12px 12px 8px 8px;
+    }
+
+    /* Final fade-to-black overlay — kicks in at the end of the cutscene */
+    .br-cutscene-fade {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      animation: fadeToBlack 1.0s ease-in 3.4s forwards;
+      z-index: 5;
+      pointer-events: none;
+    }
+    @keyframes fadeToBlack {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    /* Whisper subtitle at the bottom */
+    .br-cutscene-subtitle {
+      position: absolute;
+      bottom: 6%;
+      left: 0; right: 0;
+      text-align: center;
+      font-family: 'Permanent Marker', cursive;
+      font-size: 13px;
+      color: #ffd54f;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(0,0,0,0.95);
+      z-index: 6;
+      opacity: 0;
+      animation: subtitleFade 5s ease-in-out forwards;
+    }
+    @keyframes subtitleFade {
+      0%   { opacity: 0; }
+      15%  { opacity: 0.85; }
+      75%  { opacity: 0.85; }
+      100% { opacity: 0; }
+    }
+    /* Skip button — discreet, top-right */
+    .br-cutscene-skip {
+      position: absolute;
+      top: max(var(--sat), 16px);
+      right: 16px;
+      padding: 6px 12px;
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      color: rgba(255,255,255,0.7);
+      font-size: 11px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      z-index: 10;
+    }
+    .br-cutscene-skip:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+
     /* ===== EAVESDROP / THROUGH THE WALL SCENE (v1.3.0) ===== */
     .eavesdrop-scene {
       position: relative;
@@ -2765,7 +2982,7 @@
     .home-workplace:hover { border-color: var(--amber); }
     .home-workplace:active { transform: scale(0.99); }
     .home-workplace-scene {
-      height: 110px;
+      height: 132px;       /* v1.3.2 — was 110px, gave the truck too little breathing room on mobile */
       position: relative;
       background: linear-gradient(180deg, #0a0808 0%, #1a1410 75%, #2a2018 100%);
       border-radius: 8px;
@@ -3089,7 +3306,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.3.1';
+    const VERSION = '1.3.2';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -5295,6 +5512,15 @@
       const shiftStartTimeRef = useRef(0);                                   // v1.3.1 — anti-cheat: shift duration
       const shiftCustomersRef = useRef(0);                                   // v1.3.1 — anti-cheat: customers served this shift
       const [shiftActive, setShiftActive] = useState(false);
+      // v1.3.1 / v1.3.2 — Per-second tick during a shift so the End Shift button label live-updates.
+      // MUST be declared at the top alongside other hooks, never after an early return,
+      // or React rules-of-hooks fires and the screen unmounts (caused the v1.3.1 softlock).
+      const [shiftTick, setShiftTick] = useState(0);
+      useEffect(() => {
+        if (!shiftActive) return;
+        const id = setInterval(() => setShiftTick(t => t + 1), 1000);
+        return () => clearInterval(id);
+      }, [shiftActive]);
       const [shiftEndSummary, setShiftEndSummary] = useState(null);
       const [shiftStartSnapshot, setShiftStartSnapshot] = useState(null);
       const [draggingItem, setDraggingItem] = useState(null);
@@ -5854,15 +6080,10 @@
         return { lines, total };
       })() : null;
 
-      // v1.3.1 — Force re-render every second during a shift so the anti-cheat timer ticks the button label
-      const [shiftTick, setShiftTick] = useState(0);
-      useEffect(() => {
-        if (!shiftActive) return;
-        const id = setInterval(() => setShiftTick(t => t + 1), 1000);
-        return () => clearInterval(id);
-      }, [shiftActive]);
+      // v1.3.2 — Derived values (NOT hooks — hooks live at the top of the component).
+      // `shiftTick` is referenced so React knows we want to re-render on each tick.
+      void shiftTick;
       const endShiftAllowed = canEndShift();
-      const _ = shiftTick; // referenced so React knows we want re-renders
 
       // Active shift
       return e('div', { className: 'main has-bottomnav' },
@@ -6734,8 +6955,38 @@
     // Renders a CSS room scene with tappable game objects.
     // Each game is a self-contained sub-screen.
     // ============================================================
+    // v1.3.2 — Back Room entry cutscene
+    // First-person POV: alley floor, feet shuffling forward, door grows in, hand reaches
+    // for the knob, fade to black, then the room renders. Plays once per BackRoom mount
+    // unless the user skips.
+    function BackRoomCutscene({ onDone }) {
+      // Total length must match the door's `animation: doorApproach 3.4s` + fade 1s = 4.4s.
+      // Schedule onDone after the fade-to-black completes.
+      useEffect(() => {
+        const id = setTimeout(() => onDone && onDone(), 4400);
+        return () => clearTimeout(id);
+      }, [onDone]);
+      return e('div', { className: 'br-cutscene' },
+        e('div', { className: 'br-cutscene-floor' }),
+        e('div', { className: 'br-cutscene-door' },
+          e('div', { className: 'br-cutscene-knob' })
+        ),
+        e('div', { className: 'br-cutscene-arm' }),
+        e('div', { className: 'br-cutscene-feet' },
+          e('div', { className: 'br-cutscene-foot left' }),
+          e('div', { className: 'br-cutscene-foot right' })
+        ),
+        e('div', { className: 'br-cutscene-subtitle' }, "knock three. pause. knock two."),
+        e('button', { className: 'br-cutscene-skip', onClick: () => onDone && onDone() }, 'SKIP'),
+        e('div', { className: 'br-cutscene-fade' })
+      );
+    }
+
     function BackRoomScreen({ state, addStacks, toast, unlockAchievement, addBackRoomWinnings, incrementBackRoomVisit, lockBackRoom, onGoTo }) {
       const [game, setGame] = useState(null); // null | 'flip' | 'slots' | 'scratch' | 'dice'
+      // v1.3.2 — Entry cutscene plays once per mount (so navigating away and back replays it).
+      // If the room is locked we skip it; you didn't get in.
+      const [showCutscene, setShowCutscene] = useState(true);
       const stacks = Math.floor(state.stacks || 0);
 
       // v1.3.0 — Force re-render every minute so the countdown ticks
@@ -6787,6 +7038,11 @@
       if (game === 'slots')   return e(SlotsGame,      { state, addStacks, toast, unlockAchievement, addBackRoomWinnings, lockBackRoom, onBack: () => setGame(null) });
       if (game === 'scratch') return e(ScratchGame,    { state, addStacks, toast, unlockAchievement, addBackRoomWinnings, lockBackRoom, onBack: () => setGame(null) });
       if (game === 'dice')    return e(DiceGame,       { state, addStacks, toast, unlockAchievement, addBackRoomWinnings, lockBackRoom, onBack: () => setGame(null) });
+
+      // v1.3.2 — Entry cutscene plays once on mount before the room renders
+      if (showCutscene) {
+        return e(BackRoomCutscene, { onDone: () => setShowCutscene(false) });
+      }
 
       // Room scene
       return e('div', { className: 'main has-bottomnav' },
