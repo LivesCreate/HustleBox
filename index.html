@@ -118,19 +118,30 @@
       border: 1px solid var(--line);
       color: var(--text);
       font-weight: 600;
-      transition: transform 80ms ease, background 120ms ease, border-color 120ms ease;
+      transition: transform 100ms ease, background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, filter 140ms ease;
       min-height: 44px;
       position: relative;
       z-index: 1;
+      -webkit-tap-highlight-color: transparent;   /* v1.3.5 — kill iOS default grey flash so ours can show */
     }
-    .btn:active { transform: scale(0.97); }
+    /* v1.3.5 — iOS/Android-style press feedback: tactile scale + amber-tinted ring + brighten */
+    .btn:active {
+      transform: scale(0.96);
+      filter: brightness(1.18);
+      box-shadow: 0 0 0 3px rgba(255, 167, 38, 0.22), 0 0 12px rgba(255, 167, 38, 0.18);
+    }
     .btn-primary {
       background: linear-gradient(135deg, var(--amber-deep), var(--amber));
       color: #1a0d00;
       border-color: var(--amber-bright);
     }
+    .btn-primary:active {
+      box-shadow: 0 0 0 3px rgba(255, 213, 79, 0.35), 0 0 18px rgba(255, 167, 38, 0.45);
+    }
     .btn-ghost { background: transparent; border-color: var(--line); }
+    .btn-ghost:active { background: rgba(255, 167, 38, 0.06); }
     .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn:disabled:active { transform: none; filter: none; box-shadow: none; }
 
     /* Top bar */
     .topbar {
@@ -754,20 +765,34 @@
       border: 1px solid var(--line);
       border-radius: 12px;
       margin-bottom: 8px;
+      /* v1.3.5 — iOS/Android Bluetooth-row style tap feedback */
+      transition: background 140ms ease, border-color 140ms ease, transform 100ms ease, box-shadow 140ms ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .row:active {
+      background: rgba(255, 167, 38, 0.07);
+      border-color: var(--amber-deep);
+      transform: scale(0.985);
+      box-shadow: 0 0 0 2px rgba(255, 167, 38, 0.15), 0 0 14px rgba(255, 167, 38, 0.12);
     }
     .row .row-label { font-weight: 600; }
     .row .row-sub { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
     .row.disabled { opacity: 0.5; }
+    .row.disabled:active { background: var(--bg-1); border-color: var(--line); transform: none; box-shadow: none; }
     .toggle {
       width: 50px;
       height: 30px;
       background: var(--bg-3);
       border-radius: 999px;
       position: relative;
-      transition: background 250ms cubic-bezier(0.4, 0.0, 0.2, 1);
+      transition: background 250ms cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow 200ms ease;
       flex-shrink: 0;
       border: 1px solid rgba(255,255,255,0.04);
       cursor: pointer;
+    }
+    .row:active .toggle {
+      /* v1.3.5 — when the parent row is pressed, the toggle gets a subtle amber ring too */
+      box-shadow: 0 0 0 2px rgba(255, 167, 38, 0.25);
     }
     .toggle::after {
       content: '';
@@ -1887,16 +1912,15 @@
     }
     @keyframes brCutsceneFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* POV — concrete alley floor angled into perspective */
+    /* POV — concrete alley floor, fills more of the frame since head is bent down */
     .br-cutscene-floor {
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      height: 60%;
+      height: 75%;       /* v1.3.5 — was 60%; head is bent down so floor dominates the view */
       background:
-        /* darker streaks */
         repeating-linear-gradient(90deg, transparent 0 16%, rgba(0,0,0,0.18) 16% 16.5%, transparent 16.5% 25%),
         radial-gradient(ellipse at 50% 100%, #3a2818 0%, #1a1008 60%, #0a0500 100%);
-      transform: perspective(400px) rotateX(55deg);
+      transform: perspective(400px) rotateX(58deg);
       transform-origin: bottom center;
     }
     /* Dim vignette over the whole scene */
@@ -1904,14 +1928,14 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse 70% 60% at 50% 55%, transparent 30%, rgba(0,0,0,0.55) 80%);
+      background: radial-gradient(ellipse 70% 60% at 50% 65%, transparent 30%, rgba(0,0,0,0.55) 80%);
       pointer-events: none;
     }
 
     /* POV feet — two shoes shuffling forward as if walking */
     .br-cutscene-feet {
       position: absolute;
-      bottom: 12%;
+      bottom: 6%;       /* v1.3.5 — closer to bottom edge (feet are right below your gaze) */
       left: 50%;
       transform: translateX(-50%);
       width: 240px;
@@ -1930,7 +1954,6 @@
       box-shadow: 0 6px 10px rgba(0,0,0,0.7);
       position: relative;
     }
-    /* Sole shading */
     .br-cutscene-foot::after {
       content: '';
       position: absolute;
@@ -1951,61 +1974,59 @@
       75%      { transform: translateY(-8px); }
     }
 
-    /* Wooden door appearing in front of you — grows in size as you walk closer */
+    /* v1.3.5 — Door redesign for head-bent-down POV.
+       The door element is TALL — most of it is above the viewport (clipped by
+       container's overflow:hidden), so the user only ever sees the BOTTOM HALF
+       of the door and the doorknob. The door does NOT slide downward — that was
+       the previous bug. It barely scales (subtle approach), and stays anchored
+       so its visible bottom edge always sits at roughly the same height in view. */
     .br-cutscene-door {
       position: absolute;
-      /* v1.3.4 — door sits ON the floor; the floor occupies bottom 60% with
-         perspective rotateX(55deg) so its visible far edge is around 65% from
-         the viewport top. Door starts deep in the perspective (small, near the
-         floor's far edge) and walks toward the viewer (grows + bottom decreases). */
       left: 50%;
-      width: 130px;
-      height: 220px;
-      background: linear-gradient(180deg, #4a2a14 0%, #2a1808 100%);
+      bottom: 32%;                          /* visible bottom edge of door, in upper-middle of view */
+      width: 60%;
+      max-width: 280px;
+      height: 800px;                        /* much taller than viewport — top is clipped */
+      background: linear-gradient(180deg, #3a2210 0%, #2a1808 80%, #1a1006 100%);
       border: 3px solid #1a0a02;
-      border-radius: 6px 6px 0 0;
+      border-bottom: none;                  /* hide bottom border since the door fades into the floor */
+      transform: translateX(-50%) scale(0.95);
       transform-origin: center bottom;
-      box-shadow: 0 20px 30px rgba(0,0,0,0.85), inset 0 0 30px rgba(0,0,0,0.5);
-      animation: doorApproach 3.4s ease-in forwards;
+      box-shadow: 0 30px 40px rgba(0,0,0,0.85);
+      animation: doorApproach 3.4s ease-out forwards;
       z-index: 2;
     }
     @keyframes doorApproach {
-      0%   { transform: translateX(-50%) scale(0.42); bottom: 36%; }
-      100% { transform: translateX(-50%) scale(1.30); bottom: 2%; }
+      0%   { transform: translateX(-50%) scale(0.90); }
+      100% { transform: translateX(-50%) scale(1.08); }
     }
-    /* Door panels via inset */
+    /* Slight wood-grain panels — only the lower panel is visible */
     .br-cutscene-door::before {
       content: '';
       position: absolute;
-      top: 8%; left: 10%; right: 10%;
-      height: 40%;
-      border: 3px solid rgba(0,0,0,0.55);
+      bottom: 8%; left: 12%; right: 12%;
+      height: 25%;
+      border: 2px solid rgba(0,0,0,0.55);
       border-radius: 3px;
     }
-    .br-cutscene-door::after {
-      content: '';
-      position: absolute;
-      bottom: 8%; left: 10%; right: 10%;
-      height: 40%;
-      border: 3px solid rgba(0,0,0,0.55);
-      border-radius: 3px;
-    }
-    /* Doorknob (brass, shines as you approach) */
+    /* v1.3.5 — Doorknob: positioned near the visible bottom edge of the door,
+       so it sits at "chest height" in the player's bent-down view (upper-middle
+       of the screen). */
     .br-cutscene-knob {
       position: absolute;
       right: 14%;
-      top: 50%;
-      width: 14px;
-      height: 14px;
+      bottom: 28px;
+      width: 18px;
+      height: 18px;
       background: radial-gradient(circle at 30% 30%, #ffeb99 0%, #c8a040 60%, #604010 100%);
       border-radius: 50%;
-      box-shadow: 0 0 12px rgba(255, 213, 79, 0.7), 0 2px 4px rgba(0,0,0,0.6);
+      box-shadow: 0 0 14px rgba(255, 213, 79, 0.85), 0 2px 4px rgba(0,0,0,0.7);
       z-index: 3;
       animation: knobPulse 1.4s ease-in-out infinite;
     }
     @keyframes knobPulse {
-      0%, 100% { box-shadow: 0 0 12px rgba(255, 213, 79, 0.6), 0 2px 4px rgba(0,0,0,0.6); }
-      50%      { box-shadow: 0 0 22px rgba(255, 213, 79, 0.95), 0 2px 4px rgba(0,0,0,0.6); }
+      0%, 100% { box-shadow: 0 0 14px rgba(255, 213, 79, 0.7), 0 2px 4px rgba(0,0,0,0.6); }
+      50%      { box-shadow: 0 0 26px rgba(255, 213, 79, 1.0), 0 2px 4px rgba(0,0,0,0.6); }
     }
 
     /* Marcus's arm reaching out to the doorknob — appears at the end of the walk */
@@ -3309,7 +3330,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.3.4';
+    const VERSION = '1.3.5';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -5468,16 +5489,30 @@
                 e('div', { style: { fontSize: 11, color: 'var(--text-dim)', marginBottom: 8 } },
                   'Quick errands. Run in the background.'
                 ),
-                e('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 } },
+                // v1.3.5 — single-column rows (no grid). Just smaller emoji + text,
+                // as you asked. Earlier 2-column layout looked like an indent.
+                e('div', { style: { display: 'flex', flexDirection: 'column', gap: 6 } },
                   SIDE_HUSTLES.map(h =>
                     e('button', {
                       key: h.id,
                       className: 'btn btn-ghost',
-                      style: { padding: '6px 8px', fontSize: 11, textAlign: 'left', lineHeight: 1.2 },
+                      style: {
+                        padding: '8px 12px',
+                        width: '100%',
+                        textAlign: 'left',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        lineHeight: 1.3
+                      },
                       onClick: () => startSideHustle(h.id)
                     },
-                      e('div', { style: { fontSize: 13 } }, h.emoji + ' ' + h.name),
-                      e('div', { style: { fontSize: 9, color: 'var(--text-faint)', marginTop: 1 } },
+                      e('span', { style: { fontSize: 13 } },
+                        // smaller emoji INLINE with the text
+                        e('span', { style: { fontSize: 14, marginRight: 6 } }, h.emoji),
+                        h.name
+                      ),
+                      e('span', { style: { fontSize: 10, color: 'var(--text-faint)', whiteSpace: 'nowrap' } },
                         h.durationMin + 'm · ' + fmtStacks(h.payoutMin) + '-' + fmtStacks(h.payoutMax)
                       )
                     )
@@ -6008,17 +6043,20 @@
         return e('div', { className: 'main has-bottomnav' },
           e('div', { className: 'screen-header' },
             e('h1', { className: 'screen-title display-font' }, "Ray's Food Truck"),
-            e('p', { className: 'screen-subtitle' }, '5th and Main • Open from dawn till you call it')
+            e('p', { className: 'screen-subtitle' }, '5th and Main')
           ),
 
-          // Theatrical intro card
+          // v1.3.5 — Compact parked-truck card. Per your spec: just the day,
+          // location, OPEN button (acts as the start-shift CTA), and Ray's quote.
+          // Removed: menu board, customer-flow stats card, redundant secondary
+          // start button at bottom.
           e('div', { className: 'shift-intro' },
             e('div', { className: 'shift-intro-day' }, 'DAY ' + dayNum + ' · 5TH AND MAIN'),
             e('h2', { className: 'shift-intro-title' }, "Ray's"),
             e('button', {
               className: 'open-sign',
               onClick: startShift,
-              title: 'Click to open shift'
+              title: 'Tap to open the window'
             }, 'OPEN'),
             e('div', { className: 'ray-quote' },
               e('strong', null, 'Ray: '),
@@ -6029,43 +6067,6 @@
                   : '"Don\'t burn nothin\'. People talkin\' already."'
             )
           ),
-
-          // Menu board with prices
-          e('div', { className: 'menu-board' },
-            e('div', { className: 'menu-title' }, "TODAY'S MENU"),
-            MENU_ITEMS.map(item =>
-              e('div', { className: 'menu-row', key: item.emoji },
-                e('span', { className: 'menu-emoji' }, item.emoji),
-                e('span', { className: 'menu-name' }, item.name),
-                e('span', { className: 'menu-dots' }),
-                e('span', { className: 'menu-price' }, '$' + item.price)
-              )
-            )
-          ),
-
-          // Tip / flow info
-          e('div', { className: 'card', style: { marginBottom: 16 } },
-            e('div', { style: { display: 'flex', justifyContent: 'space-between' } },
-              e('div', null,
-                e('div', { style: { fontSize: 11, color: 'var(--text-faint)' } }, 'Customer flow'),
-                e('div', { style: { fontSize: 16, fontWeight: 700 } }, Math.round(tier.flow * 100) + '%')
-              ),
-              e('div', null,
-                e('div', { style: { fontSize: 11, color: 'var(--text-faint)' } }, 'Tip multiplier'),
-                e('div', { style: { fontSize: 16, fontWeight: 700 } }, '×' + tier.tip.toFixed(2))
-              ),
-              e('div', null,
-                e('div', { style: { fontSize: 11, color: 'var(--text-faint)' } }, 'Reputation'),
-                e('div', { style: { fontSize: 16, fontWeight: 700, color: 'var(--amber)' } }, tier.name)
-              )
-            )
-          ),
-
-          e('button', {
-            className: 'btn btn-primary',
-            style: { width: '100%', fontSize: 16, padding: '14px 18px' },
-            onClick: startShift
-          }, '🚚 Open the Window'),
 
           endOverlay
         );
