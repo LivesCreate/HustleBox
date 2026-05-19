@@ -1,21 +1,39 @@
 {
-  "version": "1.3.2",
-  "title": "HustleBox v1.3.2 — Softlock Hotfix + Back Room Cutscene",
-  "date": "2026-05-16",
-  "message": "Hotfix for the v1.3.1 APK softlock plus the back room entry cutscene you asked for.\n\nFIXED: APK SOFTLOCK ON 'OPEN THE WINDOW'\nIn v1.3.1 I introduced a per-second shift counter to keep the End Shift button label live-updating. I put the useState/useEffect hooks AFTER the early-return for the parked-truck view by accident. That's a React rules-of-hooks violation: when you tapped 'Open the Window', shiftActive flipped to true and React tried to call hooks that didn't exist on the previous render. Component crashed silently, leaving the screen empty. The web build hid the error in console; the APK didn't. Moved the hooks to the top of the component with all the other state. Should work everywhere now.\n\nBACK ROOM ENTRY CUTSCENE\nFirst-person POV. You see the alley floor in perspective. Your feet shuffle forward and backward. A wooden door grows in size as you walk toward it — feeling like you're getting closer. The brass doorknob pulses with a warm glow. Your arm reaches in from below the frame, hand approaching the knob. The whole scene fades to black, and the back room appears.\n\nA whisper plays subtitle-style at the bottom: \"knock three. pause. knock two.\"\n\nWhole cutscene takes about 4 seconds. Skip button in the top-right corner if you've seen it enough. Plays once per session of opening the back room (navigating to another tab and back replays it; backing out of a game inside the room does NOT replay it).\n\nThe cutscene doesn't play during a lockout — Ray's keeping the door locked, you don't get inside.\n\nCAMERA NOTCH / STATUS BAR CLEARANCE\nMinimum top padding on the topbar bumped to 36px (was variable based on safe-area-inset). On phones where env(safe-area-inset-top) reports 0 even though the WebView overlaps with a camera punch or status bar, content was getting clipped behind the system UI. The new minimum should clear standard Pixel-class punch holes.\n\nHOME TRUCK CARD: BIGGER ON MOBILE\nWorkplace card scene height bumped from 110px to 132px on mobile so the truck's cab window doesn't look cropped. Desktop stays at 110px (kept compact per your earlier request).\n\nNo save data wiped.",
+  "version": "1.3.4",
+  "title": "HustleBox v1.3.4 — Cutscene Fix, Settings Hub, Smaller Home Text",
+  "date": "2026-05-18",
+  "message": "Three real bugs and a UX refactor.\n\nFIXED: CUTSCENE NEVER ENDED\nThe back room cutscene played through but the room never appeared — you had to tap SKIP. Root cause: the setTimeout that scheduled the auto-advance depended on the onDone prop, which was a new arrow function on every parent re-render. The side hustle timer ticks the parent every second, which propagated down, which kept resetting the 4.4-second timer. The timer literally never reached the end. Switched to a useRef-based pattern that captures the latest callback without re-firing the effect.\n\nCUTSCENE VISUALS\nThe door is no longer floating in the void — it now scales and walks along the perspective floor toward the viewer, so it visually sits ON the ground at all times. The floating arm that was supposed to be reaching for the doorknob is removed; without an articulated shoulder it just looked like a random orange limb. The pulsing doorknob glow sells 'you're about to open the door' on its own.\n\nSETTINGS RESTRUCTURED INTO A HUB\nSettings is now a 4-item list:\n• 🔊 Sound & Visual — SFX, ambience, customer voices, vibration, bold update log\n• 🔔 Notifications — coming soon placeholder\n• 👤 Account — friend code, sign-in/out, cloud sync status\n• ℹ️ About — version, logo, view update log, reset save\n\nTap any one to enter its sub-page. Each sub-page is short enough that you don't need to scroll. The back arrow on each sub-page returns to the Settings hub; the arrow on the hub returns to the More menu.\n\nHOME TEXT SMALLER\nScreen titles were 32px on mobile (36px on desktop) — felt oversized next to emoji-heavy content. Bumped down to 24px mobile / 30px desktop. Side hustle widget text reduced as well — button labels 13px (was 16px), descriptors 9px (was 10px). Side hustle description shortened to 'Quick errands. Run in the background.' Active hustle name is 13px now instead of default.\n\nFRIENDS — REVIEWED, NOT CHANGED\nYou asked me to test the friends system. I read through the friend-add, QR generation, and Firestore handlers — nothing jumped out as broken. The code paths are: copy code, copy invite link, show QR, accept incoming friend via ?friend=CODE URL. If something is misbehaving, send me the exact action and what you see and I'll dig in. I can't reproduce friends-flow without two devices.\n\nNo save data wiped.",
   "entries": [
+    {
+      "version": "1.3.4",
+      "date": "2026-05-18",
+      "title": "Cutscene Fix, Settings Hub, Smaller Home Text",
+      "highlights": [
+        "FIXED: cutscene never advanced past fade-to-black — useRef pattern so re-renders don't reset the timer",
+        "Cutscene visuals: door walks along the floor toward the viewer instead of floating; removed the orphan arm",
+        "Settings restructured into a hub-and-spoke with 4 sub-pages (Sound & Visual, Notifications, Account, About) so each fits without scrolling",
+        "Home screen titles smaller (24px mobile, 30px desktop) — was oversized",
+        "Side hustle widget compacted (13px button text, shorter description)",
+        "Reviewed friend-add/QR code paths — no bugs found, send specific repro if something's off"
+      ]
+    },
+    {
+      "version": "1.3.3",
+      "date": "2026-05-16",
+      "title": "Scroll-Lock Leak Hotfix",
+      "highlights": [
+        "Fixed: scroll-lock leaking into menus when shift didn't unmount cleanly",
+        "App-level guard removes scroll-lock whenever you leave the Work tab"
+      ]
+    },
     {
       "version": "1.3.2",
       "date": "2026-05-16",
       "title": "Softlock Hotfix + Back Room Cutscene",
       "highlights": [
-        "FIXED: v1.3.1 APK softlock when tapping 'Open the Window' — React hooks rules violation, moved hooks to top of component",
-        "Back Room entry cutscene: POV alley floor, shuffling feet, door grows in size, arm reaches for doorknob, fade to black",
-        "Whisper subtitle: 'knock three. pause. knock two.'",
-        "Skip button in top-right of the cutscene",
-        "Doesn't play during a lockout (you didn't get in)",
-        "Topbar minimum padding-top bumped to 36px to clear camera notches on Pixels",
-        "Home workplace card scene height bumped from 110 to 132px on mobile so the truck cab doesn't look cropped"
+        "Fixed: APK softlock when opening the food truck",
+        "Back Room entry cutscene",
+        "Camera notch clearance"
       ]
     },
     {
@@ -23,12 +41,9 @@
       "date": "2026-05-15",
       "title": "Voices & Polish",
       "highlights": [
-        "Male/female voice pools auto-detected from browser TTS",
-        "Each customer gets a gender; face emoji matches",
-        "Same customer keeps the same voice across order line and chatter",
-        "Graceful voice pause-then-cancel on End Shift",
-        "Anti-cheat: 3 customers OR 90s before End Shift allowed",
-        "Back Room door is tappable, exits to Work tab"
+        "Male/female voices with matching face emojis",
+        "Anti-cheat: 3 customers OR 90s before End Shift",
+        "Back Room door is tappable"
       ]
     },
     {
@@ -36,13 +51,12 @@
       "date": "2026-05-14",
       "title": "Dynamics",
       "highlights": [
-        "8 customer personalities affecting patience, tips, rep, chatter",
-        "Menu trend tracking (rolling 100-order window)",
+        "8 customer personalities",
+        "Menu trend tracking",
         "3 new menu items: 🌯 Burrito, ☕ Coffee, 🥪 Sandwich",
-        "Side Hustle widget on Home — 5 passive errands",
-        "Back Room lockout — Ray catches you, 4-hour cooldown",
-        "Through the Wall — eavesdrop scene driven by trend data",
-        "Top Seller badge on Home"
+        "Side Hustle widget on Home",
+        "Back Room lockout — Ray catches you",
+        "Through the Wall — eavesdrop scene"
       ]
     },
     {
@@ -50,11 +64,9 @@
       "date": "2026-05-14",
       "title": "Back Room, Inhabited",
       "highlights": [
-        "Back Room scene rebuilt — proper lightbulb, door, floor, brick-framed window",
-        "Story intro: basement under Sal's Hardware",
-        "Real 7-pip dice with 3-axis tumble animation",
-        "Update Log as continuous notebook, Bold Update Log toggle",
-        "QR encodes invite URL"
+        "Back Room scene rebuilt — lightbulb, door, floor, brick window",
+        "Real 7-pip dice with tumble animation",
+        "Update Log as continuous notebook"
       ]
     },
     {
@@ -62,30 +74,9 @@
       "date": "2026-05-12",
       "title": "The Back Room Opens",
       "highlights": [
-        "Back Room scene + 4 playable games",
-        "7 new achievements, 35+ voice phrasings",
+        "4 playable games (Coin Flip, Slots, Scratch, Dice)",
         "Resume-style Profile"
       ]
-    },
-    {
-      "version": "1.2.4",
-      "date": "2026-05-12",
-      "title": "Sound, Voices, and a Real Sign-In",
-      "highlights": [
-        "Auth UI redesigned, SFX added, Customer Voices toggle"
-      ]
-    },
-    {
-      "version": "1.2.3",
-      "date": "2026-05-11",
-      "title": "Trophy Case Opens",
-      "highlights": ["22 achievements across 5 categories"]
-    },
-    {
-      "version": "1.2.2",
-      "date": "2026-05-11",
-      "title": "The Climb (and the Exit)",
-      "highlights": ["Career ranks Dishwasher → Owner", "Graduation ending"]
     },
     {
       "version": "1.2.0",

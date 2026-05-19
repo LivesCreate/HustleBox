@@ -284,13 +284,14 @@
       padding: 20px 0 12px;
     }
     .screen-title {
-      font-size: 32px;
+      font-size: 24px;       /* v1.3.4 — was 32px; felt oversized next to emoji-heavy content */
       color: var(--amber);
-      margin: 0 0 6px;
+      margin: 0 0 4px;
+      line-height: 1.15;
     }
     .screen-subtitle {
       color: var(--text-dim);
-      font-size: 14px;
+      font-size: 13px;
       margin: 0;
     }
 
@@ -1953,22 +1954,24 @@
     /* Wooden door appearing in front of you — grows in size as you walk closer */
     .br-cutscene-door {
       position: absolute;
-      top: 8%;
+      /* v1.3.4 — door sits ON the floor; the floor occupies bottom 60% with
+         perspective rotateX(55deg) so its visible far edge is around 65% from
+         the viewport top. Door starts deep in the perspective (small, near the
+         floor's far edge) and walks toward the viewer (grows + bottom decreases). */
       left: 50%;
-      width: 140px;
-      height: 240px;
+      width: 130px;
+      height: 220px;
       background: linear-gradient(180deg, #4a2a14 0%, #2a1808 100%);
       border: 3px solid #1a0a02;
       border-radius: 6px 6px 0 0;
-      transform: translateX(-50%) scale(0.7);
       transform-origin: center bottom;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5);
+      box-shadow: 0 20px 30px rgba(0,0,0,0.85), inset 0 0 30px rgba(0,0,0,0.5);
       animation: doorApproach 3.4s ease-in forwards;
       z-index: 2;
     }
     @keyframes doorApproach {
-      0%   { transform: translateX(-50%) scale(0.6); top: 14%; }
-      100% { transform: translateX(-50%) scale(1.4); top: 2%; }
+      0%   { transform: translateX(-50%) scale(0.42); bottom: 36%; }
+      100% { transform: translateX(-50%) scale(1.30); bottom: 2%; }
     }
     /* Door panels via inset */
     .br-cutscene-door::before {
@@ -3268,7 +3271,7 @@
       /* Back Room scene scales up nicely */
       .backroom-scene { max-width: 680px; margin: 12px auto 16px; max-height: 460px; }
       /* News header titles slightly larger on desktop */
-      .screen-title { font-size: 36px; }
+      .screen-title { font-size: 30px; }
       .screen-subtitle { font-size: 14px; }
       /* Workplace card on Home — kept compact on desktop so users don't have to scroll past it */
       .home-workplace { max-width: 520px; margin-left: auto; margin-right: auto; }
@@ -3306,7 +3309,7 @@
     // 3. sw.js CACHE_NAME
     // 4. news.json title + message
     // ============================================================
-    const VERSION = '1.3.2';
+    const VERSION = '1.3.4';
 
     const e = React.createElement;
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
@@ -5435,15 +5438,15 @@
           : null,
         // v1.3.0 — Side Hustle widget
         e('div', { className: 'card', style: { marginBottom: 12 } },
-          e('div', { style: { fontSize: 11, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 } }, 'Side Hustle'),
+          e('div', { style: { fontSize: 10, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 } }, 'Side Hustle'),
           active
             ? e('div', null,
                 e('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } },
                   e('div', null,
-                    e('span', { style: { fontSize: 20, marginRight: 8 } }, active.emoji),
-                    e('strong', { style: { color: 'var(--amber)' } }, active.name)
+                    e('span', { style: { fontSize: 16, marginRight: 6 } }, active.emoji),
+                    e('strong', { style: { color: 'var(--amber)', fontSize: 13 } }, active.name)
                   ),
-                  e('span', { style: { fontSize: 12, color: 'var(--text-dim)' } },
+                  e('span', { style: { fontSize: 11, color: 'var(--text-dim)' } },
                     sideHustleRemainingMs > 0 ? fmtRemaining(sideHustleRemainingMs) : 'Ready!'
                   )
                 ),
@@ -5453,29 +5456,29 @@
                 sideHustleRemainingMs <= 0
                   ? e('button', {
                       className: 'btn btn-primary',
-                      style: { width: '100%', marginTop: 10 },
+                      style: { width: '100%', marginTop: 10, fontSize: 13 },
                       onClick: () => {
                         claimSideHustle();
                         toast && toast('+' + fmtStacks(active.payoutStacks) + ' Stacks earned.', 'good');
                       }
-                    }, '💰 Claim ' + fmtStacks(active.payoutStacks) + ' Stacks')
+                    }, '💰 Claim ' + fmtStacks(active.payoutStacks))
                   : null
               )
             : e('div', null,
-                e('div', { style: { fontSize: 12, color: 'var(--text-dim)', marginBottom: 8 } },
-                  'Run errands between shifts for a small payout. Runs in the background.'
+                e('div', { style: { fontSize: 11, color: 'var(--text-dim)', marginBottom: 8 } },
+                  'Quick errands. Run in the background.'
                 ),
                 e('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 } },
                   SIDE_HUSTLES.map(h =>
                     e('button', {
                       key: h.id,
                       className: 'btn btn-ghost',
-                      style: { padding: '8px 10px', fontSize: 12, textAlign: 'left', lineHeight: 1.3 },
+                      style: { padding: '6px 8px', fontSize: 11, textAlign: 'left', lineHeight: 1.2 },
                       onClick: () => startSideHustle(h.id)
                     },
-                      e('div', { style: { fontSize: 16 } }, h.emoji + ' ' + h.name),
-                      e('div', { style: { fontSize: 10, color: 'var(--text-faint)', marginTop: 2 } },
-                        h.durationMin + 'm · ' + fmtStacks(h.payoutMin) + '-' + fmtStacks(h.payoutMax) + ' Stacks'
+                      e('div', { style: { fontSize: 13 } }, h.emoji + ' ' + h.name),
+                      e('div', { style: { fontSize: 9, color: 'var(--text-faint)', marginTop: 1 } },
+                        h.durationMin + 'm · ' + fmtStacks(h.payoutMin) + '-' + fmtStacks(h.payoutMax)
                       )
                     )
                   )
@@ -6331,6 +6334,9 @@
     // ============================================================
     function SettingsScreen({ state, updateSettings, onGoTo, onBack, currentUser, authReady, syncStatus, toast }) {
       const s = state.settings;
+      // v1.3.4 — Settings is now a hub-and-spoke. settingsPage tracks which sub-page is showing.
+      // Values: 'hub' | 'sound' | 'notif' | 'account' | 'about'
+      const [settingsPage, setSettingsPage] = useState('hub');
       // Auth modal state — 'signin' | 'signup' | null (closed); 'picker' or 'email' subview
       const [authModalMode, setAuthModalMode] = useState(null);
       const [authModalView, setAuthModalView] = useState('picker');
@@ -6496,68 +6502,126 @@
 
       return e('div', { className: 'main has-bottomnav' },
         e('div', { className: 'screen-header' },
-          onBack ? e('button', { className: 'back-btn', onClick: onBack },
-            e('span', { className: 'arrow' }, '‹'), 'Back'
-          ) : null,
-          e('h1', { className: 'screen-title display-font' }, 'Settings'),
-          e('p', { className: 'screen-subtitle' }, 'Tune the experience.')
+          // Back button changes meaning based on whether we're in a sub-page
+          (settingsPage !== 'hub')
+            ? e('button', { className: 'back-btn', onClick: () => setSettingsPage('hub') },
+                e('span', { className: 'arrow' }, '‹'), 'Settings'
+              )
+            : onBack
+              ? e('button', { className: 'back-btn', onClick: onBack },
+                  e('span', { className: 'arrow' }, '‹'), 'Back'
+                )
+              : null,
+          e('h1', { className: 'screen-title display-font' },
+            settingsPage === 'hub'      ? 'Settings'
+            : settingsPage === 'sound'  ? 'Sound & Visual'
+            : settingsPage === 'notif'  ? 'Notifications'
+            : settingsPage === 'account'? 'Account'
+            : settingsPage === 'about'  ? 'About'
+            : 'Settings'
+          ),
+          settingsPage === 'hub'
+            ? e('p', { className: 'screen-subtitle' }, 'Tune the experience.')
+            : null
         ),
 
-        // Sound Effects (master SFX toggle)
-        e('div', { className: 'row', onClick: () => updateSettings({ sound: !s.sound }) },
-          e('div', null,
-            e('div', { className: 'row-label' }, '🔊 Sound Effects'),
-            e('div', { className: 'row-sub' }, 'Bell, sizzle, coin drop, end-of-shift audio')
+        // ============= HUB =============
+        settingsPage === 'hub' ? e('div', null,
+          e('button', { className: 'row', style: { width: '100%', textAlign: 'left' }, onClick: () => setSettingsPage('sound') },
+            e('div', { style: { display: 'flex', alignItems: 'center', gap: 12 } },
+              e('span', { style: { fontSize: 22 } }, '🔊'),
+              e('div', null,
+                e('div', { className: 'row-label' }, 'Sound & Visual'),
+                e('div', { className: 'row-sub' }, 'SFX, voices, vibration, readability')
+              )
+            ),
+            e('span', { style: { color: 'var(--text-faint)' } }, '›')
           ),
-          e('div', { className: 'toggle' + (s.sound ? ' on' : '') })
-        ),
-        // Background Ambience
-        e('div', {
-          className: 'row' + (!s.sound ? ' disabled' : ''),
-          onClick: () => { if (s.sound) updateSettings({ ambience: !s.ambience }); }
-        },
-          e('div', null,
-            e('div', { className: 'row-label' }, '🌃 Background Ambience'),
-            e('div', { className: 'row-sub' }, 'Subtle street noise during shifts')
+          e('button', { className: 'row', style: { width: '100%', textAlign: 'left' }, onClick: () => setSettingsPage('notif') },
+            e('div', { style: { display: 'flex', alignItems: 'center', gap: 12 } },
+              e('span', { style: { fontSize: 22 } }, '🔔'),
+              e('div', null,
+                e('div', { className: 'row-label' }, 'Notifications ', e('span', { className: 'pill', style: { fontSize: 9, marginLeft: 6 } }, 'COMING SOON')),
+                e('div', { className: 'row-sub' }, 'Wages, customers, missions')
+              )
+            ),
+            e('span', { style: { color: 'var(--text-faint)' } }, '›')
           ),
-          e('div', { className: 'toggle' + (s.ambience ? ' on' : '') })
-        ),
-        // Customer Voices (TTS)
-        e('div', { className: 'row', onClick: () => updateSettings({ voices: !s.voices }) },
-          e('div', null,
-            e('div', { className: 'row-label' }, '🗣️ Customer Voices'),
-            e('div', { className: 'row-sub' }, 'Customers read their order out loud (experimental)')
+          e('button', { className: 'row', style: { width: '100%', textAlign: 'left' }, onClick: () => setSettingsPage('account') },
+            e('div', { style: { display: 'flex', alignItems: 'center', gap: 12 } },
+              e('span', { style: { fontSize: 22 } }, '👤'),
+              e('div', null,
+                e('div', { className: 'row-label' }, 'Account'),
+                e('div', { className: 'row-sub' },
+                  currentUser
+                    ? (currentUser.isAnonymous ? 'Signed in as guest' : (currentUser.email || currentUser.displayName || 'Signed in'))
+                    : (authReady ? 'Not signed in' : 'Checking...')
+                )
+              )
+            ),
+            e('span', { style: { color: 'var(--text-faint)' } }, '›')
           ),
-          e('div', { className: 'toggle' + (s.voices ? ' on' : '') })
-        ),
-        // Vibration
-        e('div', { className: 'row', onClick: () => updateSettings({ vibration: !s.vibration }) },
-          e('div', null,
-            e('div', { className: 'row-label' }, '📳 Vibration'),
-            e('div', { className: 'row-sub' }, 'Haptic feedback on taps and orders')
-          ),
-          e('div', { className: 'toggle' + (s.vibration ? ' on' : '') })
-        ),
-        // Bold Update Log
-        e('div', { className: 'row', onClick: () => updateSettings({ boldNews: !s.boldNews }) },
-          e('div', null,
-            e('div', { className: 'row-label' }, '📰 Bold Update Log'),
-            e('div', { className: 'row-sub' }, 'Make the Update Log text bolder for readability')
-          ),
-          e('div', { className: 'toggle' + (s.boldNews ? ' on' : '') })
-        ),
-        // Notifications — disabled, Coming Soon
-        e('div', { className: 'row disabled' },
-          e('div', null,
-            e('div', { className: 'row-label' }, '🔔 Notifications ', e('span', { className: 'pill', style: { fontSize: 9, marginLeft: 6 } }, 'COMING SOON')),
-            e('div', { className: 'row-sub' }, 'Wages, customers, missions — not yet wired up')
-          ),
-          e('div', { className: 'toggle' })
-        ),
+          e('button', { className: 'row', style: { width: '100%', textAlign: 'left' }, onClick: () => setSettingsPage('about') },
+            e('div', { style: { display: 'flex', alignItems: 'center', gap: 12 } },
+              e('span', { style: { fontSize: 22 } }, 'ℹ️'),
+              e('div', null,
+                e('div', { className: 'row-label' }, 'About'),
+                e('div', { className: 'row-sub' }, 'Version v' + VERSION + ' · changelog, reset save')
+              )
+            ),
+            e('span', { style: { color: 'var(--text-faint)' } }, '›')
+          )
+        ) : null,
 
-        e('div', { style: { marginTop: 24 } },
-          e('h2', { className: 'display-font', style: { fontSize: 20, color: 'var(--amber)', margin: '0 0 12px' } }, 'Account'),
-          // Explainer — why sign in
+        // ============= SOUND & VISUAL =============
+        settingsPage === 'sound' ? e('div', null,
+          // Sound Effects (master SFX toggle)
+          e('div', { className: 'row', onClick: () => updateSettings({ sound: !s.sound }) },
+            e('div', null,
+              e('div', { className: 'row-label' }, '🔊 Sound Effects'),
+              e('div', { className: 'row-sub' }, 'Bell, sizzle, coin drop')
+            ),
+            e('div', { className: 'toggle' + (s.sound ? ' on' : '') })
+          ),
+          // Background Ambience
+          e('div', {
+            className: 'row' + (!s.sound ? ' disabled' : ''),
+            onClick: () => { if (s.sound) updateSettings({ ambience: !s.ambience }); }
+          },
+            e('div', null,
+              e('div', { className: 'row-label' }, '🌃 Background Ambience'),
+              e('div', { className: 'row-sub' }, 'Street noise during shifts')
+            ),
+            e('div', { className: 'toggle' + (s.ambience ? ' on' : '') })
+          ),
+          // Customer Voices
+          e('div', { className: 'row', onClick: () => updateSettings({ voices: !s.voices }) },
+            e('div', null,
+              e('div', { className: 'row-label' }, '🗣️ Customer Voices'),
+              e('div', { className: 'row-sub' }, 'Read orders out loud (experimental)')
+            ),
+            e('div', { className: 'toggle' + (s.voices ? ' on' : '') })
+          ),
+          // Vibration
+          e('div', { className: 'row', onClick: () => updateSettings({ vibration: !s.vibration }) },
+            e('div', null,
+              e('div', { className: 'row-label' }, '📳 Vibration'),
+              e('div', { className: 'row-sub' }, 'Haptic feedback')
+            ),
+            e('div', { className: 'toggle' + (s.vibration ? ' on' : '') })
+          ),
+          // Bold Update Log
+          e('div', { className: 'row', onClick: () => updateSettings({ boldNews: !s.boldNews }) },
+            e('div', null,
+              e('div', { className: 'row-label' }, '📰 Bold Update Log'),
+              e('div', { className: 'row-sub' }, 'Heavier text for readability')
+            ),
+            e('div', { className: 'toggle' + (s.boldNews ? ' on' : '') })
+          )
+        ) : null,
+
+        // ============= NOTIFICATIONS =============
+        settingsPage === 'notif' ? e('div', null,
           e('div', {
             style: {
               padding: '10px 12px',
@@ -6571,8 +6635,36 @@
               color: 'var(--text-dim)'
             }
           },
-            "Sign in to keep your save and friends across devices and browsers. Without an account, your data only lives in this browser — if you clear cache or switch devices, it's gone."
+            "Coming in a future update. Will let you opt into wage tickers, weekly mission reminders, and big-customer alerts when the app isn't open."
           ),
+          e('div', { className: 'row disabled' },
+            e('div', null,
+              e('div', { className: 'row-label' }, '🔔 Notifications'),
+              e('div', { className: 'row-sub' }, 'Not yet wired up')
+            ),
+            e('div', { className: 'toggle' })
+          )
+        ) : null,
+
+        // ============= ACCOUNT =============
+        settingsPage === 'account' ? e('div', null,
+          // Explainer
+          e('div', {
+            style: {
+              padding: '10px 12px',
+              background: 'rgba(255,167,38,0.05)',
+              border: '1px solid var(--line-strong)',
+              borderLeft: '3px solid var(--amber)',
+              borderRadius: 6,
+              marginBottom: 12,
+              fontSize: 12,
+              lineHeight: 1.55,
+              color: 'var(--text-dim)'
+            }
+          },
+            "Sign in to keep your save and friends across devices and browsers. Without an account, your data only lives in this browser."
+          ),
+          // Friend Code
           e('div', { className: 'row' },
             e('div', null,
               e('div', { className: 'row-label' }, 'Friend Code'),
@@ -6588,10 +6680,10 @@
             }, 'Copy')
           ),
           accountSection
-        ),
+        ) : null,
 
-        e('div', { style: { marginTop: 24 } },
-          e('h2', { className: 'display-font', style: { fontSize: 20, color: 'var(--amber)', margin: '0 0 12px' } }, 'About'),
+        // ============= ABOUT =============
+        settingsPage === 'about' ? e('div', null,
           e('div', { style: { display: 'flex', justifyContent: 'center', padding: '8px 0 16px' } },
             e('img', { src: 'logo-full.png', alt: 'HustleBox', style: { maxWidth: 240, width: '80%', height: 'auto' } })
           ),
@@ -6616,7 +6708,7 @@
               }
             }
           }, 'Reset Save Data')
-        ),
+        ) : null,
 
         // ========= AUTH MODAL =========
         authModalMode ? e('div', {
@@ -6960,24 +7052,31 @@
     // for the knob, fade to black, then the room renders. Plays once per BackRoom mount
     // unless the user skips.
     function BackRoomCutscene({ onDone }) {
-      // Total length must match the door's `animation: doorApproach 3.4s` + fade 1s = 4.4s.
-      // Schedule onDone after the fade-to-black completes.
+      // v1.3.4 — onDone is captured via ref so re-renders of the parent (caused by
+      // side hustle ticks, addStacks, etc.) don't reset the 4.4s timer. The previous
+      // implementation depended on [onDone] which is a new arrow function each parent
+      // render — the timer was being cleared and reset every second, so it never
+      // actually fired. Bug: room never appeared until you tapped SKIP.
+      const onDoneRef = useRef(onDone);
+      onDoneRef.current = onDone;
       useEffect(() => {
-        const id = setTimeout(() => onDone && onDone(), 4400);
+        const id = setTimeout(() => onDoneRef.current && onDoneRef.current(), 4400);
         return () => clearTimeout(id);
-      }, [onDone]);
+      }, []);
       return e('div', { className: 'br-cutscene' },
         e('div', { className: 'br-cutscene-floor' }),
         e('div', { className: 'br-cutscene-door' },
           e('div', { className: 'br-cutscene-knob' })
         ),
-        e('div', { className: 'br-cutscene-arm' }),
+        // v1.3.4 — removed the floating arm. Without an articulated shoulder/elbow,
+        // it just looked like a random orange limb. The doorknob glow is enough to
+        // sell "you're about to open the door" on its own.
         e('div', { className: 'br-cutscene-feet' },
           e('div', { className: 'br-cutscene-foot left' }),
           e('div', { className: 'br-cutscene-foot right' })
         ),
         e('div', { className: 'br-cutscene-subtitle' }, "knock three. pause. knock two."),
-        e('button', { className: 'br-cutscene-skip', onClick: () => onDone && onDone() }, 'SKIP'),
+        e('button', { className: 'br-cutscene-skip', onClick: () => onDoneRef.current && onDoneRef.current() }, 'SKIP'),
         e('div', { className: 'br-cutscene-fade' })
       );
     }
@@ -8224,6 +8323,24 @@
         document.body.classList.toggle('bold-news', !!(game.state.settings && game.state.settings.boldNews));
         return () => document.body.classList.remove('bold-news');
       }, [game.state.settings && game.state.settings.boldNews]);
+
+      // ---- v1.3.3 — Belt-and-suspenders scroll-lock guard ----
+      // The scroll-lock class is set inside FoodTruckScreen during active shifts.
+      // Its cleanup is supposed to run when you switch tabs, but in rare cases the
+      // class can stick (component never unmounting, race conditions, leftover from
+      // a previous build) and leak into menus. This effect:
+      //   1) Runs once on mount and removes any leftover scroll-locked class
+      //   2) Runs every time `tab` or `subscreen` changes and force-removes the
+      //      class whenever you're NOT on the Work tab.
+      useEffect(() => {
+        if (tab !== 'work') {
+          document.body.classList.remove('scroll-locked');
+        }
+      }, [tab, subscreen]);
+      // Mount-only cleanup of any stuck class from previous sessions
+      useEffect(() => {
+        document.body.classList.remove('scroll-locked');
+      }, []);
 
       // ---- Achievement unlock toasts ----
       // First render: mark all currently-unlocked as already-seen so we don't toast on load.
